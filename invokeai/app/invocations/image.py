@@ -675,6 +675,8 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
 
     # Inputs
     image: Optional[ImageField]  = Field(default=None, description="Image to apply transparency to")
+    x_offset: float = Field(default=0.0, description="Offset for the X-axis of the oval mask")
+    y_offset: float = Field(default=0.0, description="Offset for the Y-axis of the oval mask")
     reverse_mask: bool = Field(default=False, description="Toggle to reverse the detected area")
     cascade_file_path: Optional[str] = Field(default=None, description="Path to the cascade XML file for detection")
     # fmt: on
@@ -694,11 +696,14 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
         for (x, y, w, h) in faces:
             mask = Image.new("L", (w, h), 0)
             draw = ImageDraw.Draw(mask)
-            # Adjust the shape of the oval to be more elongated
-            elongation_factor = 0.8
+            # Adjust the shape of the oval based on the scale factors
+            x_elongation_factor = 0.8 + (1.2 - 0.8) * self.x_offset
+            y_elongation_factor = 1 + (1.2 - 0.8) * self.y_offset
             draw.ellipse((0, 0, w, h), fill=255, outline=255)
-            mask = mask.resize((int(w * elongation_factor), h), resample=Image.LANCZOS)
-            transparent_mask.paste(mask, (x + int((w - w * elongation_factor) / 2), y))
+            mask = mask.resize((int(w * x_elongation_factor), int(h * y_elongation_factor)), resample=Image.LANCZOS)
+            # Calculate the Y-axis offset to ensure symmetry from the middle
+            y_offset = int((h - h * y_elongation_factor) / 2)
+            transparent_mask.paste(mask, (x + int((w - w * x_elongation_factor) / 2), y + y_offset))
 
         # Create an RGBA image with transparency
         rgba_image = image.convert("RGBA")
