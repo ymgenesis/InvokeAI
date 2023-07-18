@@ -584,15 +584,16 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
         gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-        # Create a transparent mask for the face region
+        # Create an elongated oval-shaped transparent mask for the face region
         transparent_mask = Image.new("L", image.size, color=0)
         for (x, y, w, h) in faces:
             mask = Image.new("L", (w, h), 0)
             draw = ImageDraw.Draw(mask)
-            radius_x = int(w * 0.5)
-            radius_y = int(h * 0.7)
-            draw.ellipse((0, 0, w, h), fill=255)
-            transparent_mask.paste(mask, (x, y))
+            # Adjust the shape of the oval to be more elongated
+            elongation_factor = 0.8
+            draw.ellipse((0, 0, w, h), fill=255, outline=255)
+            mask = mask.resize((int(w * elongation_factor), h), resample=Image.LANCZOS)
+            transparent_mask.paste(mask, (x + int((w - w * elongation_factor) / 2), y))
 
         # Create an RGBA image with transparency
         rgba_image = image.convert("RGBA")
