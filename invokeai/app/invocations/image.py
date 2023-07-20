@@ -123,17 +123,17 @@ class ShowImageInvocation(BaseInvocation):
 
 
 class ImageCropInvocation(BaseInvocation, PILInvocationConfig):
-    """Crops an image to a specified box. The box can be outside of the image."""
+    """Crops an image's sides by specified pixels. Positive values are outside of the image."""
 
     # fmt: off
     type: Literal["img_crop"] = "img_crop"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to crop")
-    x:      int = Field(default=0, description="The left x coordinate of the crop rectangle")
-    y:      int = Field(default=0, description="The top y coordinate of the crop rectangle")
-    width:  int = Field(default=512, gt=0, description="The width of the crop rectangle")
-    height: int = Field(default=512, gt=0, description="The height of the crop rectangle")
+    image:  Optional[ImageField] = Field(default=None, description="The image to crop")
+    left:   int = Field(default=0, description="Number of pixels to crop from the left (negative values crop inwards, positive values crop outwards)")
+    right:  int = Field(default=0, description="Number of pixels to crop from the right (negative values crop inwards, positive values crop outwards)")
+    top:    int = Field(default=0, description="Number of pixels to crop from the top (negative values crop inwards, positive values crop outwards)")
+    bottom: int = Field(default=0, description="Number of pixels to crop from the bottom (negative values crop inwards, positive values crop outwards)")
     # fmt: on
 
     class Config(InvocationConfig):
@@ -146,11 +146,13 @@ class ImageCropInvocation(BaseInvocation, PILInvocationConfig):
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
+        imgwidth, imgheight = image.size
 
-        image_crop = Image.new(
-            mode="RGBA", size=(self.width, self.height), color=(0, 0, 0, 0)
-        )
-        image_crop.paste(image, (-self.x, -self.y))
+        new_width = imgwidth + self.right + self.left
+        new_height = imgheight + self.top + self.bottom
+        image_crop = Image.new(mode="RGBA", size=(new_width, new_height), color=(0, 0, 0, 0))
+
+        image_crop.paste(image, (self.left, self.top))
 
         image_dto = context.services.images.create(
             image=image_crop,
