@@ -32,15 +32,17 @@ class ImageMaskOutputFaceImprove(BaseInvocationOutput):
 
     # fmt: off
     type: Literal["image_mask_output"] = "image_mask_output"
-    transparent_image:      ImageField = Field(default=None, description="The image with facial transparency")
+    transparent_image: ImageField = Field(default=None, description="The image with facial transparency")
     width:             int = Field(description="The width of the image in pixels")
     height:            int = Field(description="The height of the image in pixels")
-    mask:       ImageField = Field(default=None, description="The output mask")
-    original_image:      ImageField = Field(default=None, description="The original image untouched")
+    mask:              ImageField = Field(default=None, description="The output mask")
+    original_image:    ImageField = Field(default=None, description="The original image untouched")
+    x:             int = Field(description="The x coordinate of the original face's center")
+    y:             int = Field(description="The y coordinate of the original face's center")
     # fmt: on
 
     class Config:
-        schema_extra = {"required": ["type", "transparent_image", "width", "height", "mask", "original_image"]}
+        schema_extra = {"required": ["type", "transparent_image", "width", "height", "mask", "original_image", "x", "y"]}
 
 
 class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
@@ -51,9 +53,10 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
 
     # Inputs
     image: Optional[ImageField]  = Field(default=None, description="Image for face detection")
-    x_offset: float = Field(default=0.0, description="Offset for the X-axis of the oval mask")
-    y_offset: float = Field(default=0.0, description="Offset for the Y-axis of the oval mask")
-    face_scale_factor: int = Field(default=2.0, description="Factor to scale the bounding box by before outputting")
+    x_offset: float = Field(default=0.0, description="X-axis offset of the mask")
+    y_offset: float = Field(default=0.0, description="Y-axis offset of the mask")
+    padding: int = Field(default=0, description="All-axis padding around the mask in pixels")
+    face_scale_factor: int = Field(default=2, description="Factor to scale the bounding box by before outputting")
     # fmt: on
 
     class Config(InvocationConfig):
@@ -97,6 +100,9 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             x_center = np.mean([landmark.x * np_image.shape[1] for landmark in face_landmarks.landmark])
             y_center = np.mean([landmark.y * np_image.shape[0] for landmark in face_landmarks.landmark])
 
+            print(f"Face center x: {x_center}")
+            print(f"Face center y: {y_center}")
+
             # Generate a binary face mask using the face mesh.
             mask_image = np.zeros_like(np_image[:, :, 0])
             if results.multi_face_landmarks:
@@ -137,12 +143,12 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         rgba_image = Image.composite(rgba_image, Image.new("RGBA", image.size, (0, 0, 0, 0)), inverted_mask)
 
         # Calculate the crop boundaries for the output image and mask.
-        mesh_width+=128
-        mesh_height+=128
-        crop_size = max(mesh_width, mesh_height, 384)  # Choose the larger size (384 or face mask size)
-        if crop_size > 384:
+        mesh_width+=(32 + self.padding) # add 32 pixels to account for mask variance
+        mesh_height+=(32 + self.padding) # add 32 pixels to account for mask variance
+        crop_size = max(mesh_width, mesh_height, 128)  # Choose the larger size (given value or face mask size)
+        if crop_size > 128:
             crop_size = (crop_size + 7) // 8 * 8   # Ensure crop side is multiple of 8
-        print("Base bounding box: 384")
+        print("Base bounding box: 128")
         print(f"Detected face width: {mesh_width}")
         print(f"Detected face height: {mesh_height}")
         print(f"Calculated bounding box: {crop_size}")
@@ -151,10 +157,23 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             print(f"Scaled bounding box: {crop_size}")
         else:
             print(f"Scaled bounding box: {crop_size * self.face_scale_factor}")
-        x_min = int(center_x - crop_size // 2)
-        y_min = int(center_y - crop_size // 2)
-        x_max = x_min + crop_size
-        y_max = y_min + crop_size
+
+        # Calculate the actual crop boundaries within the bounds of the original image.
+        x_min = max(0, int(center_x - crop_size / 2))
+        y_min = max(0, int(center_y - crop_size / 2))
+        x_max = min(rgba_image.width, int(center_x + crop_size / 2))
+        y_max = min(rgba_image.height, int(center_y + crop_size / 2))
+
+        # Adjust the crop boundaries if they go beyond the original image's boundaries.
+        if x_min == 0:
+            x_max = min(x_max + (crop_size / 2 - center_x), rgba_image.width)
+        if x_max == rgba_image.width:
+            x_min = max(x_min - (crop_size / 2 - (rgba_image.width - center_x)), 0)
+        if y_min == 0:
+            y_max = min(y_max + (crop_size / 2 - center_y), rgba_image.height)
+        if y_max == rgba_image.height:
+            y_min = max(y_min - (crop_size / 2 - (rgba_image.height - center_y)), 0)
+
 
         # Crop the output image to the specified size with the center of the face mesh as the center.
         rgba_image = rgba_image.crop((x_min, y_min, x_max, y_max))
@@ -170,10 +189,10 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         trans_image_dto = context.services.images.create(
             image=rgba_image,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.GENERAL,
+            image_category=ImageCategory.MASK,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=self.is_intermediate,
+            is_intermediate=True,
         )
         orig_image_dto = context.services.images.create(
             image=image,
@@ -181,7 +200,7 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             image_category=ImageCategory.GENERAL,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=self.is_intermediate,
+            is_intermediate=True,
         )
         white_mask_dto = context.services.images.create(
             image=white_mask,
@@ -189,7 +208,7 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             image_category=ImageCategory.MASK,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=self.is_intermediate,
+            is_intermediate=True,
         )
 
         return ImageMaskOutputFaceImprove(
@@ -198,4 +217,6 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             height=trans_image_dto.height,
             original_image=ImageField(image_name=orig_image_dto.image_name),
             mask=ImageField(image_name=white_mask_dto.image_name),
+            x=center_x,
+            y=center_y,
         )
