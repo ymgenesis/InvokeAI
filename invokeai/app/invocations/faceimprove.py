@@ -1,10 +1,9 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import numpy as np
 import mediapipe as mp
 from PIL import Image, ImageFilter, ImageOps, ImageChops, ImageDraw
 from pydantic import BaseModel, Field
-from typing import Union
 import cv2
 
 from ..models.image import ImageCategory, ImageField, ResourceOrigin
@@ -37,8 +36,8 @@ class ImageMaskOutputFaceImprove(BaseInvocationOutput):
     height:            int = Field(description="The height of the image in pixels")
     mask:              ImageField = Field(default=None, description="The output mask")
     original_image:    ImageField = Field(default=None, description="The original image untouched")
-    x:             int = Field(description="The x coordinate of the original face's center")
-    y:             int = Field(description="The y coordinate of the original face's center")
+    x:             int = Field(description="The x coordinate of the bounding box's left side")
+    y:             int = Field(description="The y coordinate of the bounding box's top side")
     # fmt: on
 
     class Config:
@@ -52,11 +51,11 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
     type: Literal["face_improve"] = "face_improve"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="Image for face detection")
-    x_offset: float = Field(default=0.0, description="X-axis offset of the mask")
-    y_offset: float = Field(default=0.0, description="Y-axis offset of the mask")
-    padding: int = Field(default=0, description="All-axis padding around the mask in pixels")
-    face_scale_factor: int = Field(default=2, description="Factor to scale the bounding box by before outputting")
+    image:        Optional[ImageField]  = Field(default=None, description="Image for face detection")
+    x_offset:     float = Field(default=0.0, description="X-axis offset of the mask")
+    y_offset:     float = Field(default=0.0, description="Y-axis offset of the mask")
+    padding:      int = Field(default=0, description="All-axis padding around the mask in pixels")
+    scale_factor: int = Field(default=2, description="Factor to scale the bounding box by before outputting")
     # fmt: on
 
     class Config(InvocationConfig):
@@ -100,8 +99,8 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             x_center = np.mean([landmark.x * np_image.shape[1] for landmark in face_landmarks.landmark])
             y_center = np.mean([landmark.y * np_image.shape[0] for landmark in face_landmarks.landmark])
 
-            print(f"Face center x: {x_center}")
-            print(f"Face center y: {y_center}")
+#             print(f"x coordinate of the bounding box's left side: {x_min}")
+#             print(f"y coordinate of the bounding box's top side: {y_min}")
 
             # Generate a binary face mask using the face mesh.
             mask_image = np.zeros_like(np_image[:, :, 0])
@@ -143,44 +142,51 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         rgba_image = Image.composite(rgba_image, Image.new("RGBA", image.size, (0, 0, 0, 0)), inverted_mask)
 
         # Calculate the crop boundaries for the output image and mask.
-        mesh_width+=(32 + self.padding) # add 32 pixels to account for mask variance
-        mesh_height+=(32 + self.padding) # add 32 pixels to account for mask variance
-        crop_size = max(mesh_width, mesh_height, 128)  # Choose the larger size (given value or face mask size)
+        mesh_width+=(128 + self.padding) # add pixels to account for mask variance
+        mesh_height+=(128) # add pixels to account for mask variance
+        crop_size = max(mesh_width, mesh_height, 256)  # Choose the larger size (given value or face mask size)
         if crop_size > 128:
             crop_size = (crop_size + 7) // 8 * 8   # Ensure crop side is multiple of 8
-        print("Base bounding box: 128")
-        print(f"Detected face width: {mesh_width}")
-        print(f"Detected face height: {mesh_height}")
-        print(f"Calculated bounding box: {crop_size}")
-        print(f"Scale factor: {self.face_scale_factor}")
-        if self.face_scale_factor == 0:
-            print(f"Scaled bounding box: {crop_size}")
-        else:
-            print(f"Scaled bounding box: {crop_size * self.face_scale_factor}")
 
         # Calculate the actual crop boundaries within the bounds of the original image.
-        x_min = max(0, int(center_x - crop_size / 2))
-        y_min = max(0, int(center_y - crop_size / 2))
-        x_max = min(rgba_image.width, int(center_x + crop_size / 2))
-        y_max = min(rgba_image.height, int(center_y + crop_size / 2))
+        x_min = int(center_x - crop_size / 2)
+        y_min = int(center_y - crop_size / 2)
+        x_max = int(center_x + crop_size / 2)
+        y_max = int(center_y + crop_size / 2)
 
         # Adjust the crop boundaries if they go beyond the original image's boundaries.
-        if x_min == 0:
-            x_max = min(x_max + (crop_size / 2 - center_x), rgba_image.width)
-        if x_max == rgba_image.width:
-            x_min = max(x_min - (crop_size / 2 - (rgba_image.width - center_x)), 0)
-        if y_min == 0:
-            y_max = min(y_max + (crop_size / 2 - center_y), rgba_image.height)
-        if y_max == rgba_image.height:
-            y_min = max(y_min - (crop_size / 2 - (rgba_image.height - center_y)), 0)
+        x_min = max(0, x_min)
+        y_min = max(0, y_min)
+        x_max = min(rgba_image.width, x_max)
+        y_max = min(rgba_image.height, y_max)
 
+        # Adjust the crop size if it exceeds the original image's dimensions.
+        if x_max - x_min != crop_size:
+            print(f"Reached maximum width bounding: {rgba_image.width}")
+            crop_size = x_max - x_min
+        elif y_max - y_min != crop_size:
+            print(f"Reached maximum height bounding: {rgba_image.height}")
+            crop_size = y_max - y_min
+
+        # Crop the output image to the specified size with the center of the face mesh as the center.
+        x_min = int(center_x - crop_size / 2)
+        y_min = int(center_y - crop_size / 2)
+        x_max = x_min + crop_size
+        y_max = y_min + crop_size
+
+        print(f"Calculated bounding box (8 multiple): {crop_size}")
+        print(f"Scale factor: {self.scale_factor}")
+        if self.scale_factor == 0:
+            print(f"Scaled bounding box: {crop_size}")
+        else:
+            print(f"Scaled bounding box: {crop_size * self.scale_factor}")
 
         # Crop the output image to the specified size with the center of the face mesh as the center.
         rgba_image = rgba_image.crop((x_min, y_min, x_max, y_max))
 
         # Resize image by a factor.
-        if self.face_scale_factor > 0:
-            new_size = (rgba_image.width * self.face_scale_factor, rgba_image.height * self.face_scale_factor)
+        if self.scale_factor > 0:
+            new_size = (rgba_image.width * self.scale_factor, rgba_image.height * self.scale_factor)
             rgba_image = rgba_image.resize(new_size)
 
         # Create white mask with dimensions as transparency image for use with outpainting
@@ -217,6 +223,6 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             height=trans_image_dto.height,
             original_image=ImageField(image_name=orig_image_dto.image_name),
             mask=ImageField(image_name=white_mask_dto.image_name),
-            x=center_x,
-            y=center_y,
+            x=x_min,
+            y=y_min,
         )
