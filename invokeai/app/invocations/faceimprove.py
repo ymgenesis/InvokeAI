@@ -6,8 +6,8 @@ from PIL import Image, ImageFilter, ImageOps, ImageChops, ImageDraw
 from pydantic import BaseModel, Field
 import cv2
 
-from ..models.image import ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import (
+from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
+from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
