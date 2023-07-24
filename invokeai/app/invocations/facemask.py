@@ -8,7 +8,7 @@ from invokeai.app.invocations.baseinvocation import (BaseInvocation,
                                                      BaseInvocationOutput,
                                                      InvocationConfig,
                                                      InvocationContext)
-from invokeai.app.invocations.image import (ImageCategory, ImageField,
+from invokeai.app.models.image import (ImageCategory, ImageField,
                                             ResourceOrigin)
 from PIL import Image, ImageOps
 from pydantic import BaseModel, Field
