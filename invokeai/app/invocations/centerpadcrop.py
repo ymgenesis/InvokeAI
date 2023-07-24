@@ -30,7 +30,7 @@ class ImageMaskOutputCPC(BaseInvocationOutput):
     """Base class for invocations that output an image and a mask"""
 
     # fmt: off
-    type: Literal["image_mask_output"] = "image_mask_output"
+    type: Literal["image_mask_outputCPC"] = "image_mask_outputCPC"
     image:      ImageField = Field(default=None, description="The output image")
     width:             int = Field(description="The width of the image in pixels")
     height:            int = Field(description="The height of the image in pixels")

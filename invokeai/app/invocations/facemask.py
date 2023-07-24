@@ -1,10 +1,9 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import numpy as np
 import mediapipe as mp
 from PIL import Image, ImageFilter, ImageOps, ImageChops, ImageDraw
 from pydantic import BaseModel, Field
-from typing import Union
 import cv2
 
 from ..models.image import ImageCategory, ImageField, ResourceOrigin
@@ -31,15 +30,15 @@ class ImageMaskOutputFaceMask(BaseInvocationOutput):
     """Base class for invocations that output an image and a mask"""
 
     # fmt: off
-    type: Literal["image_mask_output"] = "image_mask_output"
-    image:      ImageField = Field(default=None, description="The output image")
+    type: Literal["image_mask_outputFM"] = "image_mask_outputFM"
+    transparent_image:      ImageField = Field(default=None, description="The output image with face transparency")
     width:             int = Field(description="The width of the image in pixels")
     height:            int = Field(description="The height of the image in pixels")
     mask:       ImageField = Field(default=None, description="The output mask")
     # fmt: on
 
     class Config:
-        schema_extra = {"required": ["type", "image", "width", "height", "mask"]}
+        schema_extra = {"required": ["type", "transparent_image", "width", "height", "mask"]}
 
 
 class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
@@ -121,13 +120,13 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
         # Create white mask with dimensions as transparency image for use with outpainting
         white_mask = Image.new("L", image.size, color=255)
 
-        image_dto = context.services.images.create(
+        trans_image_dto = context.services.images.create(
             image=composite_image,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.MASK,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=self.is_intermediate,
+            is_intermediate=True,
         )
         white_mask_dto = context.services.images.create(
             image=white_mask,
@@ -135,12 +134,12 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
             image_category=ImageCategory.MASK,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=self.is_intermediate,
+            is_intermediate=True,
         )
 
         return ImageMaskOutputFaceMask(
-            image=ImageField(image_name=image_dto.image_name),
-            width=image_dto.width,
-            height=image_dto.height,
+            transparent_image=ImageField(image_name=trans_image_dto.image_name),
+            width=trans_image_dto.width,
+            height=trans_image_dto.height,
             mask=ImageField(image_name=white_mask_dto.image_name),
         )
