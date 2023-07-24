@@ -113,6 +113,9 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
         if self.invert_mask:
             mask_pil = ImageOps.invert(mask_pil)
 
+        # Create an RGBA image with transparency
+        image = image.convert("RGBA")
+
         image_dto = context.services.images.create(
             image=image,
             image_origin=ResourceOrigin.INTERNAL,
