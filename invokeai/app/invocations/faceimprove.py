@@ -30,18 +30,17 @@ class ImageMaskOutputFaceImprove(BaseInvocationOutput):
     """Base class for invocations that output an image and a mask"""
 
     # fmt: off
-    type: Literal["image_mask_output"] = "image_mask_output"
+    type: Literal["image_mask_outputFI"] = "image_mask_outputFI"
     bounded_image:     ImageField = Field(default=None, description="Original image bounded and resized")
     width:             int = Field(description="The width of the bounded image in pixels")
     height:            int = Field(description="The height of the bounded image in pixels")
     mask:              ImageField = Field(default=None, description="The output mask")
-    original_image:    ImageField = Field(default=None, description="Original image untouched")
     x:                 int = Field(description="The x coordinate of the bounding box's left side")
     y:                 int = Field(description="The y coordinate of the bounding box's top side")
     # fmt: on
 
     class Config:
-        schema_extra = {"required": ["type", "bounded_image", "width", "height", "mask", "original_image", "x", "y"]}
+        schema_extra = {"required": ["type", "bounded_image", "width", "height", "mask", "x", "y"]}
 
 
 class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
@@ -99,9 +98,6 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             x_center = np.mean([landmark.x * np_image.shape[1] for landmark in face_landmarks.landmark])
             y_center = np.mean([landmark.y * np_image.shape[0] for landmark in face_landmarks.landmark])
 
-#             print(f"x coordinate of the bounding box's left side: {x_min}")
-#             print(f"y coordinate of the bounding box's top side: {y_min}")
-
             # Generate a binary face mask using the face mesh.
             mask_image = np.ones(np_image.shape[:2], dtype=np.uint8) * 255
             if results.multi_face_landmarks:
@@ -135,12 +131,6 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         # Generate the face box mask and get the center of the face.
         mask_pil, center_x, center_y, mesh_width, mesh_height = self.generate_face_box_mask(image)
 
-        # Create an RGBA image with transparency
-        masked = Image.new("RGBA", image.size, (255, 255, 255, 255))
-
-#        inverted_mask = ImageOps.invert(mask_pil)
-        masked = Image.composite(masked, Image.new("RGBA", image.size, (0, 0, 0, 255)), mask_pil) # change last 0 to 255 to make mask black instead of transparent
-
         # Calculate the crop boundaries for the output image and mask.
         mesh_width+=(128 + self.padding) # add pixels to account for mask variance
         mesh_height+=(128) # add pixels to account for mask variance
@@ -157,15 +147,15 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         # Adjust the crop boundaries if they go beyond the original image's boundaries.
         x_min = max(0, x_min)
         y_min = max(0, y_min)
-        x_max = min(masked.width, x_max)
-        y_max = min(masked.height, y_max)
+        x_max = min(mask_pil.width, x_max)
+        y_max = min(mask_pil.height, y_max)
 
         # Adjust the crop size if it exceeds the original image's dimensions.
         if x_max - x_min != crop_size:
-            print(f"Reached maximum width bounding: {masked.width}")
+            print(f"Reached maximum width bounding: {mask_pil.width}")
             crop_size = x_max - x_min
         elif y_max - y_min != crop_size:
-            print(f"Reached maximum height bounding: {masked.height}")
+            print(f"Reached maximum height bounding: {mask_pil.height}")
             crop_size = y_max - y_min
 
         # Crop the output image to the specified size with the center of the face mesh as the center.
@@ -182,13 +172,13 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             print(f"Scaled bounding box: {crop_size * self.scale_factor}")
 
         # Crop the output image to the specified size with the center of the face mesh as the center.
-        masked = masked.crop((x_min, y_min, x_max, y_max))
+        mask_pil = mask_pil.crop((x_min, y_min, x_max, y_max))
         bounded_image = image.crop((x_min, y_min, x_max, y_max))
 
         # Resize images by a factor.
         if self.scale_factor > 0:
-            new_size = (masked.width * self.scale_factor, masked.height * self.scale_factor)
-            masked = masked.resize(new_size)
+            new_size = (mask_pil.width * self.scale_factor, mask_pil.height * self.scale_factor)
+            mask_pil = mask_pil.resize(new_size)
             bounded_image_np = np.array(bounded_image)
             bounded_image_np = cv2.resize(bounded_image_np, new_size, interpolation=cv2.INTER_LANCZOS4)
             bounded_image = Image.fromarray(bounded_image_np)
@@ -204,16 +194,8 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             session_id=context.graph_execution_state_id,
             is_intermediate=True,
         )
-        orig_image_dto = context.services.images.create(
-            image=image,
-            image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.GENERAL,
-            node_id=self.id,
-            session_id=context.graph_execution_state_id,
-            is_intermediate=True,
-        )
         mask_dto = context.services.images.create(
-            image=masked,
+            image=mask_pil,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.MASK,
             node_id=self.id,
@@ -225,7 +207,6 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             bounded_image=ImageField(image_name=bounded_image_dto.image_name),
             width=bounded_image_dto.width,
             height=bounded_image_dto.height,
-            original_image=ImageField(image_name=orig_image_dto.image_name),
             mask=ImageField(image_name=mask_dto.image_name),
             x=x_min,
             y=y_min,
