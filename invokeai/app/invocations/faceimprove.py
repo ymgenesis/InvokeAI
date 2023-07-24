@@ -30,7 +30,7 @@ class ImageMaskOutputFaceImprove(BaseInvocationOutput):
     """Base class for invocations that output an image and a mask"""
 
     # fmt: off
-    type: Literal["image_mask_output"] = "image_mask_output"
+    type: Literal["image_mask_outputFI"] = "image_mask_outputFI"
     bounded_image:     ImageField = Field(default=None, description="Original image bounded and resized")
     width:             int = Field(description="The width of the bounded image in pixels")
     height:            int = Field(description="The height of the bounded image in pixels")

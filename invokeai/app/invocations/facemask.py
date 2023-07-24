@@ -1,10 +1,9 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import numpy as np
 import mediapipe as mp
 from PIL import Image, ImageFilter, ImageOps, ImageChops, ImageDraw
 from pydantic import BaseModel, Field
-from typing import Union
 import cv2
 
 from ..models.image import ImageCategory, ImageField, ResourceOrigin
@@ -31,7 +30,7 @@ class ImageMaskOutputFaceMask(BaseInvocationOutput):
     """Base class for invocations that output an image and a mask"""
 
     # fmt: off
-    type: Literal["image_mask_output"] = "image_mask_output"
+    type: Literal["image_mask_outputFM"] = "image_mask_outputFM"
     transparent_image:      ImageField = Field(default=None, description="The output image with face transparency")
     width:             int = Field(description="The width of the image in pixels")
     height:            int = Field(description="The height of the image in pixels")
