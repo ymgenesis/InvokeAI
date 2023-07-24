@@ -31,17 +31,17 @@ class ImageMaskOutputFaceImprove(BaseInvocationOutput):
 
     # fmt: off
     type: Literal["image_mask_output"] = "image_mask_output"
-    transparent_image: ImageField = Field(default=None, description="The image with facial transparency")
-    width:             int = Field(description="The width of the image in pixels")
-    height:            int = Field(description="The height of the image in pixels")
+    bounded_image:     ImageField = Field(default=None, description="Original image bounded and resized")
+    width:             int = Field(description="The width of the bounded image in pixels")
+    height:            int = Field(description="The height of the bounded image in pixels")
     mask:              ImageField = Field(default=None, description="The output mask")
-    original_image:    ImageField = Field(default=None, description="The original image untouched")
-    x:             int = Field(description="The x coordinate of the bounding box's left side")
-    y:             int = Field(description="The y coordinate of the bounding box's top side")
+    original_image:    ImageField = Field(default=None, description="Original image untouched")
+    x:                 int = Field(description="The x coordinate of the bounding box's left side")
+    y:                 int = Field(description="The y coordinate of the bounding box's top side")
     # fmt: on
 
     class Config:
-        schema_extra = {"required": ["type", "transparent_image", "width", "height", "mask", "original_image", "x", "y"]}
+        schema_extra = {"required": ["type", "bounded_image", "width", "height", "mask", "original_image", "x", "y"]}
 
 
 class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
@@ -103,7 +103,7 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
 #             print(f"y coordinate of the bounding box's top side: {y_min}")
 
             # Generate a binary face mask using the face mesh.
-            mask_image = np.zeros_like(np_image[:, :, 0])
+            mask_image = np.ones(np_image.shape[:2], dtype=np.uint8) * 255
             if results.multi_face_landmarks:
                 for face_landmarks in results.multi_face_landmarks:
                     face_landmark_points = np.array(
@@ -119,7 +119,7 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
                     y_scaled = face_landmark_points[:, 1] + scale_multiplier * self.y_offset * (face_landmark_points[:, 1] - y_center)
 
                     convex_hull = cv2.convexHull(np.column_stack((x_scaled, y_scaled)).astype(np.int32))
-                    cv2.fillConvexPoly(mask_image, convex_hull, 255)
+                    cv2.fillConvexPoly(mask_image, convex_hull, 0)
 
             # Convert the binary mask image to a PIL Image.
             mask_pil = Image.fromarray(mask_image, mode='L')
@@ -136,10 +136,10 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         mask_pil, center_x, center_y, mesh_width, mesh_height = self.generate_face_box_mask(image)
 
         # Create an RGBA image with transparency
-        rgba_image = image.convert("RGBA")
+        masked = Image.new("RGBA", image.size, (255, 255, 255, 255))
 
-        inverted_mask = ImageOps.invert(mask_pil)
-        rgba_image = Image.composite(rgba_image, Image.new("RGBA", image.size, (0, 0, 0, 0)), inverted_mask)
+#        inverted_mask = ImageOps.invert(mask_pil)
+        masked = Image.composite(masked, Image.new("RGBA", image.size, (0, 0, 0, 255)), mask_pil) # change last 0 to 255 to make mask black instead of transparent
 
         # Calculate the crop boundaries for the output image and mask.
         mesh_width+=(128 + self.padding) # add pixels to account for mask variance
@@ -157,15 +157,15 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         # Adjust the crop boundaries if they go beyond the original image's boundaries.
         x_min = max(0, x_min)
         y_min = max(0, y_min)
-        x_max = min(rgba_image.width, x_max)
-        y_max = min(rgba_image.height, y_max)
+        x_max = min(masked.width, x_max)
+        y_max = min(masked.height, y_max)
 
         # Adjust the crop size if it exceeds the original image's dimensions.
         if x_max - x_min != crop_size:
-            print(f"Reached maximum width bounding: {rgba_image.width}")
+            print(f"Reached maximum width bounding: {masked.width}")
             crop_size = x_max - x_min
         elif y_max - y_min != crop_size:
-            print(f"Reached maximum height bounding: {rgba_image.height}")
+            print(f"Reached maximum height bounding: {masked.height}")
             crop_size = y_max - y_min
 
         # Crop the output image to the specified size with the center of the face mesh as the center.
@@ -182,20 +182,24 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             print(f"Scaled bounding box: {crop_size * self.scale_factor}")
 
         # Crop the output image to the specified size with the center of the face mesh as the center.
-        rgba_image = rgba_image.crop((x_min, y_min, x_max, y_max))
+        masked = masked.crop((x_min, y_min, x_max, y_max))
+        bounded_image = image.crop((x_min, y_min, x_max, y_max))
 
-        # Resize image by a factor.
+        # Resize images by a factor.
         if self.scale_factor > 0:
-            new_size = (rgba_image.width * self.scale_factor, rgba_image.height * self.scale_factor)
-            rgba_image = rgba_image.resize(new_size)
+            new_size = (masked.width * self.scale_factor, masked.height * self.scale_factor)
+            masked = masked.resize(new_size)
+            bounded_image_np = np.array(bounded_image)
+            bounded_image_np = cv2.resize(bounded_image_np, new_size, interpolation=cv2.INTER_LANCZOS4)
+            bounded_image = Image.fromarray(bounded_image_np)
 
-        # Create white mask with dimensions as transparency image for use with outpainting
-        white_mask = Image.new("L", rgba_image.size, color=255)
+        # Convert the input image to RGBA mode to ensure it has an alpha channel.
+        bounded_image = bounded_image.convert("RGBA")
 
-        trans_image_dto = context.services.images.create(
-            image=rgba_image,
+        bounded_image_dto = context.services.images.create(
+            image=bounded_image,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.MASK,
+            image_category=ImageCategory.OTHER,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=True,
@@ -208,8 +212,8 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             session_id=context.graph_execution_state_id,
             is_intermediate=True,
         )
-        white_mask_dto = context.services.images.create(
-            image=white_mask,
+        mask_dto = context.services.images.create(
+            image=masked,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.MASK,
             node_id=self.id,
@@ -218,11 +222,11 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         )
 
         return ImageMaskOutputFaceImprove(
-            transparent_image=ImageField(image_name=trans_image_dto.image_name),
-            width=trans_image_dto.width,
-            height=trans_image_dto.height,
+            bounded_image=ImageField(image_name=bounded_image_dto.image_name),
+            width=bounded_image_dto.width,
+            height=bounded_image_dto.height,
             original_image=ImageField(image_name=orig_image_dto.image_name),
-            mask=ImageField(image_name=white_mask_dto.image_name),
+            mask=ImageField(image_name=mask_dto.image_name),
             x=x_min,
             y=y_min,
         )
