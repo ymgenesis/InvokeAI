@@ -113,17 +113,10 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
         if self.invert_mask:
             mask_pil = ImageOps.invert(mask_pil)
 
-        # Create an RGBA image with transparency
-        rgba_image = image.convert("RGBA")
-
-        # Apply the mask to make the face transparent.
-        composite_image = Image.composite(rgba_image, Image.new(
-            "RGBA", image.size, (0, 0, 0, 0)), mask_pil)
-
         image_dto = context.services.images.create(
-            image=composite_image,
+            image=image,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.MASK,
+            image_category=ImageCategory.OTHER,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=True,
