@@ -1,18 +1,17 @@
+# v2
 from typing import Literal, Optional, Union
 
-import numpy as np
-import mediapipe as mp
-from PIL import Image, ImageFilter, ImageOps, ImageChops, ImageDraw
-from pydantic import BaseModel, Field
 import cv2
-
-from ..models.image import ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import (
-    BaseInvocation,
-    BaseInvocationOutput,
-    InvocationContext,
-    InvocationConfig,
-)
+import mediapipe as mp
+import numpy as np
+from invokeai.app.invocations.baseinvocation import (BaseInvocation,
+                                                     BaseInvocationOutput,
+                                                     InvocationConfig,
+                                                     InvocationContext)
+from invokeai.app.invocations.image import (ImageCategory, ImageField,
+                                            ResourceOrigin)
+from PIL import Image, ImageOps
+from pydantic import BaseModel, Field
 
 
 class PILInvocationConfig(BaseModel):
@@ -31,14 +30,15 @@ class ImageMaskOutputFaceMask(BaseInvocationOutput):
 
     # fmt: off
     type: Literal["image_mask_outputFM"] = "image_mask_outputFM"
-    transparent_image:      ImageField = Field(default=None, description="The output image with face transparency")
+    image:      ImageField = Field(default=None, description="The output image")
     width:             int = Field(description="The width of the image in pixels")
     height:            int = Field(description="The height of the image in pixels")
     mask:       ImageField = Field(default=None, description="The output mask")
     # fmt: on
 
     class Config:
-        schema_extra = {"required": ["type", "transparent_image", "width", "height", "mask"]}
+        schema_extra = {"required": [
+            "type", "image", "width", "height", "mask"]}
 
 
 class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
@@ -72,7 +72,8 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
             np_image = np_image[:, :, :3]
 
         # Create a FaceMesh object for face landmark detection and mesh generation.
-        face_mesh = mp.solutions.face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        face_mesh = mp.solutions.face_mesh.FaceMesh(
+            min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
         # Detect the face landmarks and mesh in the input image.
         results = face_mesh.process(np_image)
@@ -82,16 +83,21 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
         if results.multi_face_landmarks:
             for face_landmarks in results.multi_face_landmarks:
                 face_landmark_points = np.array(
-                    [[landmark.x * np_image.shape[1], landmark.y * np_image.shape[0]] for landmark in face_landmarks.landmark]
-                )
+                    [[landmark.x * np_image.shape[1],
+                      landmark.y * np_image.shape[0]]
+                     for landmark in face_landmarks.landmark])
 
                 # Apply the scaling offsets to the face landmark points.
                 x_center = np.mean(face_landmark_points[:, 0])
                 y_center = np.mean(face_landmark_points[:, 1])
-                x_scaled = face_landmark_points[:, 0] + self.x_offset * (face_landmark_points[:, 0] - x_center)
-                y_scaled = face_landmark_points[:, 1] + self.y_offset * (face_landmark_points[:, 1] - y_center)
+                x_scaled = face_landmark_points[:, 0] + self.x_offset * (
+                    face_landmark_points[:, 0] - x_center)
+                y_scaled = face_landmark_points[:, 1] + self.y_offset * (
+                    face_landmark_points[:, 1] - y_center)
 
-                convex_hull = cv2.convexHull(np.column_stack((x_scaled, y_scaled)).astype(np.int32))
+                convex_hull = cv2.convexHull(np.column_stack(
+                    (x_scaled, y_scaled)).astype(
+                    np.int32))
                 cv2.fillConvexPoly(mask_image, convex_hull, 255)
 
         # Convert the binary mask image to a PIL Image.
@@ -104,23 +110,17 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
 
         # Generate the face mesh mask.
         mask_pil = self.generate_face_mask(image)
+        if self.invert_mask:
+            mask_pil = ImageOps.invert(mask_pil)
 
         # Create an RGBA image with transparency
         rgba_image = image.convert("RGBA")
 
-        if self.invert_mask:
-            # Apply the mask to make the face transparent.
-            composite_image = Image.composite(rgba_image, Image.new("RGBA", image.size, (0, 0, 0, 0)), mask_pil)
+        # Apply the mask to make the face transparent.
+        composite_image = Image.composite(rgba_image, Image.new(
+            "RGBA", image.size, (0, 0, 0, 0)), mask_pil)
 
-        else:
-            # Invert the mask to make everything outside the face transparent.
-            inverted_mask = ImageOps.invert(mask_pil)
-            composite_image = Image.composite(rgba_image, Image.new("RGBA", image.size, (0, 0, 0, 0)), inverted_mask)
-
-        # Create white mask with dimensions as transparency image for use with outpainting
-        white_mask = Image.new("L", image.size, color=255)
-
-        trans_image_dto = context.services.images.create(
+        image_dto = context.services.images.create(
             image=composite_image,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.MASK,
@@ -128,8 +128,9 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
             session_id=context.graph_execution_state_id,
             is_intermediate=True,
         )
-        white_mask_dto = context.services.images.create(
-            image=white_mask,
+
+        mask_dto = context.services.images.create(
+            image=mask_pil,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.MASK,
             node_id=self.id,
@@ -138,8 +139,8 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
         )
 
         return ImageMaskOutputFaceMask(
-            transparent_image=ImageField(image_name=trans_image_dto.image_name),
-            width=trans_image_dto.width,
-            height=trans_image_dto.height,
-            mask=ImageField(image_name=white_mask_dto.image_name),
+            image=ImageField(image_name=image_dto.image_name),
+            width=image_dto.width,
+            height=image_dto.height,
+            mask=ImageField(image_name=mask_dto.image_name),
         )
