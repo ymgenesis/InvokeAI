@@ -1,4 +1,3 @@
-# v2
 from typing import Literal, Optional, Union
 
 import cv2
