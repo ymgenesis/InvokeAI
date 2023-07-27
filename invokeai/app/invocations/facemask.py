@@ -1,5 +1,9 @@
-from typing import Literal, Optional, Union
+## FaceMask 3.0
+## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
+from typing import Literal, Optional
+from PIL import Image, ImageOps
+from pydantic import BaseModel, Field
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -9,8 +13,6 @@ from invokeai.app.invocations.baseinvocation import (BaseInvocation,
                                                      InvocationContext)
 from invokeai.app.models.image import (ImageCategory, ImageField,
                                             ResourceOrigin)
-from PIL import Image, ImageOps
-from pydantic import BaseModel, Field
 
 
 class PILInvocationConfig(BaseModel):
@@ -24,39 +26,38 @@ class PILInvocationConfig(BaseModel):
         }
 
 
-class ImageMaskOutputFaceMask(BaseInvocationOutput):
-    """Base class for invocations that output an image and a mask"""
+class FaceMaskOutput(BaseInvocationOutput):
+    """Base class for FaceMask output"""
 
     # fmt: off
-    type: Literal["image_mask_outputFM"] = "image_mask_outputFM"
+    type:       Literal["face_mask_output"] = "face_mask_output"
     image:      ImageField = Field(default=None, description="The output image")
-    width:             int = Field(description="The width of the image in pixels")
-    height:            int = Field(description="The height of the image in pixels")
+    width:      int = Field(description="The width of the image in pixels")
+    height:     int = Field(description="The height of the image in pixels")
     mask:       ImageField = Field(default=None, description="The output mask")
     # fmt: on
 
     class Config:
-        schema_extra = {"required": [
-            "type", "image", "width", "height", "mask"]}
+        schema_extra = {"required": ["type", "image", "width", "height", "mask"]}
 
 
 class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
-    """MediaPipe face detection to create transparencies in an image"""
+    """Face mask creation using mediapipe face detection"""
 
     # fmt: off
-    type: Literal["img_detect_mask"] = "img_detect_mask"
+    type: Literal["face_mask_detection"] = "face_mask_detection"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="Image to apply transparency to")
-    x_offset: float = Field(default=0.0, description="Offset for the X-axis of the oval mask")
-    y_offset: float = Field(default=0.0, description="Offset for the Y-axis of the oval mask")
-    invert_mask: bool = Field(default=False, description="Toggle to invert the mask")
+    image:          Optional[ImageField]  = Field(default=None, description="Image to face detect")
+    x_offset:       float = Field(default=0.0, description="Offset for the X-axis of the face mask")
+    y_offset:       float = Field(default=0.0, description="Offset for the Y-axis of the face mask")
+    invert_mask:    bool = Field(default=False, description="Toggle to invert the mask")
     # fmt: on
 
     class Config(InvocationConfig):
         schema_extra = {
             "ui": {
-                "title": "Face Mask",
+                "title": "FaceMask",
                 "tags": ["image", "face", "mask"]
             },
         }
@@ -87,11 +88,12 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
                      for landmark in face_landmarks.landmark])
 
                 # Apply the scaling offsets to the face landmark points.
+                scale_multiplier = 0.2
                 x_center = np.mean(face_landmark_points[:, 0])
                 y_center = np.mean(face_landmark_points[:, 1])
-                x_scaled = face_landmark_points[:, 0] + self.x_offset * (
+                x_scaled = face_landmark_points[:, 0] + scale_multiplier * self.x_offset * (
                     face_landmark_points[:, 0] - x_center)
-                y_scaled = face_landmark_points[:, 1] + self.y_offset * (
+                y_scaled = face_landmark_points[:, 1] + scale_multiplier * self.y_offset * (
                     face_landmark_points[:, 1] - y_center)
 
                 convex_hull = cv2.convexHull(np.column_stack(
@@ -99,12 +101,16 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
                     np.int32))
                 cv2.fillConvexPoly(mask_image, convex_hull, 255)
 
-        # Convert the binary mask image to a PIL Image.
-        mask_pil = Image.fromarray(mask_image, mode='L')
+            # Convert the binary mask image to a PIL Image.
+            mask_pil = Image.fromarray(mask_image, mode='L')
 
-        return mask_pil
+            return mask_pil
 
-    def invoke(self, context: InvocationContext) -> ImageMaskOutputFaceMask:
+        else:
+            raise ValueError("No face detected in the input image.")
+            context.services.logger.warning('No face detected in the input image.')
+
+    def invoke(self, context: InvocationContext) -> FaceMaskOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
 
         # Generate the face mesh mask.
@@ -133,7 +139,7 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
             is_intermediate=True,
         )
 
-        return ImageMaskOutputFaceMask(
+        return FaceMaskOutput(
             image=ImageField(image_name=image_dto.image_name),
             width=image_dto.width,
             height=image_dto.height,
