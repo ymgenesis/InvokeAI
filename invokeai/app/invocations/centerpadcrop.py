@@ -67,7 +67,7 @@ class CenterPadCropInvocation(BaseInvocation, PILInvocationConfig):
             image_category=ImageCategory.OTHER,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=True,
+            is_intermediate=self.is_intermediate,
         )
 
         return ImageOutput(

@@ -207,7 +207,7 @@ class FaceOffInvocation(BaseInvocation, PILInvocationConfig):
             image_category=ImageCategory.OTHER,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=True,
+            is_intermediate=self.is_intermediate,
         )
         mask_dto = context.services.images.create(
             image=mask_pil,
@@ -215,7 +215,7 @@ class FaceOffInvocation(BaseInvocation, PILInvocationConfig):
             image_category=ImageCategory.MASK,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=True,
+            is_intermediate=self.is_intermediate,
         )
 
         return FaceOffOutput(
