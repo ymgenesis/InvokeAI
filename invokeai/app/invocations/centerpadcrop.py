@@ -1,12 +1,13 @@
-from typing import Literal, Optional
+## CenterPadCrop 1.0
+## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
+from typing import Literal, Optional
 import numpy
-from PIL import Image, ImageFilter, ImageOps, ImageChops, ImageDraw
+from PIL import Image
 from pydantic import BaseModel, Field
-from typing import Union
-import cv2
 
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
+from invokeai.app.invocations.image import ImageOutput
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
@@ -24,20 +25,6 @@ class PILInvocationConfig(BaseModel):
                 "tags": ["PIL", "image"],
             },
         }
-
-
-class ImageOutputCPC(BaseInvocationOutput):
-    """Base class for invocations that output an image"""
-
-    # fmt: off
-    type: Literal["image_output_CPC"] = "image_output_CPC"
-    image:      ImageField = Field(default=None, description="The output image")
-    width:             int = Field(description="The width of the image in pixels")
-    height:            int = Field(description="The height of the image in pixels")
-    # fmt: on
-
-    class Config:
-        schema_extra = {"required": ["type", "image", "width", "height"]}
 
 
 class CenterPadCropInvocation(BaseInvocation, PILInvocationConfig):
@@ -62,7 +49,7 @@ class CenterPadCropInvocation(BaseInvocation, PILInvocationConfig):
             },
         }
 
-    def invoke(self, context: InvocationContext) -> ImageOutputCPC:
+    def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
         imgwidth, imgheight = image.size
 
@@ -77,13 +64,13 @@ class CenterPadCropInvocation(BaseInvocation, PILInvocationConfig):
         image_dto = context.services.images.create(
             image=image_crop,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.GENERAL,
+            image_category=ImageCategory.OTHER,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
-            is_intermediate=self.is_intermediate,
+            is_intermediate=True,
         )
 
-        return ImageOutputCPC(
+        return ImageOutput(
             image=ImageField(image_name=image_dto.image_name),
             width=image_dto.width,
             height=image_dto.height,

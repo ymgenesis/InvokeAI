@@ -1,11 +1,12 @@
-from typing import Literal, Optional, Union
+## FaceOff 3.0
+## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
+from typing import Literal, Optional
+from pydantic import BaseModel, Field
 import numpy as np
 import mediapipe as mp
-from PIL import Image, ImageFilter, ImageOps, ImageChops, ImageDraw
-from pydantic import BaseModel, Field
+from PIL import Image
 import cv2
-
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
@@ -26,12 +27,12 @@ class PILInvocationConfig(BaseModel):
         }
 
 
-class ImageMaskOutputFaceImprove(BaseInvocationOutput):
-    """Base class for invocations that output an image and a mask"""
+class FaceOffOutput(BaseInvocationOutput):
+    """Base class for FaceOff Output"""
 
     # fmt: off
-    type: Literal["image_mask_outputFI"] = "image_mask_outputFI"
-    bounded_image:     ImageField = Field(default=None, description="Original image bounded and resized")
+    type:              Literal["face_off_output"] = "face_off_output"
+    bounded_image:     ImageField = Field(default=None, description="Original image bound, cropped, and resized")
     width:             int = Field(description="The width of the bounded image in pixels")
     height:            int = Field(description="The height of the bounded image in pixels")
     mask:              ImageField = Field(default=None, description="The output mask")
@@ -43,25 +44,25 @@ class ImageMaskOutputFaceImprove(BaseInvocationOutput):
         schema_extra = {"required": ["type", "bounded_image", "width", "height", "mask", "x", "y"]}
 
 
-class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
-    """MediaPipe face detection to scale and add detail to faces via inpaint/outpaint"""
+class FaceOffInvocation(BaseInvocation, PILInvocationConfig):
+    """bound, extract, and mask a face from an image using MediaPipe detection"""
 
     # fmt: off
-    type: Literal["face_improve"] = "face_improve"
+    type: Literal["face_off"] = "face_off"
 
     # Inputs
-    image:        Optional[ImageField]  = Field(default=None, description="Image for face detection")
-    x_offset:     float = Field(default=0.0, description="X-axis offset of the mask")
-    y_offset:     float = Field(default=0.0, description="Y-axis offset of the mask")
-    padding:      int = Field(default=0, description="All-axis padding around the mask in pixels")
-    scale_factor: int = Field(default=2, description="Factor to scale the bounding box by before outputting")
+    image:           Optional[ImageField]  = Field(default=None, description="Image for face detection")
+    x_offset:        float = Field(default=0.0, description="X-axis offset of the mask")
+    y_offset:        float = Field(default=0.0, description="Y-axis offset of the mask")
+    padding:         int = Field(default=0, description="All-axis padding around the mask in pixels")
+    scale_factor:    int = Field(default=2, description="Factor to scale the bounding box by before outputting")
     # fmt: on
 
     class Config(InvocationConfig):
         schema_extra = {
             "ui": {
-                "title": "Face Improve",
-                "tags": ["image", "face", "improve", "mask"]
+                "title": "FaceOff",
+                "tags": ["image", "faceoff", "face", "mask"]
             },
         }
 
@@ -100,22 +101,20 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
 
             # Generate a binary face mask using the face mesh.
             mask_image = np.ones(np_image.shape[:2], dtype=np.uint8) * 255
-            if results.multi_face_landmarks:
-                for face_landmarks in results.multi_face_landmarks:
-                    face_landmark_points = np.array(
-                        [[landmark.x * np_image.shape[1], landmark.y * np_image.shape[0]] for landmark in face_landmarks.landmark]
-                    )
+            for face_landmarks in results.multi_face_landmarks:
+                face_landmark_points = np.array(
+                    [[landmark.x * np_image.shape[1], landmark.y * np_image.shape[0]] for landmark in face_landmarks.landmark]
+                )
 
-                    # Apply the scaling offsets to the face landmark points with a multiplier.
-                    # Use smaller multiplier for finer-grained scaling.
-                    scale_multiplier = 0.2
-                    x_center = np.mean(face_landmark_points[:, 0])
-                    y_center = np.mean(face_landmark_points[:, 1])
-                    x_scaled = face_landmark_points[:, 0] + scale_multiplier * self.x_offset * (face_landmark_points[:, 0] - x_center)
-                    y_scaled = face_landmark_points[:, 1] + scale_multiplier * self.y_offset * (face_landmark_points[:, 1] - y_center)
+                # Apply the scaling offsets to the face landmark points with a multiplier.
+                scale_multiplier = 0.2
+                x_center = np.mean(face_landmark_points[:, 0])
+                y_center = np.mean(face_landmark_points[:, 1])
+                x_scaled = face_landmark_points[:, 0] + scale_multiplier * self.x_offset * (face_landmark_points[:, 0] - x_center)
+                y_scaled = face_landmark_points[:, 1] + scale_multiplier * self.y_offset * (face_landmark_points[:, 1] - y_center)
 
-                    convex_hull = cv2.convexHull(np.column_stack((x_scaled, y_scaled)).astype(np.int32))
-                    cv2.fillConvexPoly(mask_image, convex_hull, 0)
+                convex_hull = cv2.convexHull(np.column_stack((x_scaled, y_scaled)).astype(np.int32))
+                cv2.fillConvexPoly(mask_image, convex_hull, 0)
 
             # Convert the binary mask image to a PIL Image.
             mask_pil = Image.fromarray(mask_image, mode='L')
@@ -124,17 +123,21 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
 
         else:
             raise ValueError("No face detected in the input image.")
+            context.services.logger.warning('No face detected in the input image.')
 
-    def invoke(self, context: InvocationContext) -> ImageMaskOutputFaceImprove:
+    def invoke(self, context: InvocationContext) -> FaceOffOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
 
         # Generate the face box mask and get the center of the face.
         mask_pil, center_x, center_y, mesh_width, mesh_height = self.generate_face_box_mask(image)
 
+        # Determine the minimum size of the square crop
+        min_size = min(mask_pil.width, mask_pil.height)
+
         # Calculate the crop boundaries for the output image and mask.
         mesh_width+=(128 + self.padding) # add pixels to account for mask variance
-        mesh_height+=(128) # add pixels to account for mask variance
-        crop_size = max(mesh_width, mesh_height, 256)  # Choose the larger size (given value or face mask size)
+        mesh_height+=(128 + self.padding) # add pixels to account for mask variance
+        crop_size = min(max(mesh_width, mesh_height, 128), min_size)  # Choose the smaller of the two (given value or face mask size)
         if crop_size > 128:
             crop_size = (crop_size + 7) // 8 * 8   # Ensure crop side is multiple of 8
 
@@ -144,32 +147,44 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
         x_max = int(center_x + crop_size / 2)
         y_max = int(center_y + crop_size / 2)
 
-        # Adjust the crop boundaries if they go beyond the original image's boundaries.
-        x_min = max(0, x_min)
-        y_min = max(0, y_min)
-        x_max = min(mask_pil.width, x_max)
-        y_max = min(mask_pil.height, y_max)
+        # Adjust the crop boundaries to stay within the original image's dimensions
+        if x_min < 0:
+            context.services.logger.warning(f'Padding reached image edge.')
+            x_max -= x_min
+            x_min = 0
+        elif x_max > mask_pil.width:
+            context.services.logger.warning(f'Padding reached image edge.')
+            x_min -= (x_max - mask_pil.width)
+            x_max = mask_pil.width
 
-        # Adjust the crop size if it exceeds the original image's dimensions.
+        if y_min < 0:
+            context.services.logger.warning(f'Padding reached image edge.')
+            y_max -= y_min
+            y_min = 0
+        elif y_max > mask_pil.height:
+            context.services.logger.warning(f'Padding reached image edge.')
+            y_min -= (y_max - mask_pil.height)
+            y_max = mask_pil.height
+
+        # Ensure the crop is square and adjust the boundaries if needed
         if x_max - x_min != crop_size:
-            print(f"Reached maximum width bounding: {mask_pil.width}")
-            crop_size = x_max - x_min
-        elif y_max - y_min != crop_size:
-            print(f"Reached maximum height bounding: {mask_pil.height}")
-            crop_size = y_max - y_min
+            context.services.logger.warning(f'Limiting padding to constrain bounding box to a square.')
+            diff = crop_size - (x_max - x_min)
+            x_min -= diff // 2
+            x_max += diff - diff // 2
 
-        # Crop the output image to the specified size with the center of the face mesh as the center.
-        x_min = int(center_x - crop_size / 2)
-        y_min = int(center_y - crop_size / 2)
-        x_max = x_min + crop_size
-        y_max = y_min + crop_size
+        if y_max - y_min != crop_size:
+            context.services.logger.warning(f'Limiting padding to constrain bounding box to a square.')
+            diff = crop_size - (y_max - y_min)
+            y_min -= diff // 2
+            y_max += diff - diff // 2
 
-        print(f"Calculated bounding box (8 multiple): {crop_size}")
-        print(f"Scale factor: {self.scale_factor}")
+        context.services.logger.info(f'Calculated bounding box (8 multiple): {crop_size}')
+        context.services.logger.info(f'Scale factor: {self.scale_factor}')
         if self.scale_factor == 0:
-            print(f"Scaled bounding box: {crop_size}")
+            context.services.logger.info(f'Scaled bounding box: {crop_size}')
         else:
-            print(f"Scaled bounding box: {crop_size * self.scale_factor}")
+            context.services.logger.info(f'Scaled bounding box: {crop_size * self.scale_factor}')
 
         # Crop the output image to the specified size with the center of the face mesh as the center.
         mask_pil = mask_pil.crop((x_min, y_min, x_max, y_max))
@@ -203,7 +218,7 @@ class FaceImproveInvocation(BaseInvocation, PILInvocationConfig):
             is_intermediate=True,
         )
 
-        return ImageMaskOutputFaceImprove(
+        return FaceOffOutput(
             bounded_image=ImageField(image_name=bounded_image_dto.image_name),
             width=bounded_image_dto.width,
             height=bounded_image_dto.height,
