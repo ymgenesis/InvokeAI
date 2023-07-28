@@ -1,4 +1,4 @@
-## FaceMask 3.1
+## FaceMask 3.2
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
 from typing import Literal, Optional
@@ -48,11 +48,12 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
     type: Literal["face_mask_detection"] = "face_mask_detection"
 
     # Inputs
-    image:          Optional[ImageField]  = Field(default=None, description="Image to face detect")
-    faces:          int = Field(default=1, description="Maximum number of faces to detect")
-    x_offset:       float = Field(default=0.0, description="Offset for the X-axis of the face mask")
-    y_offset:       float = Field(default=0.0, description="Offset for the Y-axis of the face mask")
-    invert_mask:    bool = Field(default=False, description="Toggle to invert the mask")
+    image:                Optional[ImageField]  = Field(default=None, description="Image to face detect")
+    faces:                int = Field(default=1, description="Maximum number of faces to detect")
+    minimum_confidence:   float = Field(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
+    x_offset:             float = Field(default=0.0, description="Offset for the X-axis of the face mask")
+    y_offset:             float = Field(default=0.0, description="Offset for the Y-axis of the face mask")
+    invert_mask:          bool = Field(default=False, description="Toggle to invert the mask")
     # fmt: on
 
     class Config(InvocationConfig):
@@ -74,7 +75,7 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
 
         # Create a FaceMesh object for face landmark detection and mesh generation.
         face_mesh = mp.solutions.face_mesh.FaceMesh(
-            max_num_faces=self.faces, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+            max_num_faces=self.faces, min_detection_confidence=self.minimum_confidence, min_tracking_confidence=self.minimum_confidence)
 
         # Detect the face landmarks and mesh in the input image.
         results = face_mesh.process(np_image)
