@@ -135,9 +135,7 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
             return mask_pil
 
         else:
-            raise ValueError("Failed to detect 1 or more faces in the image.")
-            context.services.logger.warning('Failed to detect 1 or more faces in the image.')
-
+            raise ValueError("Failed to detect 1 or more faces in the image")
 
     def invoke(self, context: InvocationContext) -> FaceMaskOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
