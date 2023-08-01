@@ -12,14 +12,14 @@ from ..models.image import (
     ImageCategory,
     ImageField,
     ResourceOrigin,
-    PILInvocationConfig,
     ImageOutput,
     MaskOutput,
 )
 from .baseinvocation import (
     BaseInvocation,
     InvocationContext,
-    InvocationConfig,
+    UINodeConfig,
+    UIInputField,
 )
 from invokeai.backend.image_util.safety_checker import SafetyChecker
 from invokeai.backend.image_util.invisible_watermark import InvisibleWatermark
@@ -28,18 +28,25 @@ from invokeai.backend.image_util.invisible_watermark import InvisibleWatermark
 class LoadImageInvocation(BaseInvocation):
     """Load an image and provide it as output."""
 
-    # fmt: off
     type: Literal["load_image"] = "load_image"
 
     # Inputs
-    image: Optional[ImageField] = Field(
-        default=None, description="The image to load"
-    )
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to load")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Load Image", "tags": ["image", "load"]},
+            "ui": UINodeConfig(
+                title="Load Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    )
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -60,9 +67,20 @@ class ShowImageInvocation(BaseInvocation):
     # Inputs
     image: Optional[ImageField] = Field(default=None, description="The image to show")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Show Image", "tags": ["image", "show"]},
+            "ui": UINodeConfig(
+                title="Show Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    )
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -79,23 +97,32 @@ class ShowImageInvocation(BaseInvocation):
         )
 
 
-class ImageCropInvocation(BaseInvocation, PILInvocationConfig):
+class ImageCropInvocation(BaseInvocation):
     """Crops an image to a specified box. The box can be outside of the image."""
 
-    # fmt: off
     type: Literal["img_crop"] = "img_crop"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to crop")
-    x:      int = Field(default=0, description="The left x coordinate of the crop rectangle")
-    y:      int = Field(default=0, description="The top y coordinate of the crop rectangle")
-    width:  int = Field(default=512, gt=0, description="The width of the crop rectangle")
+    image: Optional[ImageField] = Field(default=None, description="The image to crop")
+    x: int = Field(default=0, description="The left x coordinate of the crop rectangle")
+    y: int = Field(default=0, description="The top y coordinate of the crop rectangle")
+    width: int = Field(default=512, gt=0, description="The width of the crop rectangle")
     height: int = Field(default=512, gt=0, description="The height of the crop rectangle")
-    # fmt: on
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Crop Image", "tags": ["image", "crop"]},
+            "ui": UINodeConfig(
+                title="Crop Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    )
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -120,23 +147,38 @@ class ImageCropInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class ImagePasteInvocation(BaseInvocation, PILInvocationConfig):
+class ImagePasteInvocation(BaseInvocation):
     """Pastes an image into another image."""
 
-    # fmt: off
     type: Literal["img_paste"] = "img_paste"
 
     # Inputs
-    base_image:     Optional[ImageField]  = Field(default=None, description="The base image")
-    image:          Optional[ImageField]  = Field(default=None, description="The image to paste")
+    base_image: Optional[ImageField] = Field(default=None, description="The base image")
+    image: Optional[ImageField] = Field(default=None, description="The image to paste")
     mask: Optional[ImageField] = Field(default=None, description="The mask to use when pasting")
-    x:                     int = Field(default=0, description="The left x coordinate at which to paste the image")
-    y:                     int = Field(default=0, description="The top y coordinate at which to paste the image")
-    # fmt: on
+    x: int = Field(default=0, description="The left x coordinate at which to paste the image")
+    y: int = Field(default=0, description="The top y coordinate at which to paste the image")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Paste Image", "tags": ["image", "paste"]},
+            "ui": UINodeConfig(
+                title="Paste Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "base_image": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "mask": UIInputField(
+                        input_requirement="optional",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -172,20 +214,29 @@ class ImagePasteInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class MaskFromAlphaInvocation(BaseInvocation, PILInvocationConfig):
+class MaskFromAlphaInvocation(BaseInvocation):
     """Extracts the alpha channel of an image as a mask."""
 
-    # fmt: off
     type: Literal["tomask"] = "tomask"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to create the mask from")
-    invert:      bool = Field(default=False, description="Whether or not to invert the mask")
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to create the mask from")
+    invert: bool = Field(default=False, description="Whether or not to invert the mask")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Mask From Alpha", "tags": ["image", "mask", "alpha"]},
+            "ui": UINodeConfig(
+                title="Mask from Alpha",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    )
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> MaskOutput:
@@ -211,20 +262,32 @@ class MaskFromAlphaInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class ImageMultiplyInvocation(BaseInvocation, PILInvocationConfig):
+class ImageMultiplyInvocation(BaseInvocation):
     """Multiplies two images together using `PIL.ImageChops.multiply()`."""
 
-    # fmt: off
     type: Literal["img_mul"] = "img_mul"
 
     # Inputs
-    image1: Optional[ImageField]  = Field(default=None, description="The first image to multiply")
-    image2: Optional[ImageField]  = Field(default=None, description="The second image to multiply")
-    # fmt: on
+    image1: Optional[ImageField] = Field(default=None, description="The first image to multiply")
+    image2: Optional[ImageField] = Field(default=None, description="The second image to multiply")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Multiply Images", "tags": ["image", "multiply"]},
+            "ui": UINodeConfig(
+                title="Multiply Images",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image1": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "image2": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -252,20 +315,29 @@ class ImageMultiplyInvocation(BaseInvocation, PILInvocationConfig):
 IMAGE_CHANNELS = Literal["A", "R", "G", "B"]
 
 
-class ImageChannelInvocation(BaseInvocation, PILInvocationConfig):
+class ImageChannelInvocation(BaseInvocation):
     """Gets a channel from an image."""
 
-    # fmt: off
     type: Literal["img_chan"] = "img_chan"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to get the channel from")
-    channel: IMAGE_CHANNELS  = Field(default="A", description="The channel to get")
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to get the channel from")
+    channel: IMAGE_CHANNELS = Field(default="A", description="The channel to get")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Image Channel", "tags": ["image", "channel"]},
+            "ui": UINodeConfig(
+                title="Extract Image Channel",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -292,20 +364,29 @@ class ImageChannelInvocation(BaseInvocation, PILInvocationConfig):
 IMAGE_MODES = Literal["L", "RGB", "RGBA", "CMYK", "YCbCr", "LAB", "HSV", "I", "F"]
 
 
-class ImageConvertInvocation(BaseInvocation, PILInvocationConfig):
+class ImageConvertInvocation(BaseInvocation):
     """Converts an image to a different mode."""
 
-    # fmt: off
     type: Literal["img_conv"] = "img_conv"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to convert")
-    mode: IMAGE_MODES  = Field(default="L", description="The mode to convert to")
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to convert")
+    mode: IMAGE_MODES = Field(default="L", description="The mode to convert to")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Convert Image", "tags": ["image", "convert"]},
+            "ui": UINodeConfig(
+                title="Convert Image Mode",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -329,21 +410,30 @@ class ImageConvertInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class ImageBlurInvocation(BaseInvocation, PILInvocationConfig):
+class ImageBlurInvocation(BaseInvocation):
     """Blurs an image"""
 
-    # fmt: off
     type: Literal["img_blur"] = "img_blur"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to blur")
-    radius:     float = Field(default=8.0, ge=0, description="The blur radius")
+    image: Optional[ImageField] = Field(default=None, description="The image to blur")
+    radius: float = Field(default=8.0, ge=0, description="The blur radius")
     blur_type: Literal["gaussian", "box"] = Field(default="gaussian", description="The type of blur")
-    # fmt: on
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Blur Image", "tags": ["image", "blur"]},
+            "ui": UINodeConfig(
+                title="Blur Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -390,22 +480,37 @@ PIL_RESAMPLING_MAP = {
 }
 
 
-class ImageResizeInvocation(BaseInvocation, PILInvocationConfig):
+class ImageResizeInvocation(BaseInvocation):
     """Resizes an image to specific dimensions"""
 
-    # fmt: off
     type: Literal["img_resize"] = "img_resize"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to resize")
-    width:                         Union[int, None] = Field(ge=64, multiple_of=8, description="The width to resize to (px)")
-    height:                        Union[int, None] = Field(ge=64, multiple_of=8, description="The height to resize to (px)")
-    resample_mode:  PIL_RESAMPLING_MODES = Field(default="bicubic", description="The resampling mode")
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to resize")
+    width: Union[int, None] = Field(ge=64, multiple_of=8, description="The width to resize to (px)")
+    height: Union[int, None] = Field(ge=64, multiple_of=8, description="The height to resize to (px)")
+    resample_mode: PIL_RESAMPLING_MODES = Field(default="bicubic", description="The resampling mode")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Resize Image", "tags": ["image", "resize"]},
+            "ui": UINodeConfig(
+                title="Resize Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "width": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "height": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -434,21 +539,33 @@ class ImageResizeInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class ImageScaleInvocation(BaseInvocation, PILInvocationConfig):
+class ImageScaleInvocation(BaseInvocation):
     """Scales an image by a factor"""
 
-    # fmt: off
     type: Literal["img_scale"] = "img_scale"
 
     # Inputs
-    image:          Optional[ImageField] = Field(default=None, description="The image to scale")
-    scale_factor:        Optional[float] = Field(default=2.0, gt=0, description="The factor by which to scale the image")
-    resample_mode:  PIL_RESAMPLING_MODES = Field(default="bicubic", description="The resampling mode")
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to scale")
+    scale_factor: Optional[float] = Field(default=2.0, gt=0, description="The factor by which to scale the image")
+    resample_mode: PIL_RESAMPLING_MODES = Field(default="bicubic", description="The resampling mode")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Scale Image", "tags": ["image", "scale"]},
+            "ui": UINodeConfig(
+                title="Scale Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "scale": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -479,7 +596,7 @@ class ImageScaleInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class ImageLerpInvocation(BaseInvocation, PILInvocationConfig):
+class ImageLerpInvocation(BaseInvocation):
     """Linear interpolation of all pixels of an image"""
 
     # fmt: off
@@ -491,9 +608,20 @@ class ImageLerpInvocation(BaseInvocation, PILInvocationConfig):
     max: int = Field(default=255, ge=0, le=255, description="The maximum output value")
     # fmt: on
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Image Linear Interpolation", "tags": ["image", "linear", "interpolation", "lerp"]},
+            "ui": UINodeConfig(
+                title="Lerp Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -520,24 +648,30 @@ class ImageLerpInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class ImageInverseLerpInvocation(BaseInvocation, PILInvocationConfig):
+class ImageInverseLerpInvocation(BaseInvocation):
     """Inverse linear interpolation of all pixels of an image"""
 
-    # fmt: off
     type: Literal["img_ilerp"] = "img_ilerp"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to lerp")
+    image: Optional[ImageField] = Field(default=None, description="The image to lerp")
     min: int = Field(default=0, ge=0, le=255, description="The minimum input value")
     max: int = Field(default=255, ge=0, le=255, description="The maximum input value")
-    # fmt: on
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {
-                "title": "Image Inverse Linear Interpolation",
-                "tags": ["image", "linear", "interpolation", "inverse"],
-            },
+            "ui": UINodeConfig(
+                title="Inverse Lerp Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -564,20 +698,32 @@ class ImageInverseLerpInvocation(BaseInvocation, PILInvocationConfig):
         )
 
 
-class ImageNSFWBlurInvocation(BaseInvocation, PILInvocationConfig):
+class ImageNSFWBlurInvocation(BaseInvocation):
     """Add blur to NSFW-flagged images"""
 
-    # fmt: off
     type: Literal["img_nsfw"] = "img_nsfw"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to check")
-    metadata: Optional[CoreMetadata] = Field(default=None, description="Optional core metadata to be written to the image")    
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to check")
+    metadata: Optional[CoreMetadata] = Field(
+        default=None, description="Optional core metadata to be written to the image"
+    )
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Blur NSFW Images", "tags": ["image", "nsfw", "checker"]},
+            "ui": UINodeConfig(
+                title="Blur NSFW Image",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "metadata": UIInputField(hidden=True),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -615,21 +761,33 @@ class ImageNSFWBlurInvocation(BaseInvocation, PILInvocationConfig):
         return caution.resize((caution.width // 2, caution.height // 2))
 
 
-class ImageWatermarkInvocation(BaseInvocation, PILInvocationConfig):
+class ImageWatermarkInvocation(BaseInvocation):
     """Add an invisible watermark to an image"""
 
-    # fmt: off
     type: Literal["img_watermark"] = "img_watermark"
 
     # Inputs
-    image: Optional[ImageField]  = Field(default=None, description="The image to check")
-    text: str = Field(default='InvokeAI', description="Watermark text")
-    metadata: Optional[CoreMetadata] = Field(default=None, description="Optional core metadata to be written to the image")    
-    # fmt: on
+    image: Optional[ImageField] = Field(default=None, description="The image to check")
+    text: str = Field(default="InvokeAI", description="Watermark text")
+    metadata: Optional[CoreMetadata] = Field(
+        default=None, description="Optional core metadata to be written to the image"
+    )
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Add Invisible Watermark", "tags": ["image", "watermark", "invisible"]},
+            "ui": UINodeConfig(
+                title="Add Invisible Watermark",
+                tags=[
+                    "image",
+                ],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                    "metadata": UIInputField(hidden=True),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

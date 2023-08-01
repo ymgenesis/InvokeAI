@@ -2,7 +2,6 @@ from typing import Literal, Optional, Union, List, Annotated
 from pydantic import BaseModel, Field
 import re
 
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, InvocationConfig
 from .model import ClipField
 
 from ...backend.util.devices import torch_dtype
@@ -17,7 +16,7 @@ from ...backend.model_management import ModelType
 from ...backend.model_management.models import ModelNotFoundException
 from ...backend.model_management.lora import ModelPatcher
 from ...backend.stable_diffusion.diffusion import InvokeAIDiffuserComponent
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationConfig, InvocationContext
+from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
 from .model import ClipField
 from dataclasses import dataclass
 
@@ -79,9 +78,18 @@ class CompelInvocation(BaseInvocation):
     clip: ClipField = Field(None, description="Clip to use")
 
     # Schema customisation
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {"title": "Prompt (Compel)", "tags": ["prompt", "compel"], "type_hints": {"model": "model"}},
+            "ui": UINodeConfig(
+                title="Prompt (Compel)",
+                fields={
+                    "prompt": UIInputField(component="textarea"),
+                    "clip": UIInputField(
+                        field_type="clip_field", input_kind="connection", input_requirement="required"
+                    ),
+                },
+                tags=["prompt", "compel"],
+            )
         }
 
     @torch.no_grad()
@@ -359,9 +367,20 @@ class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     clip2: ClipField = Field(None, description="Clip2 to use")
 
     # Schema customisation
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {"title": "SDXL Prompt (Compel)", "tags": ["prompt", "compel"], "type_hints": {"model": "model"}},
+            "ui": UINodeConfig(
+                fields={
+                    "prompt": UIInputField(
+                        component="textarea",
+                    ),
+                    "style": UIInputField(
+                        component="textarea",
+                    ),
+                    "clip": UIInputField(field_type="clip_field"),
+                    "clip2": UIInputField(field_type="clip_field"),
+                }
+            )
         }
 
     @torch.no_grad()
@@ -413,13 +432,18 @@ class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase
     clip2: ClipField = Field(None, description="Clip to use")
 
     # Schema customisation
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {
-                "title": "SDXL Refiner Prompt (Compel)",
-                "tags": ["prompt", "compel"],
-                "type_hints": {"model": "model"},
-            },
+            "ui": UINodeConfig(
+                title="SDXL Refiner Prompt (Compel)",
+                fields={
+                    "style": UIInputField(component="textarea"),
+                    "clip2": UIInputField(
+                        field_type="clip_field", input_kind="connection", input_requirement="required"
+                    ),
+                },
+                tags=["prompt", "compel", "sdxl"],
+            )
         }
 
     @torch.no_grad()
@@ -470,9 +494,22 @@ class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     clip2: ClipField = Field(None, description="Clip2 to use")
 
     # Schema customisation
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {"title": "SDXL Prompt (Raw)", "tags": ["prompt", "compel"], "type_hints": {"model": "model"}},
+            "ui": UINodeConfig(
+                title="SDXL Prompt (Raw)",
+                fields={
+                    "prompt": UIInputField(component="textarea"),
+                    "style": UIInputField(component="textarea"),
+                    "clip": UIInputField(
+                        field_type="clip_field", input_kind="connection", input_requirement="required"
+                    ),
+                    "clip2": UIInputField(
+                        field_type="clip_field", input_kind="connection", input_requirement="required"
+                    ),
+                },
+                tags=["prompt", "sdxl"],
+            )
         }
 
     @torch.no_grad()
@@ -524,13 +561,18 @@ class SDXLRefinerRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     clip2: ClipField = Field(None, description="Clip to use")
 
     # Schema customisation
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {
-                "title": "SDXL Refiner Prompt (Raw)",
-                "tags": ["prompt", "compel"],
-                "type_hints": {"model": "model"},
-            },
+            "ui": UINodeConfig(
+                title="SDXL Refiner Prompt (Raw)",
+                fields={
+                    "style": UIInputField(component="textarea"),
+                    "clip2": UIInputField(
+                        field_type="clip_field", input_kind="connection", input_requirement="required"
+                    ),
+                },
+                tags=["prompt", "sdxl"],
+            )
         }
 
     @torch.no_grad()
@@ -579,9 +621,18 @@ class ClipSkipInvocation(BaseInvocation):
     clip: ClipField = Field(None, description="Clip to use")
     skipped_layers: int = Field(0, description="Number of layers to skip in text_encoder")
 
-    class Config(InvocationConfig):
+    # Schema customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "CLIP Skip", "tags": ["clip", "skip"]},
+            "ui": UINodeConfig(
+                title="CLIP Skip",
+                fields={
+                    "clip": UIInputField(
+                        field_type="clip_field", input_kind="connection", input_requirement="required"
+                    ),
+                },
+                tags=["clipskip", "clip", "skip"],
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ClipSkipInvocationOutput:

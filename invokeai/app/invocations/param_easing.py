@@ -48,7 +48,7 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
-    InvocationConfig,
+    UINodeConfig,
 )
 from ...backend.util.logging import InvokeAILogger
 from .collections import FloatCollectionOutput
@@ -64,9 +64,13 @@ class FloatLinearRangeInvocation(BaseInvocation):
     stop: float = Field(default=10, description="The last value of the range")
     steps: int = Field(default=30, description="number of values to interpolate over (including start and stop)")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Linear Range (Float)", "tags": ["math", "float", "linear", "range"]},
+            "ui": UINodeConfig(
+                title="Linear Range (Float)",
+                tags=["math", "range"],
+            )
         }
 
     def invoke(self, context: InvocationContext) -> FloatCollectionOutput:
@@ -108,7 +112,7 @@ EASING_FUNCTIONS_MAP = {
     "BounceInOut": BounceEaseInOut,
 }
 
-EASING_FUNCTION_KEYS: Any = Literal[tuple(list(EASING_FUNCTIONS_MAP.keys()))]
+EASING_FUNCTION_KEYS = Literal[tuple(list(EASING_FUNCTIONS_MAP.keys()))]
 
 
 # actually I think for now could just use CollectionOutput (which is list[Any]
@@ -118,7 +122,6 @@ class StepParamEasingInvocation(BaseInvocation):
     type: Literal["step_param_easing"] = "step_param_easing"
 
     # Inputs
-    # fmt: off
     easing: EASING_FUNCTION_KEYS = Field(default="Linear", description="The easing function to use")
     num_steps: int = Field(default=20, description="number of denoising steps")
     start_value: float = Field(default=0.0, description="easing starting value")
@@ -133,11 +136,14 @@ class StepParamEasingInvocation(BaseInvocation):
     # FIXME: add alt_mirror option (alternative to default or mirror), or remove entirely
     # alt_mirror: bool = Field(default=False, description="alternative mirroring by dual easing")
     show_easing_plot: bool = Field(default=False, description="show easing plot")
-    # fmt: on
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Param Easing By Step", "tags": ["param", "step", "easing"]},
+            "ui": UINodeConfig(
+                title="Param Easing By Step",
+                tags=["step", "easing"],
+            )
         }
 
     def invoke(self, context: InvocationContext) -> FloatCollectionOutput:

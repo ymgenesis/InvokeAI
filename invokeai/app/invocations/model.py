@@ -4,7 +4,7 @@ from typing import List, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 from ...backend.model_management import BaseModelType, ModelType, SubModelType
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationConfig, InvocationContext
+from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
 
 
 class ModelInfo(BaseModel):
@@ -68,17 +68,17 @@ class MainModelLoaderInvocation(BaseInvocation):
 
     type: Literal["main_model_loader"] = "main_model_loader"
 
+    # Inputs
     model: MainModelField = Field(description="The model to load")
     # TODO: precision?
 
-    # Schema customisation
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {
-                "title": "Model Loader",
-                "tags": ["model", "loader"],
-                "type_hints": {"model": "model"},
-            },
+            "ui": UINodeConfig(
+                title="Model Loader",
+                fields={"model": UIInputField(field_type="main_model", input_kind="direct")},
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ModelLoaderOutput:
@@ -198,19 +198,28 @@ class LoraLoaderInvocation(BaseInvocation):
 
     type: Literal["lora_loader"] = "lora_loader"
 
+    # Inputs
     lora: Union[LoRAModelField, None] = Field(default=None, description="Lora model name")
     weight: float = Field(default=0.75, description="With what weight to apply lora")
-
     unet: Optional[UNetField] = Field(description="UNet model for applying lora")
     clip: Optional[ClipField] = Field(description="Clip model for applying lora")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {
-                "title": "Lora Loader",
-                "tags": ["lora", "loader"],
-                "type_hints": {"lora": "lora_model"},
-            },
+            "ui": UINodeConfig(
+                title="LoRA Loader",
+                tags=["lora", "models"],
+                fields={
+                    "lora": UIInputField(field_type="lora_model", input_requirement="required", input_kind="direct"),
+                    "unet": UIInputField(
+                        field_type="unet_field", input_requirement="required", input_kind="connection"
+                    ),
+                    "clip": UIInputField(
+                        field_type="clip_field", input_requirement="required", input_kind="connection"
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> LoraLoaderOutput:
@@ -369,11 +378,10 @@ class VAEModelField(BaseModel):
 class VaeLoaderOutput(BaseInvocationOutput):
     """Model loader output"""
 
-    # fmt: off
     type: Literal["vae_loader_output"] = "vae_loader_output"
 
+    # Outputs
     vae: VaeField = Field(default=None, description="Vae model")
-    # fmt: on
 
 
 class VaeLoaderInvocation(BaseInvocation):
@@ -381,16 +389,21 @@ class VaeLoaderInvocation(BaseInvocation):
 
     type: Literal["vae_loader"] = "vae_loader"
 
+    # Inputs
     vae_model: VAEModelField = Field(description="The VAE to load")
 
-    # Schema customisation
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {
-                "title": "VAE Loader",
-                "tags": ["vae", "loader"],
-                "type_hints": {"vae_model": "vae_model"},
-            },
+            "ui": UINodeConfig(
+                title="VAE Loader",
+                tags=["vae", "models"],
+                fields={
+                    "vae_model": UIInputField(
+                        field_type="vae_model", input_requirement="required", input_kind="direct"
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> VaeLoaderOutput:

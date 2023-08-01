@@ -4,7 +4,7 @@ from typing import Literal, Optional
 import numpy as np
 from pydantic import Field, validator
 
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationConfig, InvocationContext
+from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
 from dynamicprompts.generators import RandomPromptGenerator, CombinatorialPromptGenerator
 
 
@@ -44,13 +44,24 @@ class DynamicPromptInvocation(BaseInvocation):
     """Parses a prompt using adieyal/dynamicprompts' random or combinatorial generator"""
 
     type: Literal["dynamic_prompt"] = "dynamic_prompt"
+
+    # Inputs
     prompt: str = Field(description="The prompt to parse with dynamicprompts")
     max_prompts: int = Field(default=1, description="The number of prompts to generate")
     combinatorial: bool = Field(default=False, description="Whether to use the combinatorial generator")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Dynamic Prompt", "tags": ["prompt", "dynamic"]},
+            "ui": UINodeConfig(
+                title="Dynamic Prompt",
+                tags=["prompt", "collection"],
+                fields={
+                    "prompt": UIInputField(
+                        component="textarea",
+                    )
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> PromptCollectionOutput:
@@ -67,8 +78,7 @@ class DynamicPromptInvocation(BaseInvocation):
 class PromptsFromFileInvocation(BaseInvocation):
     """Loads prompts from a text file"""
 
-    # fmt: off
-    type: Literal['prompt_from_file'] = 'prompt_from_file'
+    type: Literal["prompt_from_file"] = "prompt_from_file"
 
     # Inputs
     file_path: str = Field(description="Path to prompt text file")
@@ -76,11 +86,22 @@ class PromptsFromFileInvocation(BaseInvocation):
     post_prompt: Optional[str] = Field(description="String to append to each prompt")
     start_line: int = Field(default=1, ge=1, description="Line in the file to start start from")
     max_prompts: int = Field(default=1, ge=0, description="Max lines to read from file (0=all)")
-    # fmt: on
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Prompts From File", "tags": ["prompt", "file"]},
+            "ui": UINodeConfig(
+                title="Prompts from File",
+                tags=["prompt", "file"],
+                fields={
+                    "pre_prompt": UIInputField(
+                        component="textarea",
+                    ),
+                    "post_prompt": UIInputField(
+                        component="textarea",
+                    ),
+                },
+            )
         }
 
     @validator("file_path")

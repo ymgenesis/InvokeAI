@@ -11,7 +11,7 @@ from realesrgan import RealESRGANer
 
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
 
-from .baseinvocation import BaseInvocation, InvocationConfig, InvocationContext
+from .baseinvocation import BaseInvocation, InvocationContext, UINodeConfig, UIInputField
 from .image import ImageOutput
 
 # TODO: Populate this from disk?
@@ -28,12 +28,18 @@ class ESRGANInvocation(BaseInvocation):
     """Upscales an image using RealESRGAN."""
 
     type: Literal["esrgan"] = "esrgan"
+
+    # Inputs
     image: Union[ImageField, None] = Field(default=None, description="The input image")
     model_name: ESRGAN_MODELS = Field(default="RealESRGAN_x4plus.pth", description="The Real-ESRGAN model to use")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Upscale (RealESRGAN)", "tags": ["image", "upscale", "realesrgan"]},
+            "ui": UINodeConfig(
+                title="Upscale (RealESRGAN)",
+                fields={"image": UIInputField(field_type="image", input_requirement="required")},
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

@@ -5,8 +5,8 @@ from pydantic import Field
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
-    InvocationConfig,
     InvocationContext,
+    UINodeConfig,
 )
 from invokeai.app.invocations.controlnet_image_processors import ControlField
 from invokeai.app.invocations.model import LoRAModelField, MainModelField, VAEModelField
@@ -139,13 +139,9 @@ class MetadataAccumulatorInvocation(BaseInvocation):
     )
     refiner_start: Union[float, None] = Field(default=None, description="The start value used for refiner denoising")
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "Metadata Accumulator",
-                "tags": ["image", "metadata", "generation"],
-            },
-        }
+    # Schema Customisation
+    class Config:
+        schema_extra = {"ui": UINodeConfig(title="Metadata Accumulator", tags=["metadata"])}
 
     def invoke(self, context: InvocationContext) -> MetadataAccumulatorOutput:
         """Collects and outputs a CoreMetadata object"""
