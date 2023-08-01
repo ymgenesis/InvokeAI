@@ -13,7 +13,7 @@ from invokeai.backend.generator.inpaint import infill_methods
 from ...backend.generator import Inpaint, InvokeAIGenerator
 from ...backend.stable_diffusion import PipelineIntermediateState
 from ..util.step_callback import stable_diffusion_step_callback
-from .baseinvocation import BaseInvocation, InvocationConfig, InvocationContext
+from .baseinvocation import BaseInvocation, InvocationContext, UINodeConfig
 from .image import ImageOutput
 
 from ...backend.model_management.lora import ModelPatcher
@@ -130,10 +130,13 @@ class InpaintInvocation(BaseInvocation):
         description="The amount by which to replace masked areas with latent noise",
     )
 
-    # Schema customisation
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"tags": ["stable-diffusion", "image"], "title": "Inpaint"},
+            "ui": UINodeConfig(
+                title="Inpaint",
+                tags=["stable-diffusions", "image"],
+            )
         }
 
     def dispatch_progress(

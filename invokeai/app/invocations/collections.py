@@ -8,7 +8,7 @@ from pydantic import Field, validator
 from invokeai.app.models.image import ImageField
 from invokeai.app.util.misc import SEED_MAX, get_random_seed
 
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationConfig, InvocationContext, UIConfig
+from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
 
 
 class IntCollectionOutput(BaseInvocationOutput):
@@ -51,9 +51,12 @@ class RangeInvocation(BaseInvocation):
     stop: int = Field(default=10, description="The stop of the range")
     step: int = Field(default=1, description="The step of the range")
 
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {"title": "Range", "tags": ["range", "integer", "collection"]},
+            "ui": UINodeConfig(
+                title="Range",
+                tags=["range", "integer", "collection"],
+            )
         }
 
     @validator("stop")
@@ -76,9 +79,12 @@ class RangeOfSizeInvocation(BaseInvocation):
     size: int = Field(default=1, description="The number of values")
     step: int = Field(default=1, description="The step of the range")
 
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {"title": "Sized Range", "tags": ["range", "integer", "size", "collection"]},
+            "ui": UINodeConfig(
+                title="Range of Size",
+                tags=["range", "integer", "size", "collection"],
+            )
         }
 
     def invoke(self, context: InvocationContext) -> IntCollectionOutput:
@@ -101,9 +107,12 @@ class RandomRangeInvocation(BaseInvocation):
         default_factory=get_random_seed,
     )
 
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {"title": "Random Range", "tags": ["range", "integer", "random", "collection"]},
+            "ui": UINodeConfig(
+                title="Random Range",
+                tags=["range", "integer", "random", "collection"],
+            )
         }
 
     def invoke(self, context: InvocationContext) -> IntCollectionOutput:
@@ -126,12 +135,7 @@ class ImageCollectionInvocation(BaseInvocation):
     def invoke(self, context: InvocationContext) -> ImageCollectionOutput:
         return ImageCollectionOutput(collection=self.images)
 
-    class Config(InvocationConfig):
+    class Config:
         schema_extra = {
-            "ui": {
-                "type_hints": {
-                    "title": "Image Collection",
-                    "images": "image_collection",
-                }
-            },
+            "ui": UINodeConfig(title="Image Collection", fields={"images": UIInputField(field_type="image_collection")})
         }

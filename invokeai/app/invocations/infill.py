@@ -14,8 +14,9 @@ from invokeai.backend.image_util.patchmatch import PatchMatch
 from ..models.image import ColorField, ImageCategory, ImageField, ResourceOrigin
 from .baseinvocation import (
     BaseInvocation,
-    InvocationConfig,
     InvocationContext,
+    UINodeConfig,
+    UIInputField,
 )
 
 
@@ -118,15 +119,26 @@ class InfillColorInvocation(BaseInvocation):
     """Infills transparent areas of an image with a solid color"""
 
     type: Literal["infill_rgba"] = "infill_rgba"
+
+    # Inputs
     image: Optional[ImageField] = Field(default=None, description="The image to infill")
     color: ColorField = Field(
         default=ColorField(r=127, g=127, b=127, a=255),
         description="The color to use to infill",
     )
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Color Infill", "tags": ["image", "inpaint", "color", "infill"]},
+            "ui": UINodeConfig(
+                title="Solid Color Infill",
+                tags=["image", "inpaint"],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -158,6 +170,7 @@ class InfillTileInvocation(BaseInvocation):
 
     type: Literal["infill_tile"] = "infill_tile"
 
+    # Input
     image: Optional[ImageField] = Field(default=None, description="The image to infill")
     tile_size: int = Field(default=32, ge=1, description="The tile size (px)")
     seed: int = Field(
@@ -167,9 +180,18 @@ class InfillTileInvocation(BaseInvocation):
         default_factory=get_random_seed,
     )
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Tile Infill", "tags": ["image", "inpaint", "tile", "infill"]},
+            "ui": UINodeConfig(
+                title="Tile Infill",
+                tags=["image", "inpaint"],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -199,11 +221,21 @@ class InfillPatchMatchInvocation(BaseInvocation):
 
     type: Literal["infill_patchmatch"] = "infill_patchmatch"
 
+    # Inputs
     image: Optional[ImageField] = Field(default=None, description="The image to infill")
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "Patch Match Infill", "tags": ["image", "inpaint", "patchmatch", "infill"]},
+            "ui": UINodeConfig(
+                title="Patchmatch Infill",
+                tags=["image", "inpaint"],
+                fields={
+                    "image": UIInputField(
+                        input_requirement="required",
+                    ),
+                },
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

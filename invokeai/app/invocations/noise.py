@@ -12,8 +12,8 @@ from ...backend.util.devices import choose_torch_device, torch_dtype
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
-    InvocationConfig,
     InvocationContext,
+    UINodeConfig,
 )
 
 """
@@ -108,13 +108,13 @@ class NoiseInvocation(BaseInvocation):
         description="Use CPU for noise generation (for reproducible results across platforms)",
     )
 
-    # Schema customisation
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {
-                "title": "Noise",
-                "tags": ["latents", "noise"],
-            },
+            "ui": UINodeConfig(
+                title="Noise",
+                tags=["latents", "noise"],
+            )
         }
 
     @validator("seed", pre=True)

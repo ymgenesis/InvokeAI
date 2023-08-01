@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from inspect import signature
-from typing import TYPE_CHECKING, Dict, List, Literal, TypedDict, get_args, get_type_hints
+from typing import TYPE_CHECKING, Literal, Optional, get_args, get_type_hints
 
 from pydantic import BaseConfig, BaseModel, Field
 
@@ -87,59 +87,80 @@ class BaseInvocation(ABC, BaseModel):
     # fmt: on
 
 
-# TODO: figure out a better way to provide these hints
-# TODO: when we can upgrade to python 3.11, we can use the`NotRequired` type instead of `total=False`
-class UIConfig(TypedDict, total=False):
-    type_hints: Dict[
-        str,
-        Literal[
-            "integer",
-            "float",
-            "boolean",
-            "string",
-            "enum",
-            "image",
-            "latents",
-            "model",
-            "control",
-            "image_collection",
-            "vae_model",
-            "lora_model",
-        ],
-    ]
-    tags: List[str]
-    title: str
+UI_FIELD_INPUT_KIND = Literal["connection", "direct", "any"]
+
+UI_FIELD_INPUT_REQUIREMENT = Literal["none", "required", "optional"]
+
+UI_FIELD_TYPE = Literal[
+    "integer",
+    "float",
+    "boolean",
+    "string",
+    "enum",
+    "image",
+    "latents",
+    "conditioning",
+    "control",
+    "main_model",
+    "sdxl_main_model",
+    "sdxl_refiner_model",
+    "onnx_model",
+    "vae_model",
+    "lora_model",
+    "controlnet_model",
+    "unet_field",
+    "vae_field",
+    "lora_field",
+    "clip_field",
+    "array",
+    "color",
+    "image_collection",
+    "item",
+    "any_collection",  # Iterate Nodes only
+    "collection_item",  # Iterate Nodes only
+]
+
+UI_FIELD_COMPONENT = Literal[
+    "none",
+    "textarea",
+    "slider",
+]
 
 
-class CustomisedSchemaExtra(TypedDict):
-    ui: UIConfig
+class UIInputField(BaseModel):
+    """Provides additional node input field configuration to the UI."""
+
+    input_kind: Optional[UI_FIELD_INPUT_KIND] = Field(
+        default="any", description="The kind of input accepted by the field ['any']"
+    )
+    input_requirement: Optional[UI_FIELD_INPUT_REQUIREMENT] = Field(
+        default="required", description="The input requirements of the field ['required']"
+    )
+    field_type: Optional[UI_FIELD_TYPE] = Field(
+        default=None, description="The type of the field; overrides the type inferred from pydantic model"
+    )
+    component: Optional[UI_FIELD_COMPONENT] = Field(default=None, description="The component to use for the field")
+    hidden: Optional[bool] = Field(default=False, description="Whether or not to hide the field")
 
 
-class InvocationConfig(BaseConfig):
-    """Customizes pydantic's BaseModel.Config class for use by Invocations.
+class UINodeConfig(BaseModel):
+    """Provides additional node configuration to the UI."""
 
-    Provide `schema_extra` a `ui` dict to add hints for generated UIs.
+    fields: dict[str, UIInputField] = Field(default_factory=dict, description="Additional UI configuration for fields")
+    tags: list[str] = Field(default_factory=list, description="The tags to display in the UI")
+    title: Optional[str] = Field(default=None, description="The display name of the node")
 
-    `tags`
-    - A list of strings, used to categorise invocations.
 
-    `type_hints`
-    - A dict of field types which override the types in the invocation definition.
-    - Each key should be the name of one of the invocation's fields.
-    - Each value should be one of the valid types:
-      - `integer`, `float`, `boolean`, `string`, `enum`, `image`, `latents`, `model`
+class UIOutputField(BaseModel):
+    """Provides additional node output field configuration to the UI."""
 
-    ```python
-    class Config(InvocationConfig):
-      schema_extra = {
-          "ui": {
-              "tags": ["stable-diffusion", "image"],
-              "type_hints": {
-                  "initial_image": "image",
-              },
-          },
-      }
-    ```
-    """
+    field_type: Optional[UI_FIELD_TYPE] = Field(
+        default=None, description="The type of the field; overrides the type inferred from pydantic model"
+    )
+    hidden: Optional[bool] = Field(default=False, description="Whether or not to hide the field")
 
-    schema_extra: CustomisedSchemaExtra
+
+class UIOutputConfig(BaseModel):
+    """Provides additional node output configuration to the UI."""
+
+    fields: dict[str, UIOutputField] = Field(default_factory=dict, description="Additional UI configuration for fields")

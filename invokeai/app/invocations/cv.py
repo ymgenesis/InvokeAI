@@ -8,36 +8,26 @@ from PIL import Image, ImageOps
 from pydantic import BaseModel, Field
 
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import BaseInvocation, InvocationContext, InvocationConfig
+from .baseinvocation import BaseInvocation, InvocationContext, UINodeConfig
 from .image import ImageOutput
 
 
-class CvInvocationConfig(BaseModel):
-    """Helper class to provide all OpenCV invocations with additional config"""
-
-    # Schema customisation
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["cv", "image"],
-            },
-        }
-
-
-class CvInpaintInvocation(BaseInvocation, CvInvocationConfig):
+class CvInpaintInvocation(BaseInvocation):
     """Simple inpaint using opencv."""
 
-    # fmt: off
     type: Literal["cv_inpaint"] = "cv_inpaint"
 
     # Inputs
     image: ImageField = Field(default=None, description="The image to inpaint")
     mask: ImageField = Field(default=None, description="The mask to use when inpainting")
-    # fmt: on
 
-    class Config(InvocationConfig):
+    # Schema Customisation
+    class Config:
         schema_extra = {
-            "ui": {"title": "OpenCV Inpaint", "tags": ["opencv", "inpaint"]},
+            "ui": UINodeConfig(
+                title="OpenCV Inpaint",
+                tags=["opencv", "inpaint"],
+            )
         }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

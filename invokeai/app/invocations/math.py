@@ -9,107 +9,87 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
-    InvocationConfig,
+    UINodeConfig,
 )
-
-
-class MathInvocationConfig(BaseModel):
-    """Helper class to provide all math invocations with additional config"""
-
-    # Schema customisation
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["math"],
-            }
-        }
 
 
 class IntOutput(BaseInvocationOutput):
     """An integer output"""
 
-    # fmt: off
     type: Literal["int_output"] = "int_output"
     a: int = Field(default=None, description="The output integer")
-    # fmt: on
 
 
 class FloatOutput(BaseInvocationOutput):
     """A float output"""
 
-    # fmt: off
     type: Literal["float_output"] = "float_output"
-    param: float = Field(default=None, description="The output float")
-    # fmt: on
+    a: float = Field(default=None, description="The output float")
 
 
-class AddInvocation(BaseInvocation, MathInvocationConfig):
+class AddInvocation(BaseInvocation):
     """Adds two numbers"""
 
-    # fmt: off
     type: Literal["add"] = "add"
+
+    # Inputs
     a: int = Field(default=0, description="The first number")
     b: int = Field(default=0, description="The second number")
-    # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {"title": "Add", "tags": ["math", "add"]},
-        }
+    # Schema Customisation
+    class Config:
+        schema_extra = {"ui": UINodeConfig(title="Add", tags=["math"])}
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=self.a + self.b)
 
 
-class SubtractInvocation(BaseInvocation, MathInvocationConfig):
+class SubtractInvocation(BaseInvocation):
     """Subtracts two numbers"""
 
-    # fmt: off
     type: Literal["sub"] = "sub"
+
+    # Inputs
     a: int = Field(default=0, description="The first number")
     b: int = Field(default=0, description="The second number")
-    # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {"title": "Subtract", "tags": ["math", "subtract"]},
-        }
+    # Schema Customisation
+    class Config:
+        schema_extra = {"ui": UINodeConfig(title="Subtract", tags=["math"])}
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=self.a - self.b)
 
 
-class MultiplyInvocation(BaseInvocation, MathInvocationConfig):
+class MultiplyInvocation(BaseInvocation):
     """Multiplies two numbers"""
 
-    # fmt: off
     type: Literal["mul"] = "mul"
+
+    # Inputs
     a: int = Field(default=0, description="The first number")
     b: int = Field(default=0, description="The second number")
-    # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {"title": "Multiply", "tags": ["math", "multiply"]},
-        }
+    # Schema Customisation
+    class Config:
+        schema_extra = {"ui": UINodeConfig(title="Multiply", tags=["math"])}
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=self.a * self.b)
 
 
-class DivideInvocation(BaseInvocation, MathInvocationConfig):
+class DivideInvocation(BaseInvocation):
     """Divides two numbers"""
 
-    # fmt: off
     type: Literal["div"] = "div"
+
+    # Inputs
     a: int = Field(default=0, description="The first number")
     b: int = Field(default=0, description="The second number")
-    # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {"title": "Divide", "tags": ["math", "divide"]},
-        }
+    # Schema Customisation
+    class Config:
+        schema_extra = {"ui": UINodeConfig(title="Divide", tags=["math"])}
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=int(self.a / self.b))
@@ -118,18 +98,15 @@ class DivideInvocation(BaseInvocation, MathInvocationConfig):
 class RandomIntInvocation(BaseInvocation):
     """Outputs a single random integer."""
 
-    # fmt: off
     type: Literal["rand_int"] = "rand_int"
-    low: int = Field(default=0, description="The inclusive low value")
-    high: int = Field(
-        default=np.iinfo(np.int32).max, description="The exclusive high value"
-    )
-    # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {"title": "Random Integer", "tags": ["math", "random", "integer"]},
-        }
+    # Inputs
+    low: int = Field(default=0, description="The inclusive low value")
+    high: int = Field(default=np.iinfo(np.int32).max, description="The exclusive high value")
+
+    # Schema Customisation
+    class Config:
+        schema_extra = {"ui": UINodeConfig(title="Random Integer", tags=["math", "random", "integer"])}
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=np.random.randint(self.low, self.high))
