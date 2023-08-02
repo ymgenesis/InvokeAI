@@ -233,6 +233,16 @@ const CurrentImageButtons = (props: CurrentImageButtonsProps) => {
     dispatch(setShouldShowProgressInViewer(!shouldShowProgressInViewer));
   }, [dispatch, shouldShowProgressInViewer]);
 
+  useHotkeys(
+    'Shift+P',
+    () => {
+      if (imageDTO) {
+        handleClickProgressImagesToggle();
+      }
+    },
+    [imageDTO, shouldShowProgressInViewer]
+  );
+
   return (
     <>
       <Flex

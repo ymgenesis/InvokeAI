@@ -13,8 +13,20 @@ import {
   buildOutputFieldTemplates,
 } from './fieldTemplateBuilders';
 
+// const getReservedFieldNames = (type: string): string[] => {
+//   if (type === 'l2i') {
+//     return ['id', 'type', 'metadata'];
+//   }
+//   return ['id', 'type', 'is_intermediate', 'metadata'];
+// };
+
 const getReservedFieldNames = (type: string): string[] => {
-  if (type === 'l2i') {
+  if (
+    type === 'l2i' ||
+    type === 'face_off' ||
+    type === 'face_mask_detection' ||
+    type === 'face_identifier'
+  ) {
     return ['id', 'type', 'metadata'];
   }
   return ['id', 'type', 'is_intermediate', 'metadata'];
