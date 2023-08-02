@@ -1,9 +1,8 @@
 # Copyright (c) 2023 Kyle Schouviller (https://github.com/kyle0654) & the InvokeAI Team
 
-import math
 from typing import Literal
 
-from pydantic import Field, validator
+from pydantic import validator
 import torch
 from invokeai.app.invocations.latent import LatentsField
 
@@ -12,8 +11,12 @@ from ...backend.util.devices import choose_torch_device, torch_dtype
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
+    InputField,
     InvocationContext,
-    UINodeConfig,
+    OutputField,
+    Tags,
+    Title,
+    UITypeHint,
 )
 
 """
@@ -61,14 +64,12 @@ Nodes
 class NoiseOutput(BaseInvocationOutput):
     """Invocation noise output"""
 
-    # fmt: off
-    type:  Literal["noise_output"] = "noise_output"
+    type: Literal["noise_output"] = "noise_output"
 
     # Inputs
-    noise: LatentsField            = Field(default=None, description="The output noise")
-    width:                     int = Field(description="The width of the noise in pixels")
-    height:                    int = Field(description="The height of the noise in pixels")
-    # fmt: on
+    noise: LatentsField = OutputField(default=None, description="The output noise")
+    width: int = OutputField(description="The width of the noise in pixels")
+    height: int = OutputField(description="The height of the noise in pixels")
 
 
 def build_noise_output(latents_name: str, latents: torch.Tensor):
@@ -83,39 +84,29 @@ class NoiseInvocation(BaseInvocation):
     """Generates latent noise."""
 
     type: Literal["noise"] = "noise"
+    title = Title("Noise")
+    tags = Tags(["latents", "noise"])
 
     # Inputs
-    seed: int = Field(
-        ge=0,
-        le=SEED_MAX,
-        description="The seed to use",
-        default_factory=get_random_seed,
+    seed: int = InputField(
+        ge=0, le=SEED_MAX, description="The seed to use", default_factory=get_random_seed, ui_type_hint=UITypeHint.Seed
     )
-    width: int = Field(
+    width: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
         description="The width of the resulting noise",
     )
-    height: int = Field(
+    height: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
         description="The height of the resulting noise",
     )
-    use_cpu: bool = Field(
+    use_cpu: bool = InputField(
         default=True,
         description="Use CPU for noise generation (for reproducible results across platforms)",
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Noise",
-                tags=["latents", "noise"],
-            )
-        }
 
     @validator("seed", pre=True)
     def modulo_seed(cls, v):

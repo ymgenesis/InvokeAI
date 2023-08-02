@@ -3,11 +3,21 @@ import inspect
 from tqdm import tqdm
 from typing import List, Literal, Optional, Union
 
-from pydantic import Field, validator
+from pydantic import validator
 
 from ...backend.model_management import ModelType, SubModelType, ModelPatcher
 from invokeai.app.util.step_callback import stable_diffusion_xl_step_callback
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
+from .baseinvocation import (
+    BaseInvocation,
+    BaseInvocationOutput,
+    InputField,
+    InputKind,
+    InvocationContext,
+    OutputField,
+    Tags,
+    Title,
+    UITypeHint,
+)
 
 from .model import UNetField, ClipField, VaeField, MainModelField, ModelInfo
 from .compel import ConditioningField
@@ -17,45 +27,34 @@ from .latent import LatentsField, SAMPLER_NAME_VALUES, LatentsOutput, get_schedu
 class SDXLModelLoaderOutput(BaseInvocationOutput):
     """SDXL base model loader output"""
 
-    # fmt: off
     type: Literal["sdxl_model_loader_output"] = "sdxl_model_loader_output"
 
-    unet: UNetField = Field(default=None, description="UNet submodel")
-    clip: ClipField = Field(default=None, description="Tokenizer and text_encoder submodels")
-    clip2: ClipField = Field(default=None, description="Tokenizer and text_encoder submodels")
-    vae: VaeField = Field(default=None, description="Vae submodel")
-    # fmt: on
+    unet: UNetField = OutputField(default=None, description="UNet submodel", title="UNet")
+    clip: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP 1")
+    clip2: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP 2")
+    vae: VaeField = OutputField(default=None, description="Vae submodel", title="VAE")
 
 
 class SDXLRefinerModelLoaderOutput(BaseInvocationOutput):
     """SDXL refiner model loader output"""
 
-    # fmt: off
     type: Literal["sdxl_refiner_model_loader_output"] = "sdxl_refiner_model_loader_output"
-    unet: UNetField = Field(default=None, description="UNet submodel")
-    clip2: ClipField = Field(default=None, description="Tokenizer and text_encoder submodels")
-    vae: VaeField = Field(default=None, description="Vae submodel")
-    # fmt: on
-    # fmt: on
+
+    unet: UNetField = OutputField(default=None, description="UNet submodel", title="UNet")
+    clip2: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP 2")
+    vae: VaeField = OutputField(default=None, description="Vae submodel", title="VAE")
 
 
 class SDXLModelLoaderInvocation(BaseInvocation):
     """Loads an sdxl base model, outputting its submodels."""
 
     type: Literal["sdxl_model_loader"] = "sdxl_model_loader"
+    title = Title("SDXL Main Model Loader")
+    tags = Tags(["model", "sdxl"])
 
     # Inputs
-    model: MainModelField = Field(description="The model to load")
+    model: MainModelField = InputField(description="The model to load", input_kind=InputKind.Direct)
     # TODO: precision?
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="SDXL Model Loader",
-                fields={"model": UIInputField(field_type="sdxl_main_model", input_kind="direct")},
-            )
-        }
 
     def invoke(self, context: InvocationContext) -> SDXLModelLoaderOutput:
         base_model = self.model.base_model
@@ -133,19 +132,12 @@ class SDXLRefinerModelLoaderInvocation(BaseInvocation):
     """Loads an sdxl refiner model, outputting its submodels."""
 
     type: Literal["sdxl_refiner_model_loader"] = "sdxl_refiner_model_loader"
+    title = Title("SDXL Refiner Model Loader")
+    tags = Tags(["model", "sdxl", "refiner"])
 
     # Inputs
-    model: MainModelField = Field(description="The model to load")
+    model: MainModelField = InputField(description="The model to load", input_kind=InputKind.Direct)
     # TODO: precision?
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="SDXL Refiner Model Loader",
-                fields={"model": UIInputField(field_type="sdxl_refiner_model", input_kind="direct")},
-            )
-        }
 
     def invoke(self, context: InvocationContext) -> SDXLRefinerModelLoaderOutput:
         base_model = self.model.base_model
@@ -208,23 +200,35 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
     type: Literal["t2l_sdxl"] = "t2l_sdxl"
+    title = Title("SDXL Text to Latents")
+    tags = Tags(["latents", "inference", "txt2img", "sdxl"])
 
     # Inputs
-    positive_conditioning: Optional[ConditioningField] = Field(description="Positive conditioning for generation")
-    negative_conditioning: Optional[ConditioningField] = Field(description="Negative conditioning for generation")
-    noise: Optional[LatentsField] = Field(description="The noise to use")
-    steps: int = Field(default=10, gt=0, description="The number of steps to use to generate the image")
-    cfg_scale: Union[float, List[float]] = Field(
+    positive_conditioning: Optional[ConditioningField] = InputField(
+        description="Positive conditioning for generation",
+        input_kind=InputKind.Connection,
+    )
+    negative_conditioning: Optional[ConditioningField] = InputField(
+        description="Negative conditioning for generation",
+        input_kind=InputKind.Connection,
+    )
+    noise: Optional[LatentsField] = InputField(
+        description="The noise to use",
+        input_kind=InputKind.Connection,
+    )
+    steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
+    cfg_scale: Union[float, List[float]] = InputField(
         default=7.5,
         ge=1,
         description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
+        ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = Field(default="euler", description="The scheduler to use")
-    unet: UNetField = Field(default=None, description="UNet submodel")
-    denoising_end: float = Field(default=1.0, gt=0, le=1, description="")
-    # control: Union[ControlField, list[ControlField]] = Field(default=None, description="The control to use")
-    # seamless:   bool = Field(default=False, description="Whether or not to generate an image that can tile without seams", )
-    # seamless_axes: str = Field(default="", description="The axes to tile the image on, 'x' and/or 'y'")
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
+    unet: UNetField = InputField(default=None, description="UNet submodel", input_kind=InputKind.Connection)
+    denoising_end: float = InputField(default=1.0, gt=0, le=1, description="")
+    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
+    # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
+    # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
 
     @validator("cfg_scale")
     def ge_one(cls, v):
@@ -237,27 +241,6 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
             if v < 1:
                 raise ValueError("cfg_scale must be greater than 1")
         return v
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="SDXL Text to Latents",
-                tags=["latents", "inference", "txt2img", "sdxl"],
-                fields={
-                    "positive_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "negative_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "noise": UIInputField(field_type="latents", input_requirement="required", input_kind="connection"),
-                    "cfg_scale": UIInputField(field_type="float"),
-                    "unet": UIInputField(input_requirement="required", input_kind="connection"),
-                    "control": UIInputField(input_requirement="required", input_kind="connection"),
-                },
-            )
-        }
 
     def dispatch_progress(
         self,
@@ -472,23 +455,40 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
     type: Literal["l2l_sdxl"] = "l2l_sdxl"
 
     # Inputs
-    positive_conditioning: Optional[ConditioningField] = Field(description="Positive conditioning for generation")
-    negative_conditioning: Optional[ConditioningField] = Field(description="Negative conditioning for generation")
-    noise: Optional[LatentsField] = Field(description="The noise to use")
-    steps: int = Field(default=10, gt=0, description="The number of steps to use to generate the image")
-    cfg_scale: Union[float, List[float]] = Field(
+    positive_conditioning: Optional[ConditioningField] = InputField(
+        description="Positive conditioning for generation",
+        input_kind=InputKind.Connection,
+    )
+    negative_conditioning: Optional[ConditioningField] = InputField(
+        description="Negative conditioning for generation",
+        input_kind=InputKind.Connection,
+    )
+    noise: Optional[LatentsField] = InputField(
+        description="The noise to use",
+        input_kind=InputKind.Connection,
+    )
+    steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
+    cfg_scale: Union[float, List[float]] = InputField(
         default=7.5,
         ge=1,
         description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
+        ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = Field(default="euler", description="The scheduler to use")
-    unet: UNetField = Field(default=None, description="UNet submodel")
-    latents: Optional[LatentsField] = Field(description="Initial latents")
-    denoising_start: float = Field(default=0.0, ge=0, le=1, description="")
-    denoising_end: float = Field(default=1.0, ge=0, le=1, description="")
-    # control: Union[ControlField, list[ControlField]] = Field(default=None, description="The control to use")
-    # seamless:   bool = Field(default=False, description="Whether or not to generate an image that can tile without seams", )
-    # seamless_axes: str = Field(default="", description="The axes to tile the image on, 'x' and/or 'y'")
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
+    unet: UNetField = InputField(
+        default=None,
+        description="UNet submodel",
+        input_kind=InputKind.Connection,
+    )
+    latents: Optional[LatentsField] = InputField(
+        description="Initial latents",
+        input_kind=InputKind.Connection,
+    )
+    denoising_start: float = InputField(default=0.0, ge=0, le=1, description="")
+    denoising_end: float = InputField(default=1.0, ge=0, le=1, description="")
+    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
+    # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
+    # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
 
     @validator("cfg_scale")
     def ge_one(cls, v):
@@ -501,30 +501,6 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
             if v < 1:
                 raise ValueError("cfg_scale must be greater than 1")
         return v
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="SDXL Latents to Latents",
-                tags=["latents", "inference", "img2img", "sdxl"],
-                fields={
-                    "positive_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "negative_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "noise": UIInputField(field_type="latents", input_requirement="required", input_kind="connection"),
-                    "latents": UIInputField(
-                        field_type="latents", input_requirement="required", input_kind="connection"
-                    ),
-                    "cfg_scale": UIInputField(field_type="float"),
-                    "unet": UIInputField(input_requirement="required", input_kind="connection"),
-                    "control": UIInputField(input_requirement="required", input_kind="connection"),
-                },
-            )
-        }
 
     def dispatch_progress(
         self,

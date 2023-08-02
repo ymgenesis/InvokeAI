@@ -13,7 +13,7 @@ from invokeai.backend.generator.inpaint import infill_methods
 from ...backend.generator import Inpaint, InvokeAIGenerator
 from ...backend.stable_diffusion import PipelineIntermediateState
 from ..util.step_callback import stable_diffusion_step_callback
-from .baseinvocation import BaseInvocation, InvocationContext, UINodeConfig
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, Tags, Title
 from .image import ImageOutput
 
 from ...backend.model_management.lora import ModelPatcher
@@ -60,84 +60,77 @@ class InpaintInvocation(BaseInvocation):
     """Generates an image using inpaint."""
 
     type: Literal["inpaint"] = "inpaint"
+    title = Title("Inpaint")
+    tags = Tags(["image", "inpaint"])
 
-    positive_conditioning: Optional[ConditioningField] = Field(description="Positive conditioning for generation")
-    negative_conditioning: Optional[ConditioningField] = Field(description="Negative conditioning for generation")
-    seed: int = Field(
+    positive_conditioning: Optional[ConditioningField] = InputField(description="Positive conditioning for generation")
+    negative_conditioning: Optional[ConditioningField] = InputField(description="Negative conditioning for generation")
+    seed: int = InputField(
         ge=0, le=SEED_MAX, description="The seed to use (omit for random)", default_factory=get_random_seed
     )
-    steps: int = Field(default=30, gt=0, description="The number of steps to use to generate the image")
-    width: int = Field(
+    steps: int = InputField(default=30, gt=0, description="The number of steps to use to generate the image")
+    width: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
         description="The width of the resulting image",
     )
-    height: int = Field(
+    height: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
         description="The height of the resulting image",
     )
-    cfg_scale: float = Field(
+    cfg_scale: float = InputField(
         default=7.5,
         ge=1,
         description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
     )
-    scheduler: SAMPLER_NAME_VALUES = Field(default="euler", description="The scheduler to use")
-    unet: UNetField = Field(default=None, description="UNet model")
-    vae: VaeField = Field(default=None, description="Vae model")
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
+    unet: UNetField = InputField(default=None, description="UNet model")
+    vae: VaeField = InputField(default=None, description="Vae model")
 
     # Inputs
-    image: Optional[ImageField] = Field(description="The input image")
-    strength: float = Field(default=0.75, gt=0, le=1, description="The strength of the original image")
-    fit: bool = Field(
+    image: Optional[ImageField] = InputField(description="The input image")
+    strength: float = InputField(default=0.75, gt=0, le=1, description="The strength of the original image")
+    fit: bool = InputField(
         default=True,
         description="Whether or not the result should be fit to the aspect ratio of the input image",
     )
 
     # Inputs
-    mask: Optional[ImageField] = Field(description="The mask")
-    seam_size: int = Field(default=96, ge=1, description="The seam inpaint size (px)")
-    seam_blur: int = Field(default=16, ge=0, description="The seam inpaint blur radius (px)")
-    seam_strength: float = Field(default=0.75, gt=0, le=1, description="The seam inpaint strength")
-    seam_steps: int = Field(default=30, ge=1, description="The number of steps to use for seam inpaint")
-    tile_size: int = Field(default=32, ge=1, description="The tile infill method size (px)")
-    infill_method: INFILL_METHODS = Field(
+    mask: Optional[ImageField] = InputField(description="The mask")
+    seam_size: int = InputField(default=96, ge=1, description="The seam inpaint size (px)")
+    seam_blur: int = InputField(default=16, ge=0, description="The seam inpaint blur radius (px)")
+    seam_strength: float = InputField(default=0.75, gt=0, le=1, description="The seam inpaint strength")
+    seam_steps: int = InputField(default=30, ge=1, description="The number of steps to use for seam inpaint")
+    tile_size: int = InputField(default=32, ge=1, description="The tile infill method size (px)")
+    infill_method: INFILL_METHODS = InputField(
         default=DEFAULT_INFILL_METHOD,
         description="The method used to infill empty regions (px)",
     )
-    inpaint_width: Optional[int] = Field(
+    inpaint_width: Optional[int] = InputField(
         default=None,
         multiple_of=8,
         gt=0,
         description="The width of the inpaint region (px)",
     )
-    inpaint_height: Optional[int] = Field(
+    inpaint_height: Optional[int] = InputField(
         default=None,
         multiple_of=8,
         gt=0,
         description="The height of the inpaint region (px)",
     )
-    inpaint_fill: Optional[ColorField] = Field(
+    inpaint_fill: Optional[ColorField] = InputField(
         default=ColorField(r=127, g=127, b=127, a=255),
         description="The solid infill method color",
     )
-    inpaint_replace: float = Field(
+    inpaint_replace: float = InputField(
         default=0.0,
         ge=0.0,
         le=1.0,
         description="The amount by which to replace masked areas with latent noise",
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Inpaint",
-                tags=["stable-diffusions", "image"],
-            )
-        }
 
     def dispatch_progress(
         self,

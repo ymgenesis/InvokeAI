@@ -5,7 +5,6 @@ from typing import Literal, Optional, get_args
 import numpy as np
 import math
 from PIL import Image, ImageOps
-from pydantic import Field
 
 from invokeai.app.invocations.image import ImageOutput
 from invokeai.app.util.misc import SEED_MAX, get_random_seed
@@ -14,9 +13,11 @@ from invokeai.backend.image_util.patchmatch import PatchMatch
 from ..models.image import ColorField, ImageCategory, ImageField, ResourceOrigin
 from .baseinvocation import (
     BaseInvocation,
+    InputField,
     InvocationContext,
-    UINodeConfig,
-    UIInputField,
+    Tags,
+    Title,
+    UITypeHint,
 )
 
 
@@ -119,27 +120,15 @@ class InfillColorInvocation(BaseInvocation):
     """Infills transparent areas of an image with a solid color"""
 
     type: Literal["infill_rgba"] = "infill_rgba"
+    title = Title("Solid Color Infill")
+    tags = Tags(["image", "inpaint"])
 
     # Inputs
-    image: Optional[ImageField] = Field(default=None, description="The image to infill")
-    color: ColorField = Field(
+    image: Optional[ImageField] = InputField(default=None, description="The image to infill")
+    color: ColorField = InputField(
         default=ColorField(r=127, g=127, b=127, a=255),
         description="The color to use to infill",
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Solid Color Infill",
-                tags=["image", "inpaint"],
-                fields={
-                    "image": UIInputField(
-                        input_requirement="required",
-                    ),
-                },
-            )
-        }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -169,30 +158,19 @@ class InfillTileInvocation(BaseInvocation):
     """Infills transparent areas of an image with tiles of the image"""
 
     type: Literal["infill_tile"] = "infill_tile"
+    title = Title("Tile Infill")
+    tags = Tags(["image", "inpaint"])
 
     # Input
-    image: Optional[ImageField] = Field(default=None, description="The image to infill")
-    tile_size: int = Field(default=32, ge=1, description="The tile size (px)")
-    seed: int = Field(
+    image: Optional[ImageField] = InputField(default=None, description="The image to infill")
+    tile_size: int = InputField(default=32, ge=1, description="The tile size (px)")
+    seed: int = InputField(
         ge=0,
         le=SEED_MAX,
         description="The seed to use for tile generation (omit for random)",
         default_factory=get_random_seed,
+        ui_type_hint=UITypeHint.Seed,
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Tile Infill",
-                tags=["image", "inpaint"],
-                fields={
-                    "image": UIInputField(
-                        input_requirement="required",
-                    ),
-                },
-            )
-        }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -220,23 +198,11 @@ class InfillPatchMatchInvocation(BaseInvocation):
     """Infills transparent areas of an image using the PatchMatch algorithm"""
 
     type: Literal["infill_patchmatch"] = "infill_patchmatch"
+    title = Title("PatchMatch Infill")
+    tags = Tags(["image", "inpaint"])
 
     # Inputs
-    image: Optional[ImageField] = Field(default=None, description="The image to infill")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Patchmatch Infill",
-                tags=["image", "inpaint"],
-                fields={
-                    "image": UIInputField(
-                        input_requirement="required",
-                    ),
-                },
-            )
-        }
+    image: Optional[ImageField] = InputField(default=None, description="The image to infill")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)

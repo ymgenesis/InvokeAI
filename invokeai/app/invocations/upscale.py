@@ -6,12 +6,11 @@ import cv2 as cv
 import numpy as np
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from PIL import Image
-from pydantic import Field
 from realesrgan import RealESRGANer
 
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
 
-from .baseinvocation import BaseInvocation, InvocationContext, UINodeConfig, UIInputField
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, Tags, Title
 from .image import ImageOutput
 
 # TODO: Populate this from disk?
@@ -28,19 +27,12 @@ class ESRGANInvocation(BaseInvocation):
     """Upscales an image using RealESRGAN."""
 
     type: Literal["esrgan"] = "esrgan"
+    title = Title("Upscale (RealESRGAN)")
+    tags = Tags(["esrgan", "upscale"])
 
     # Inputs
-    image: Union[ImageField, None] = Field(default=None, description="The input image")
-    model_name: ESRGAN_MODELS = Field(default="RealESRGAN_x4plus.pth", description="The Real-ESRGAN model to use")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Upscale (RealESRGAN)",
-                fields={"image": UIInputField(field_type="image", input_requirement="required")},
-            )
-        }
+    image: Union[ImageField, None] = InputField(default=None, description="The input image")
+    model_name: ESRGAN_MODELS = InputField(default="RealESRGAN_x4plus.pth", description="The Real-ESRGAN model to use")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)

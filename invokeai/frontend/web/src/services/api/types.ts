@@ -34,7 +34,8 @@ export type UnsafeImageMetadata = {
  */
 type TypeReq<T extends object> = O.Required<T, 'type'>;
 
-// Extracted types from API schema
+export type InputFieldExtra = components['schemas']['InputFieldExtra'];
+export type OutputFieldExtra = components['schemas']['OutputFieldExtra'];
 
 // App Info
 export type AppVersion = components['schemas']['AppVersion'];

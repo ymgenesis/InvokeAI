@@ -28,7 +28,17 @@ from pydantic import BaseModel, Field, validator
 
 from ...backend.model_management import BaseModelType, ModelType
 from ..models.image import ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
+from .baseinvocation import (
+    BaseInvocation,
+    BaseInvocationOutput,
+    InputField,
+    InputKind,
+    InvocationContext,
+    OutputField,
+    Tags,
+    Title,
+    UITypeHint,
+)
 from ..models.image import ImageOutput
 
 
@@ -90,44 +100,36 @@ class ControlField(BaseModel):
 class ControlOutput(BaseInvocationOutput):
     """node output for ControlNet info"""
 
-    # fmt: off
     type: Literal["control_output"] = "control_output"
-    control: ControlField = Field(default=None, description="The control info")
-    # fmt: on
+    title = Title("Control Output")
+
+    # Outputs
+    control: ControlField = OutputField(default=None, description="The control info")
 
 
 class ControlNetInvocation(BaseInvocation):
     """Collects ControlNet info to pass to other nodes"""
 
     type: Literal["controlnet"] = "controlnet"
+    title = Title("ControlNet")
+    tags = Tags(["controlnet"])
 
     # Inputs
-    image: ImageField = Field(default=None, description="The control image")
-    control_model: ControlNetModelField = Field(
-        default="lllyasviel/sd-controlnet-canny", description="control model used"
+    image: ImageField = InputField(default=None, description="The control image")
+    control_model: ControlNetModelField = InputField(
+        default="lllyasviel/sd-controlnet-canny", description="control model used", input_kind=InputKind.Connection
     )
-    control_weight: Union[float, List[float]] = Field(default=1.0, description="The weight given to the ControlNet")
-    begin_step_percent: float = Field(
+    control_weight: Union[float, List[float]] = InputField(
+        default=1.0, description="The weight given to the ControlNet", ui_type_hint=UITypeHint.Float
+    )
+    begin_step_percent: float = InputField(
         default=0, ge=-1, le=2, description="When the ControlNet is first applied (% of total steps)"
     )
-    end_step_percent: float = Field(
+    end_step_percent: float = InputField(
         default=1, ge=0, le=1, description="When the ControlNet is last applied (% of total steps)"
     )
-    control_mode: CONTROLNET_MODE_VALUES = Field(default="balanced", description="The control mode used")
-    resize_mode: CONTROLNET_RESIZE_VALUES = Field(default="just_resize", description="The resize mode used")
-
-    # Schema customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="ControlNet",
-                fields={
-                    "control_model": UIInputField(field_type="controlnet_model", input_kind="direct"),
-                    "control_weight": UIInputField(field_type="float"),
-                },
-                tags=["controlnet"],
-            )
-        }
+    control_mode: CONTROLNET_MODE_VALUES = InputField(default="balanced", description="The control mode used")
+    resize_mode: CONTROLNET_RESIZE_VALUES = InputField(default="just_resize", description="The resize mode used")
 
     def invoke(self, context: InvocationContext) -> ControlOutput:
         return ControlOutput(
@@ -149,7 +151,7 @@ class ImageProcessorInvocation(BaseInvocation):
     type: Literal["image_processor"] = "image_processor"
 
     # Inputs
-    image: ImageField = Field(default=None, description="The image to process")
+    image: ImageField = InputField(default=None, description="The image to process")
 
     def run_processor(self, image):
         # superclass just passes through image without processing
@@ -192,23 +194,16 @@ class CannyImageProcessorInvocation(ImageProcessorInvocation):
     """Canny edge detection for ControlNet"""
 
     type: Literal["canny_image_processor"] = "canny_image_processor"
+    title = Title("Canny Processor")
+    tags = Tags(["controlnet", "canny"])
 
     # Input
-    low_threshold: int = Field(
+    low_threshold: int = InputField(
         default=100, ge=0, le=255, description="The low threshold of the Canny pixel gradient (0-255)"
     )
-    high_threshold: int = Field(
+    high_threshold: int = InputField(
         default=200, ge=0, le=255, description="The high threshold of the Canny pixel gradient (0-255)"
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Canny Processor",
-                tags=["controlnet", "canny"],
-            )
-        }
 
     def run_processor(self, image):
         canny_processor = CannyDetector()
@@ -220,22 +215,15 @@ class HedImageProcessorInvocation(ImageProcessorInvocation):
     """Applies HED edge detection to image"""
 
     type: Literal["hed_image_processor"] = "hed_image_processor"
+    title = Title("HED (softedge) Processor")
+    tags = Tags(["controlnet", "hed", "softedge"])
 
     # Inputs
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
     # safe not supported in controlnet_aux v0.0.3
-    # safe: bool = Field(default=False, description="whether to use safe mode")
-    scribble: bool = Field(default=False, description="Whether to use scribble mode")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="HED (softedge) Processor",
-                tags=["controlnet", "hed", "softedge"],
-            )
-        }
+    # safe: bool = InputField(default=False, description="whether to use safe mode")
+    scribble: bool = InputField(default=False, description="Whether to use scribble mode")
 
     def run_processor(self, image):
         hed_processor = HEDdetector.from_pretrained("lllyasviel/Annotators")
@@ -254,20 +242,13 @@ class LineartImageProcessorInvocation(ImageProcessorInvocation):
     """Applies line art processing to image"""
 
     type: Literal["lineart_image_processor"] = "lineart_image_processor"
+    title = Title("Lineart Processor")
+    tags = Tags(["controlnet", "lineart"])
 
     # Inputs
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-    coarse: bool = Field(default=False, description="Whether to use coarse mode")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Lineart Processor",
-                tags=["controlnet", "lineart"],
-            )
-        }
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    coarse: bool = InputField(default=False, description="Whether to use coarse mode")
 
     def run_processor(self, image):
         lineart_processor = LineartDetector.from_pretrained("lllyasviel/Annotators")
@@ -281,19 +262,12 @@ class LineartAnimeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies line art anime processing to image"""
 
     type: Literal["lineart_anime_image_processor"] = "lineart_anime_image_processor"
+    title = Title("Lineart Anime Processor")
+    tags = Tags(["controlnet", "lineart", "anime"])
 
     # Inputs
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Lineart Anime Processor",
-                tags=["controlnet", "lineart", "anime"],
-            )
-        }
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
 
     def run_processor(self, image):
         processor = LineartAnimeDetector.from_pretrained("lllyasviel/Annotators")
@@ -309,20 +283,13 @@ class OpenposeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Openpose processing to image"""
 
     type: Literal["openpose_image_processor"] = "openpose_image_processor"
+    title = Title("Openpose Processor")
+    tags = Tags(["controlnet", "openpose", "pose"])
 
     # Inputs
-    hand_and_face: bool = Field(default=False, description="Whether to use hands and face mode")
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Openpose Processor",
-                tags=["controlnet", "openpose", "pose"],
-            )
-        }
+    hand_and_face: bool = InputField(default=False, description="Whether to use hands and face mode")
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
 
     def run_processor(self, image):
         openpose_processor = OpenposeDetector.from_pretrained("lllyasviel/Annotators")
@@ -339,21 +306,14 @@ class MidasDepthImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Midas depth processing to image"""
 
     type: Literal["midas_depth_image_processor"] = "midas_depth_image_processor"
+    title = Title("Midas (Depth) Processor")
+    tags = Tags(["controlnet", "midas", "depth"])
 
     # Inputs
-    a_mult: float = Field(default=2.0, ge=0, description="Midas parameter `a_mult` (a = a_mult * PI)")
-    bg_th: float = Field(default=0.1, ge=0, description="Midas parameter `bg_th`")
+    a_mult: float = InputField(default=2.0, ge=0, description="Midas parameter `a_mult` (a = a_mult * PI)")
+    bg_th: float = InputField(default=0.1, ge=0, description="Midas parameter `bg_th`")
     # depth_and_normal not supported in controlnet_aux v0.0.3
-    # depth_and_normal: bool = Field(default=False, description="whether to use depth and normal mode")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Midas (Depth) Processor",
-                tags=["controlnet", "midas", "depth"],
-            )
-        }
+    # depth_and_normal: bool = InputField(default=False, description="whether to use depth and normal mode")
 
     def run_processor(self, image):
         midas_processor = MidasDetector.from_pretrained("lllyasviel/Annotators")
@@ -371,19 +331,12 @@ class NormalbaeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies NormalBae processing to image"""
 
     type: Literal["normalbae_image_processor"] = "normalbae_image_processor"
+    title = Title("Normal BAE Processor")
+    tags = Tags(["controlnet", "normal", "bae"])
 
     # Inputs
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Normal BAE Processor",
-                tags=["controlnet", "normal", "bae"],
-            )
-        }
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
 
     def run_processor(self, image):
         normalbae_processor = NormalBaeDetector.from_pretrained("lllyasviel/Annotators")
@@ -397,21 +350,14 @@ class MlsdImageProcessorInvocation(ImageProcessorInvocation):
     """Applies MLSD processing to image"""
 
     type: Literal["mlsd_image_processor"] = "mlsd_image_processor"
+    title = Title("MLSD Processor")
+    tags = Tags(["controlnet", "mlsd"])
 
     # Inputs
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-    thr_v: float = Field(default=0.1, ge=0, description="MLSD parameter `thr_v`")
-    thr_d: float = Field(default=0.1, ge=0, description="MLSD parameter `thr_d`")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="MLSD Processor",
-                tags=["controlnet", "mlsd"],
-            )
-        }
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    thr_v: float = InputField(default=0.1, ge=0, description="MLSD parameter `thr_v`")
+    thr_d: float = InputField(default=0.1, ge=0, description="MLSD parameter `thr_d`")
 
     def run_processor(self, image):
         mlsd_processor = MLSDdetector.from_pretrained("lllyasviel/Annotators")
@@ -429,21 +375,14 @@ class PidiImageProcessorInvocation(ImageProcessorInvocation):
     """Applies PIDI processing to image"""
 
     type: Literal["pidi_image_processor"] = "pidi_image_processor"
+    title = Title("PIDI Processor")
+    tags = Tags(["controlnet", "pidi"])
 
     # Inputs
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-    safe: bool = Field(default=False, description="Whether to use safe mode")
-    scribble: bool = Field(default=False, description="Whether to use scribble mode")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="PIDI Processor",
-                tags=["controlnet", "pidi"],
-            )
-        }
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    safe: bool = InputField(default=False, description="Whether to use safe mode")
+    scribble: bool = InputField(default=False, description="Whether to use scribble mode")
 
     def run_processor(self, image):
         pidi_processor = PidiNetDetector.from_pretrained("lllyasviel/Annotators")
@@ -461,22 +400,15 @@ class ContentShuffleImageProcessorInvocation(ImageProcessorInvocation):
     """Applies content shuffle processing to image"""
 
     type: Literal["content_shuffle_image_processor"] = "content_shuffle_image_processor"
+    title = Title("Content Shuffle Processor")
+    tags = Tags(["controlnet", "contentshuffle"])
 
     # Inputs
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-    h: Optional[int] = Field(default=512, ge=0, description="Content shuffle `h` parameter")
-    w: Optional[int] = Field(default=512, ge=0, description="Content shuffle `w` parameter")
-    f: Optional[int] = Field(default=256, ge=0, description="Content shuffle `f` parameter")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Content Shuffle Processor",
-                tags=["controlnet", "contentshuffle"],
-            )
-        }
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    h: Optional[int] = InputField(default=512, ge=0, description="Content shuffle `h` parameter")
+    w: Optional[int] = InputField(default=512, ge=0, description="Content shuffle `w` parameter")
+    f: Optional[int] = InputField(default=256, ge=0, description="Content shuffle `f` parameter")
 
     def run_processor(self, image):
         content_shuffle_processor = ContentShuffleDetector()
@@ -496,15 +428,8 @@ class ZoeDepthImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Zoe depth processing to image"""
 
     type: Literal["zoe_depth_image_processor"] = "zoe_depth_image_processor"
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Zoe (Depth) Processor",
-                tags=["controlnet", "zoe", "depth"],
-            )
-        }
+    title = Title("Zoe (Depth) Processor")
+    tags = Tags(["controlnet", "zoe", "depth"])
 
     def run_processor(self, image):
         zoe_depth_processor = ZoeDetector.from_pretrained("lllyasviel/Annotators")
@@ -516,19 +441,12 @@ class MediapipeFaceProcessorInvocation(ImageProcessorInvocation):
     """Applies mediapipe face processing to image"""
 
     type: Literal["mediapipe_face_processor"] = "mediapipe_face_processor"
+    title = Title("Mediapipe Face Processor")
+    tags = Tags(["controlnet", "mediapipe", "face"])
 
     # Inputs
-    max_faces: int = Field(default=1, ge=1, description="Maximum number of faces to detect")
-    min_confidence: float = Field(default=0.5, ge=0, le=1, description="Minimum confidence for face detection")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Mediapipe Processor",
-                tags=["controlnet", "mediapipe", "pose"],
-            )
-        }
+    max_faces: int = InputField(default=1, ge=1, description="Maximum number of faces to detect")
+    min_confidence: float = InputField(default=0.5, ge=0, le=1, description="Minimum confidence for face detection")
 
     def run_processor(self, image):
         # MediaPipeFaceDetector throws an error if image has alpha channel
@@ -544,22 +462,15 @@ class LeresImageProcessorInvocation(ImageProcessorInvocation):
     """Applies leres processing to image"""
 
     type: Literal["leres_image_processor"] = "leres_image_processor"
+    title = Title("Leres (Depth) Processor")
+    tags = Tags(["controlnet", "leres", "depth"])
 
     # Inputs
-    thr_a: float = Field(default=0, description="Leres parameter `thr_a`")
-    thr_b: float = Field(default=0, description="Leres parameter `thr_b`")
-    boost: bool = Field(default=False, description="Whether to use boost mode")
-    detect_resolution: int = Field(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = Field(default=512, ge=0, description="The pixel resolution for the output image")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Leres (Depth) Processor",
-                tags=["controlnet", "leres", "depth"],
-            )
-        }
+    thr_a: float = InputField(default=0, description="Leres parameter `thr_a`")
+    thr_b: float = InputField(default=0, description="Leres parameter `thr_b`")
+    boost: bool = InputField(default=False, description="Whether to use boost mode")
+    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
+    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
 
     def run_processor(self, image):
         leres_processor = LeresDetector.from_pretrained("lllyasviel/Annotators")
@@ -578,22 +489,12 @@ class TileResamplerProcessorInvocation(ImageProcessorInvocation):
     """Tile resampler processor"""
 
     type: Literal["tile_image_processor"] = "tile_image_processor"
+    title = Title("Tile Resample Processor")
+    tags = Tags(["controlnet", "tile"])
 
     # Inputs
-    # res: int = Field(default=512, ge=0, le=1024, description="The pixel resolution for each tile")
-    down_sampling_rate: float = Field(default=1.0, ge=1.0, le=8.0, description="Down sampling rate")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Tile Resample Processor",
-                tags=[
-                    "controlnet",
-                    "tile",
-                ],
-            )
-        }
+    # res: int = InputField(default=512, ge=0, le=1024, description="The pixel resolution for each tile")
+    down_sampling_rate: float = InputField(default=1.0, ge=1.0, le=8.0, description="Down sampling rate")
 
     # tile_resample copied from sd-webui-controlnet/scripts/processor.py
     def tile_resample(
@@ -626,15 +527,8 @@ class SegmentAnythingProcessorInvocation(ImageProcessorInvocation):
     """Applies segment anything processing to image"""
 
     type: Literal["segment_anything_processor"] = "segment_anything_processor"
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Segment Anything Processor",
-                tags=["controlnet", "segmentanything"],
-            )
-        }
+    title = Title("Segment Anything Processor")
+    tags = Tags(["controlnet", "segmentanything"])
 
     def run_processor(self, image):
         # segment_anything_processor = SamDetector.from_pretrained("ybelkada/segment-anything", subfolder="checkpoints")

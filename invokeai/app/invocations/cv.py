@@ -5,10 +5,9 @@ from typing import Literal
 import cv2 as cv
 import numpy
 from PIL import Image, ImageOps
-from pydantic import BaseModel, Field
 
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import BaseInvocation, InvocationContext, UINodeConfig
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, Tags, Title
 from .image import ImageOutput
 
 
@@ -16,19 +15,12 @@ class CvInpaintInvocation(BaseInvocation):
     """Simple inpaint using opencv."""
 
     type: Literal["cv_inpaint"] = "cv_inpaint"
+    title = Title("OpenCV Inpaint")
+    tags = Tags(["opencv", "inpaint"])
 
     # Inputs
-    image: ImageField = Field(default=None, description="The image to inpaint")
-    mask: ImageField = Field(default=None, description="The mask to use when inpainting")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="OpenCV Inpaint",
-                tags=["opencv", "inpaint"],
-            )
-        }
+    image: ImageField = InputField(default=None, description="The image to inpaint")
+    mask: ImageField = InputField(default=None, description="The mask to use when inpainting")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
