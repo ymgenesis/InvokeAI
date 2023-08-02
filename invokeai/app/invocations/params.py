@@ -2,11 +2,17 @@
 
 from typing import Literal
 
-from pydantic import Field
-
 from invokeai.app.invocations.prompt import PromptOutput
 
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig
+from .baseinvocation import (
+    BaseInvocation,
+    BaseInvocationOutput,
+    InputField,
+    InvocationContext,
+    OutputField,
+    Tags,
+    Title,
+)
 from .math import FloatOutput, IntOutput
 
 # Pass-through parameter nodes - used by subgraphs
@@ -16,18 +22,11 @@ class ParamIntInvocation(BaseInvocation):
     """An integer parameter"""
 
     type: Literal["param_int"] = "param_int"
+    title = Title("Integer Parameter")
+    tags = Tags(["integer"])
 
     # Inputs
-    a: int = Field(default=0, description="The integer value")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Integer Parameter",
-                tags=["integer"],
-            )
-        }
+    a: int = InputField(default=0, description="The integer value")
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=self.a)
@@ -37,46 +36,32 @@ class ParamFloatInvocation(BaseInvocation):
     """A float parameter"""
 
     type: Literal["param_float"] = "param_float"
+    title = Title("Float Parameter")
+    tags = Tags(["float"])
 
     # Inputs
-    param: float = Field(default=0.0, description="The float value")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Float Parameter",
-                tags=["float"],
-            )
-        }
+    param: float = InputField(default=0.0, description="The float value")
 
     def invoke(self, context: InvocationContext) -> FloatOutput:
-        return FloatOutput(param=self.param)
+        return FloatOutput(a=self.param)
 
 
 class StringOutput(BaseInvocationOutput):
     """A string output"""
 
     type: Literal["string_output"] = "string_output"
-    text: str = Field(default=None, description="The output string")
+    text: str = OutputField(default=None, description="The output string")
 
 
 class ParamStringInvocation(BaseInvocation):
     """A string parameter"""
 
     type: Literal["param_string"] = "param_string"
+    title = Title("String Parameter")
+    tags = Tags(["string"])
 
     # Inputs
-    text: str = Field(default="", description="The string value")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="String Parameter",
-                tags=["string"],
-            )
-        }
+    text: str = InputField(default="", description="The string value")
 
     def invoke(self, context: InvocationContext) -> StringOutput:
         return StringOutput(text=self.text)
@@ -86,18 +71,11 @@ class ParamPromptInvocation(BaseInvocation):
     """A prompt input parameter"""
 
     type: Literal["param_prompt"] = "param_prompt"
+    title = Title("Prompt Parameter")
+    tags = Tags(["prompt"])
 
     # Inputs
-    prompt: str = Field(default="", description="The prompt value")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Prompt Parameter",
-                tags=["prompt", "integer"],
-            )
-        }
+    prompt: str = InputField(default="", description="The prompt value")
 
     def invoke(self, context: InvocationContext) -> PromptOutput:
         return PromptOutput(prompt=self.prompt)

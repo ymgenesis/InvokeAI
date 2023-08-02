@@ -5,16 +5,22 @@ from typing import List, Literal, Optional, Union
 
 import einops
 import torch
-from diffusers import ControlNetModel
 from diffusers.image_processor import VaeImageProcessor
+from diffusers.models.attention_processor import (
+    AttnProcessor2_0,
+    LoRAAttnProcessor2_0,
+    LoRAXFormersAttnProcessor,
+    XFormersAttnProcessor,
+)
 from diffusers.schedulers import SchedulerMixin as Scheduler
 from pydantic import BaseModel, Field, validator
 
 from invokeai.app.invocations.metadata import CoreMetadata
+from invokeai.app.util.controlnet_utils import prepare_control_image
 from invokeai.app.util.step_callback import stable_diffusion_step_callback
 from invokeai.backend.model_management.models import ModelType, SilenceWarnings
 
-from ...backend.model_management import ModelPatcher
+from ...backend.model_management.lora import ModelPatcher
 from ...backend.stable_diffusion import PipelineIntermediateState
 from ...backend.stable_diffusion.diffusers_pipeline import (
     ConditioningData,
@@ -24,23 +30,24 @@ from ...backend.stable_diffusion.diffusers_pipeline import (
 )
 from ...backend.stable_diffusion.diffusion.shared_invokeai_diffusion import PostprocessingSettings
 from ...backend.stable_diffusion.schedulers import SCHEDULER_MAP
-from ...backend.model_management import ModelPatcher
-from ...backend.util.devices import choose_torch_device, torch_dtype, choose_precision
+from ...backend.util.devices import choose_precision, choose_torch_device, torch_dtype
 from ..models.image import ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
+from .baseinvocation import (
+    BaseInvocation,
+    BaseInvocationOutput,
+    InputField,
+    InputKind,
+    InputRequirement,
+    InvocationContext,
+    OutputField,
+    Tags,
+    Title,
+    UITypeHint,
+)
 from .compel import ConditioningField
 from .controlnet_image_processors import ControlField
 from .image import ImageOutput
 from .model import ModelInfo, UNetField, VaeField
-from invokeai.app.util.controlnet_utils import prepare_control_image
-
-from diffusers.models.attention_processor import (
-    AttnProcessor2_0,
-    LoRAAttnProcessor2_0,
-    LoRAXFormersAttnProcessor,
-    XFormersAttnProcessor,
-)
-
 
 DEFAULT_PRECISION = choose_precision(choose_torch_device())
 
@@ -57,14 +64,17 @@ class LatentsField(BaseModel):
 class LatentsOutput(BaseInvocationOutput):
     """Base class for invocations that output latents"""
 
-    # fmt: off
     type: Literal["latents_output"] = "latents_output"
 
     # Inputs
-    latents: LatentsField          = Field(default=None, description="The output latents")
-    width:                     int = Field(description="The width of the latents in pixels")
-    height:                    int = Field(description="The height of the latents in pixels")
-    # fmt: on
+    latents: LatentsField = OutputField(
+        description="The output latents",
+        title="Latents",
+        ui_type_hint=UITypeHint.Latents,
+        ui_hidden=False,
+    )
+    width: int = OutputField(description="The width of the latents in pixels")
+    height: int = OutputField(description="The height of the latents in pixels")
 
 
 def build_latents_output(latents_name: str, latents: torch.Tensor):
@@ -110,23 +120,41 @@ def get_scheduler(
 class TextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
+    # Metadata
     type: Literal["t2l"] = "t2l"
+    title = Title("Text to Latents")
+    tags = Tags(["latents", "inference", "txt2img"])
 
     # Inputs
-    positive_conditioning: Optional[ConditioningField] = Field(description="Positive conditioning for generation")
-    negative_conditioning: Optional[ConditioningField] = Field(description="Negative conditioning for generation")
-    noise: Optional[LatentsField] = Field(description="The noise to use")
-    steps: int = Field(default=10, gt=0, description="The number of steps to use to generate the image")
-    cfg_scale: Union[float, List[float]] = Field(
+    positive_conditioning: Optional[ConditioningField] = InputField(
+        description="Positive conditioning for generation",
+        input_kind=InputKind.Connection,
+    )
+    negative_conditioning: Optional[ConditioningField] = InputField(
+        description="Negative conditioning for generation",
+        input_kind=InputKind.Connection,
+    )
+    noise: Optional[LatentsField] = InputField(
+        description="The noise to use",
+        input_kind=InputKind.Connection,
+    )
+    steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
+    cfg_scale: Union[float, List[float]] = InputField(
         default=7.5,
         ge=1,
         description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
+        ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = Field(default="euler", description="The scheduler to use")
-    unet: UNetField = Field(default=None, description="UNet submodel")
-    control: Union[ControlField, list[ControlField]] = Field(default=None, description="The control to use")
-    # seamless:   bool = Field(default=False, description="Whether or not to generate an image that can tile without seams", )
-    # seamless_axes: str = Field(default="", description="The axes to tile the image on, 'x' and/or 'y'")
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
+    unet: Optional[UNetField] = InputField(
+        description="UNet submodel",
+        input_kind=InputKind.Connection,
+    )
+    control: Union[ControlField, list[ControlField]] = InputField(
+        default=None, description="The control to use", ui_type_hint=UITypeHint.Control
+    )
+    # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
+    # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
 
     @validator("cfg_scale")
     def ge_one(cls, v):
@@ -139,27 +167,6 @@ class TextToLatentsInvocation(BaseInvocation):
             if v < 1:
                 raise ValueError("cfg_scale must be greater than 1")
         return v
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Text to Latents",
-                tags=["latents", "inference", "txt2img"],
-                fields={
-                    "positive_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "negative_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "noise": UIInputField(field_type="latents", input_requirement="required", input_kind="connection"),
-                    "cfg_scale": UIInputField(field_type="float"),
-                    "unet": UIInputField(input_requirement="required", input_kind="connection"),
-                    "control": UIInputField(input_requirement="required", input_kind="connection"),
-                },
-            )
-        }
 
     # TODO: pass this an emitter method or something? or a session for dispatching?
     def dispatch_progress(
@@ -391,34 +398,15 @@ class LatentsToLatentsInvocation(TextToLatentsInvocation):
     """Generates latents using latents as base image."""
 
     type: Literal["l2l"] = "l2l"
+    title = Title("Latents to Latents")
+    tags = Tags(["latents", "inference", "img2img"])
 
     # Inputs
-    latents: Optional[LatentsField] = Field(description="The latents to use as a base image")
-    strength: float = Field(default=0.7, ge=0, le=1, description="The strength of the latents to use")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Latents to Latents",
-                tags=["latents", "inference", "img2img"],
-                fields={
-                    "positive_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "negative_conditioning": UIInputField(
-                        field_type="conditioning", input_requirement="required", input_kind="connection"
-                    ),
-                    "noise": UIInputField(field_type="latents", input_requirement="required", input_kind="connection"),
-                    "latents": UIInputField(
-                        field_type="latents", input_requirement="required", input_kind="connection"
-                    ),
-                    "cfg_scale": UIInputField(field_type="float"),
-                    "unet": UIInputField(input_requirement="required", input_kind="connection"),
-                    "control": UIInputField(input_requirement="required", input_kind="connection"),
-                },
-            )
-        }
+    latents: Optional[LatentsField] = InputField(
+        description="The latents to use as a base image",
+        input_kind=InputKind.Connection,
+    )
+    strength: float = InputField(default=0.7, ge=0, le=1, description="The strength of the latents to use")
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> LatentsOutput:
@@ -507,31 +495,27 @@ class LatentsToImageInvocation(BaseInvocation):
     """Generates an image from latents."""
 
     type: Literal["l2i"] = "l2i"
+    title = Title("Latents to Image")
+    tags = Tags(["latents", "image", "vae"])
 
     # Inputs
-    latents: Optional[LatentsField] = Field(description="The latents to generate an image from")
-    vae: VaeField = Field(default=None, description="Vae submodel")
-    tiled: bool = Field(default=False, description="Decode latents by overlaping tiles (less memory consumption)")
-    fp32: bool = Field(DEFAULT_PRECISION == "float32", description="Decode in full precision")
-    metadata: Optional[CoreMetadata] = Field(
-        default=None, description="Optional core metadata to be written to the image"
+    latents: Optional[LatentsField] = InputField(
+        description="The latents to generate an image from",
+        input_kind=InputKind.Connection,
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Latents to Image",
-                tags=["latents", "image", "vae"],
-                fields={
-                    "latents": UIInputField(
-                        field_type="latents", input_requirement="required", input_kind="connection"
-                    ),
-                    "vae": UIInputField(input_requirement="required", input_kind="connection"),
-                    "metadata": UIInputField(hidden=True),
-                },
-            )
-        }
+    vae: VaeField = InputField(
+        default=None,
+        description="Vae submodel",
+        input_kind=InputKind.Connection,
+    )
+    tiled: bool = InputField(default=False, description="Decode latents by overlaping tiles (less memory consumption)")
+    fp32: bool = InputField(default=DEFAULT_PRECISION == "float32", description="Decode in full precision")
+    metadata: Optional[CoreMetadata] = InputField(
+        default=None,
+        description="Optional core metadata to be written to the image",
+        input_requirement=InputRequirement.Optional,
+        ui_hidden=True,
+    )
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -600,7 +584,7 @@ class LatentsToImageInvocation(BaseInvocation):
         )
 
         return ImageOutput(
-            image=ImageField(image_name=image_dto.image_name),
+            image=ImageInputField(image_name=image_dto.image_name),
             width=image_dto.width,
             height=image_dto.height,
         )
@@ -613,31 +597,30 @@ class ResizeLatentsInvocation(BaseInvocation):
     """Resizes latents to explicit width/height (in pixels). Provided dimensions are floor-divided by 8."""
 
     type: Literal["lresize"] = "lresize"
+    title = Title("Resize Latents")
+    tags = Tags(["latents", "resize"])
 
     # Inputs
-    latents: Optional[LatentsField] = Field(description="The latents to resize")
-    width: Union[int, None] = Field(default=512, ge=64, multiple_of=8, description="The width to resize to (px)")
-    height: Union[int, None] = Field(default=512, ge=64, multiple_of=8, description="The height to resize to (px)")
-    mode: LATENTS_INTERPOLATION_MODE = Field(default="bilinear", description="The interpolation mode")
-    antialias: bool = Field(
+    latents: Optional[LatentsField] = InputField(
+        description="The latents to resize",
+        input_kind=InputKind.Connection,
+    )
+    width: Optional[int] = InputField(
+        default=512,
+        ge=64,
+        multiple_of=8,
+        description="The width to resize to (px)",
+    )
+    height: Optional[int] = InputField(
+        default=512,
+        ge=64,
+        multiple_of=8,
+        description="The height to resize to (px)",
+    )
+    mode: LATENTS_INTERPOLATION_MODE = InputField(default="bilinear", description="The interpolation mode")
+    antialias: bool = InputField(
         default=False, description="Whether or not to antialias (applied in bilinear and bicubic modes only)"
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Resize Latents",
-                tags=["latents"],
-                fields={
-                    "latents": UIInputField(
-                        field_type="latents", input_requirement="required", input_kind="connection"
-                    ),
-                    "width": UIInputField(input_requirement="required"),
-                    "height": UIInputField(input_requirement="required"),
-                },
-            )
-        }
 
     def invoke(self, context: InvocationContext) -> LatentsOutput:
         latents = context.services.latents.get(self.latents.latents_name)
@@ -666,28 +649,19 @@ class ScaleLatentsInvocation(BaseInvocation):
     """Scales latents by a given factor."""
 
     type: Literal["lscale"] = "lscale"
+    title = Title("Scale Latents")
+    tags = Tags(["latents", "resize"])
 
     # Inputs
-    latents: Optional[LatentsField] = Field(description="The latents to scale")
-    scale_factor: float = Field(gt=0, description="The factor by which to scale the latents")
-    mode: LATENTS_INTERPOLATION_MODE = Field(default="bilinear", description="The interpolation mode")
-    antialias: bool = Field(
+    latents: LatentsField = InputField(
+        description="The latents to scale",
+        input_kind=InputKind.Connection,
+    )
+    scale_factor: float = InputField(gt=0, description="The factor by which to scale the latents")
+    mode: LATENTS_INTERPOLATION_MODE = InputField(default="bilinear", description="The interpolation mode")
+    antialias: bool = InputField(
         default=False, description="Whether or not to antialias (applied in bilinear and bicubic modes only)"
     )
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Scale Latents",
-                tags=["latents"],
-                fields={
-                    "latents": UIInputField(
-                        field_type="latents", input_requirement="required", input_kind="connection"
-                    ),
-                },
-            )
-        }
 
     def invoke(self, context: InvocationContext) -> LatentsOutput:
         latents = context.services.latents.get(self.latents.latents_name)
@@ -717,27 +691,20 @@ class ImageToLatentsInvocation(BaseInvocation):
     """Encodes an image into latents."""
 
     type: Literal["i2l"] = "i2l"
+    title = Title("Image to Latents")
+    tags = Tags(["latents", "image", "vae"])
 
     # Inputs
-    image: Optional[ImageField] = Field(description="The image to encode")
-    vae: VaeField = Field(default=None, description="Vae submodel")
-    tiled: bool = Field(default=False, description="Encode latents by overlaping tiles(less memory consumption)")
-    fp32: bool = Field(DEFAULT_PRECISION == "float32", description="Decode in full precision")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Image to Latents",
-                tags=["latents", "vae"],
-                fields={
-                    "latents": UIInputField(
-                        field_type="latents", input_requirement="required", input_kind="connection"
-                    ),
-                    "vae": UIInputField(input_requirement="required", input_kind="connection"),
-                },
-            )
-        }
+    image: Optional[ImageField] = InputField(
+        description="The image to encode",
+    )
+    vae: Optional[VaeField] = InputField(
+        default=None,
+        description="Vae submodel",
+        input_kind=InputKind.Connection,
+    )
+    tiled: bool = InputField(default=False, description="Encode latents by overlaping tiles(less memory consumption)")
+    fp32: bool = InputField(default=DEFAULT_PRECISION == "float32", description="Decode in full precision")
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> LatentsOutput:

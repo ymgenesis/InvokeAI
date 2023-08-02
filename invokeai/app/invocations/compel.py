@@ -1,28 +1,32 @@
-from typing import Literal, Optional, Union, List, Annotated
-from pydantic import BaseModel, Field
 import re
-
-from .model import ClipField
-
-from ...backend.util.devices import torch_dtype
-from ...backend.stable_diffusion.diffusion import InvokeAIDiffuserComponent
-from ...backend.model_management import BaseModelType, ModelType, SubModelType, ModelPatcher
+from dataclasses import dataclass
+from typing import Annotated, List, Literal, Optional, Union
 
 import torch
 from compel import Compel, ReturnedEmbeddingsType
 from compel.prompt_parser import Blend, Conjunction, CrossAttentionControlSubstitute, FlattenedPrompt, Fragment
-from ...backend.util.devices import torch_dtype
-from ...backend.model_management import ModelType
-from ...backend.model_management.models import ModelNotFoundException
+from pydantic import BaseModel, Field
+
+from ...backend.model_management import ModelPatcher, ModelType
 from ...backend.model_management.lora import ModelPatcher
+from ...backend.model_management.models import ModelNotFoundException
 from ...backend.stable_diffusion.diffusion import InvokeAIDiffuserComponent
-from .baseinvocation import BaseInvocation, BaseInvocationOutput, InvocationContext, UINodeConfig, UIInputField
+from ...backend.util.devices import torch_dtype
+from .baseinvocation import (
+    BaseInvocation,
+    BaseInvocationOutput,
+    InputField,
+    InputKind,
+    InvocationContext,
+    Tags,
+    Title,
+    UIComponent,
+)
 from .model import ClipField
-from dataclasses import dataclass
 
 
 class ConditioningField(BaseModel):
-    conditioning_name: Optional[str] = Field(default=None, description="The name of conditioning data")
+    conditioning_name: str = Field(description="The name of conditioning data")
 
     class Config:
         schema_extra = {"required": ["conditioning_name"]}
@@ -73,24 +77,11 @@ class CompelInvocation(BaseInvocation):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["compel"] = "compel"
+    title = Title("Prompt (Compel)")
+    tags = Tags(["prompt", "compel"])
 
-    prompt: str = Field(default="", description="Prompt")
-    clip: ClipField = Field(None, description="Clip to use")
-
-    # Schema customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Prompt (Compel)",
-                fields={
-                    "prompt": UIInputField(component="textarea"),
-                    "clip": UIInputField(
-                        field_type="clip_field", input_kind="connection", input_requirement="required"
-                    ),
-                },
-                tags=["prompt", "compel"],
-            )
-        }
+    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
+    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -354,34 +345,19 @@ class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_compel_prompt"] = "sdxl_compel_prompt"
+    title = Title("SDXL Prompt (Compel)")
+    tags = Tags(["sdxl", "compel", "prompt"])
 
-    prompt: str = Field(default="", description="Prompt")
-    style: str = Field(default="", description="Style prompt")
-    original_width: int = Field(1024, description="")
-    original_height: int = Field(1024, description="")
-    crop_top: int = Field(0, description="")
-    crop_left: int = Field(0, description="")
-    target_width: int = Field(1024, description="")
-    target_height: int = Field(1024, description="")
-    clip: ClipField = Field(None, description="Clip to use")
-    clip2: ClipField = Field(None, description="Clip2 to use")
-
-    # Schema customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                fields={
-                    "prompt": UIInputField(
-                        component="textarea",
-                    ),
-                    "style": UIInputField(
-                        component="textarea",
-                    ),
-                    "clip": UIInputField(field_type="clip_field"),
-                    "clip2": UIInputField(field_type="clip_field"),
-                }
-            )
-        }
+    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)
+    original_width: int = InputField(default=1024, description="")
+    original_height: int = InputField(default=1024, description="")
+    crop_top: int = InputField(default=0, description="")
+    crop_left: int = InputField(default=0, description="")
+    target_width: int = InputField(default=1024, description="")
+    target_height: int = InputField(default=1024, description="")
+    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(default=None, description="Clip2 to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -422,29 +398,16 @@ class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_refiner_compel_prompt"] = "sdxl_refiner_compel_prompt"
+    title = Title("SDXL Refiner Prompt (Compel)")
+    tags = Tags(["sdxl", "compel", "prompt"])
 
-    style: str = Field(default="", description="Style prompt")  # TODO: ?
-    original_width: int = Field(1024, description="")
-    original_height: int = Field(1024, description="")
-    crop_top: int = Field(0, description="")
-    crop_left: int = Field(0, description="")
-    aesthetic_score: float = Field(6.0, description="")
-    clip2: ClipField = Field(None, description="Clip to use")
-
-    # Schema customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="SDXL Refiner Prompt (Compel)",
-                fields={
-                    "style": UIInputField(component="textarea"),
-                    "clip2": UIInputField(
-                        field_type="clip_field", input_kind="connection", input_requirement="required"
-                    ),
-                },
-                tags=["prompt", "compel", "sdxl"],
-            )
-        }
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)  # TODO: ?
+    original_width: int = InputField(default=1024, description="")
+    original_height: int = InputField(default=1024, description="")
+    crop_top: int = InputField(default=0, description="")
+    crop_left: int = InputField(default=0, description="")
+    aesthetic_score: float = InputField(default=6.0, description="")
+    clip2: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -481,36 +444,19 @@ class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Pass unmodified prompt to conditioning without compel processing."""
 
     type: Literal["sdxl_raw_prompt"] = "sdxl_raw_prompt"
+    title = Title("SDXL Prompt (Raw)")
+    tags = Tags(["sdxl", "prompt"])
 
-    prompt: str = Field(default="", description="Prompt")
-    style: str = Field(default="", description="Style prompt")
-    original_width: int = Field(1024, description="")
-    original_height: int = Field(1024, description="")
-    crop_top: int = Field(0, description="")
-    crop_left: int = Field(0, description="")
-    target_width: int = Field(1024, description="")
-    target_height: int = Field(1024, description="")
-    clip: ClipField = Field(None, description="Clip to use")
-    clip2: ClipField = Field(None, description="Clip2 to use")
-
-    # Schema customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="SDXL Prompt (Raw)",
-                fields={
-                    "prompt": UIInputField(component="textarea"),
-                    "style": UIInputField(component="textarea"),
-                    "clip": UIInputField(
-                        field_type="clip_field", input_kind="connection", input_requirement="required"
-                    ),
-                    "clip2": UIInputField(
-                        field_type="clip_field", input_kind="connection", input_requirement="required"
-                    ),
-                },
-                tags=["prompt", "sdxl"],
-            )
-        }
+    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)
+    original_width: int = InputField(default=1024, description="")
+    original_height: int = InputField(default=1024, description="")
+    crop_top: int = InputField(default=0, description="")
+    crop_left: int = InputField(default=0, description="")
+    target_width: int = InputField(default=1024, description="")
+    target_height: int = InputField(default=1024, description="")
+    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(default=None, description="Clip2 to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -551,29 +497,16 @@ class SDXLRefinerRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_refiner_raw_prompt"] = "sdxl_refiner_raw_prompt"
+    title = Title("SDXL Refiner Prompt (Raw)")
+    tags = Tags(["sdxl", "prompt"])
 
-    style: str = Field(default="", description="Style prompt")  # TODO: ?
-    original_width: int = Field(1024, description="")
-    original_height: int = Field(1024, description="")
-    crop_top: int = Field(0, description="")
-    crop_left: int = Field(0, description="")
-    aesthetic_score: float = Field(6.0, description="")
-    clip2: ClipField = Field(None, description="Clip to use")
-
-    # Schema customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="SDXL Refiner Prompt (Raw)",
-                fields={
-                    "style": UIInputField(component="textarea"),
-                    "clip2": UIInputField(
-                        field_type="clip_field", input_kind="connection", input_requirement="required"
-                    ),
-                },
-                tags=["prompt", "sdxl"],
-            )
-        }
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)  # TODO: ?
+    original_width: int = InputField(default=1024, description="")
+    original_height: int = InputField(default=1024, description="")
+    crop_top: int = InputField(default=0, description="")
+    crop_left: int = InputField(default=0, description="")
+    aesthetic_score: float = InputField(default=6.0, description="")
+    clip2: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -617,23 +550,11 @@ class ClipSkipInvocation(BaseInvocation):
     """Skip layers in clip text_encoder model."""
 
     type: Literal["clip_skip"] = "clip_skip"
+    title = Title("CLIP Skip")
+    tags = Tags(["clipskip", "clip", "skip"])
 
-    clip: ClipField = Field(None, description="Clip to use")
-    skipped_layers: int = Field(0, description="Number of layers to skip in text_encoder")
-
-    # Schema customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="CLIP Skip",
-                fields={
-                    "clip": UIInputField(
-                        field_type="clip_field", input_kind="connection", input_requirement="required"
-                    ),
-                },
-                tags=["clipskip", "clip", "skip"],
-            )
-        }
+    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
+    skipped_layers: int = InputField(default=0, description="Number of layers to skip in text_encoder")
 
     def invoke(self, context: InvocationContext) -> ClipSkipInvocationOutput:
         self.clip.skipped_layers += self.skipped_layers

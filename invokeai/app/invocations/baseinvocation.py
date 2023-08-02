@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from enum import Enum
 from inspect import signature
-from typing import TYPE_CHECKING, Literal, Optional, get_args, get_type_hints
+from typing import TYPE_CHECKING, AbstractSet, Any, Literal, Mapping, Optional, Union, get_args, get_type_hints
 
-from pydantic import BaseConfig, BaseModel, Field
+from pydantic import BaseModel, Field
+from pydantic.fields import Undefined
+from pydantic.typing import NoArgAnyCallable
 
 if TYPE_CHECKING:
     from ..services.invocation_services import InvocationServices
@@ -81,86 +84,240 @@ class BaseInvocation(ABC, BaseModel):
         """Invoke with provided context and return outputs."""
         pass
 
-    # fmt: off
     id: str = Field(description="The id of this node. Must be unique among all nodes.")
     is_intermediate: bool = Field(default=False, description="Whether or not this node is an intermediate node.")
-    # fmt: on
 
 
-UI_FIELD_INPUT_KIND = Literal["connection", "direct", "any"]
-
-UI_FIELD_INPUT_REQUIREMENT = Literal["none", "required", "optional"]
-
-UI_FIELD_TYPE = Literal[
-    "integer",
-    "float",
-    "boolean",
-    "string",
-    "enum",
-    "image",
-    "latents",
-    "conditioning",
-    "control",
-    "main_model",
-    "sdxl_main_model",
-    "sdxl_refiner_model",
-    "onnx_model",
-    "vae_model",
-    "lora_model",
-    "controlnet_model",
-    "unet_field",
-    "vae_field",
-    "lora_field",
-    "clip_field",
-    "array",
-    "color",
-    "image_collection",
-    "item",
-    "any_collection",  # Iterate Nodes only
-    "collection_item",  # Iterate Nodes only
-]
-
-UI_FIELD_COMPONENT = Literal[
-    "none",
-    "textarea",
-    "slider",
-]
+class InputKind(str, Enum):
+    Connection = "connection"
+    Direct = "direct"
+    Any = "any"
 
 
-class UIInputField(BaseModel):
-    """Provides additional node input field configuration to the UI."""
+class InputRequirement(str, Enum):
+    None_ = "none"
+    Required = "required"
+    Optional = "optional"
 
-    input_kind: Optional[UI_FIELD_INPUT_KIND] = Field(
-        default="any", description="The kind of input accepted by the field ['any']"
-    )
-    input_requirement: Optional[UI_FIELD_INPUT_REQUIREMENT] = Field(
-        default="required", description="The input requirements of the field ['required']"
-    )
-    field_type: Optional[UI_FIELD_TYPE] = Field(
-        default=None, description="The type of the field; overrides the type inferred from pydantic model"
-    )
-    component: Optional[UI_FIELD_COMPONENT] = Field(default=None, description="The component to use for the field")
-    hidden: Optional[bool] = Field(default=False, description="Whether or not to hide the field")
+
+class UITypeHint(str, Enum):
+    Integer = "integer"
+    Float = "float"
+    Boolean = "boolean"
+    String = "string"
+    Enum = "enum"
+    Image = "image"
+    Latents = "latents"
+    Conditioning = "conditioning"
+    Control = "control"
+    MainModel = "main_model"
+    SDXLMainModel = "sdxl_main_model"
+    SDXLRefinerModel = "sdxl_refiner_model"
+    ONNXModel = "onnx_model"
+    VAEModel = "vae_model"
+    LoRAModel = "lora_model"
+    ControlNetModel = "controlnet_model"
+    UNetField = "unet_field"
+    VAEField = "vae_field"
+    LoRAField = "lora_field"
+    CLIPField = "clip_field"
+    Array = "array"
+    Color = "color"
+    ImageCollection = "image_collection"
+    IntegerCollection = "integer_collection"
+    FloatCollection = "float_collection"
+    StringCollection = "string_collection"
+    BoolCollection = "bool_collection"
+    Item = "item"
+    AnyCollection = "any_collection"
+    CollectionItem = "collection_item"
+    Seed = "seed"
+    FilePath = "file_path"
+
+
+class UIComponent(str, Enum):
+    None_ = "none"
+    TextArea = "textarea"
+    Slider = "slider"
+
+
+class InputFieldExtra(BaseModel):
+    input_kind: InputKind = Field(default=InputKind.Any)
+    input_requirement: InputRequirement = Field(default=InputRequirement.Required)
+    ui_hidden: bool = Field(default=False)
+    ui_type_hint: Optional[UITypeHint] = Field(default=None)  # infer from type
+    ui_component: Optional[UIComponent] = Field(default=None)  # infer from type
+
+    class Config:
+        schema_extra = {
+            "required": [
+                "input_kind",
+                "input_requirement",
+                "ui_hidden",
+            ]
+        }
+
+
+class OutputFieldExtra(BaseModel):
+    ui_hidden: bool = Field(default=False)
+    ui_type_hint: Optional[UITypeHint] = Field(default=None)  # infer from type
+
+    class Config:
+        schema_extra = {
+            "required": [
+                "ui_hidden",
+            ]
+        }
 
 
 class UINodeConfig(BaseModel):
     """Provides additional node configuration to the UI."""
 
-    fields: dict[str, UIInputField] = Field(default_factory=dict, description="Additional UI configuration for fields")
     tags: list[str] = Field(default_factory=list, description="The tags to display in the UI")
     title: Optional[str] = Field(default=None, description="The display name of the node")
 
 
-class UIOutputField(BaseModel):
-    """Provides additional node output field configuration to the UI."""
-
-    field_type: Optional[UI_FIELD_TYPE] = Field(
-        default=None, description="The type of the field; overrides the type inferred from pydantic model"
+def InputField(
+    *args: Any,
+    default: Any = Undefined,
+    default_factory: Optional[NoArgAnyCallable] = None,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    exclude: Optional[Union[AbstractSet[Union[int, str]], Mapping[Union[int, str], Any], Any]] = None,
+    include: Optional[Union[AbstractSet[Union[int, str]], Mapping[Union[int, str], Any], Any]] = None,
+    const: Optional[bool] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    multiple_of: Optional[float] = None,
+    allow_inf_nan: Optional[bool] = None,
+    max_digits: Optional[int] = None,
+    decimal_places: Optional[int] = None,
+    min_items: Optional[int] = None,
+    max_items: Optional[int] = None,
+    unique_items: Optional[bool] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    allow_mutation: bool = True,
+    regex: Optional[str] = None,
+    discriminator: Optional[str] = None,
+    repr: bool = True,
+    input_kind: InputKind = InputKind.Any,
+    input_requirement: InputRequirement = InputRequirement.Required,
+    ui_type_hint: Optional[UITypeHint] = None,  # infer from type
+    ui_component: Optional[UIComponent] = None,  # infer from type
+    ui_hidden: bool = False,
+    **kwargs: Any,
+) -> Any:
+    return Field(
+        *args,
+        default=default,
+        default_factory=default_factory,
+        alias=alias,
+        title=title,
+        description=description,
+        exclude=exclude,
+        include=include,
+        const=const,
+        gt=gt,
+        ge=ge,
+        lt=lt,
+        le=le,
+        multiple_of=multiple_of,
+        allow_inf_nan=allow_inf_nan,
+        max_digits=max_digits,
+        decimal_places=decimal_places,
+        min_items=min_items,
+        max_items=max_items,
+        unique_items=unique_items,
+        min_length=min_length,
+        max_length=max_length,
+        allow_mutation=allow_mutation,
+        regex=regex,
+        discriminator=discriminator,
+        repr=repr,
+        input_kind=input_kind,
+        input_requirement=input_requirement,
+        ui_type_hint=ui_type_hint,
+        ui_component=ui_component,
+        ui_hidden=ui_hidden,
+        **kwargs,
     )
-    hidden: Optional[bool] = Field(default=False, description="Whether or not to hide the field")
 
 
-class UIOutputConfig(BaseModel):
-    """Provides additional node output configuration to the UI."""
+def OutputField(
+    *args: Any,
+    default: Any = Undefined,
+    default_factory: Optional[NoArgAnyCallable] = None,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    exclude: Optional[Union[AbstractSet[Union[int, str]], Mapping[Union[int, str], Any], Any]] = None,
+    include: Optional[Union[AbstractSet[Union[int, str]], Mapping[Union[int, str], Any], Any]] = None,
+    const: Optional[bool] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    multiple_of: Optional[float] = None,
+    allow_inf_nan: Optional[bool] = None,
+    max_digits: Optional[int] = None,
+    decimal_places: Optional[int] = None,
+    min_items: Optional[int] = None,
+    max_items: Optional[int] = None,
+    unique_items: Optional[bool] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    allow_mutation: bool = True,
+    regex: Optional[str] = None,
+    discriminator: Optional[str] = None,
+    repr: bool = True,
+    ui_type_hint: Optional[UITypeHint] = None,  # infer from type
+    ui_hidden: bool = False,
+    **kwargs: Any,
+) -> Any:
+    return Field(
+        *args,
+        default=default,
+        default_factory=default_factory,
+        alias=alias,
+        title=title,
+        description=description,
+        exclude=exclude,
+        include=include,
+        const=const,
+        gt=gt,
+        ge=ge,
+        lt=lt,
+        le=le,
+        multiple_of=multiple_of,
+        allow_inf_nan=allow_inf_nan,
+        max_digits=max_digits,
+        decimal_places=decimal_places,
+        min_items=min_items,
+        max_items=max_items,
+        unique_items=unique_items,
+        min_length=min_length,
+        max_length=max_length,
+        allow_mutation=allow_mutation,
+        regex=regex,
+        discriminator=discriminator,
+        repr=repr,
+        ui_type_hint=ui_type_hint,
+        ui_hidden=ui_hidden,
+        **kwargs,
+    )
 
-    fields: dict[str, UIOutputField] = Field(default_factory=dict, description="Additional UI configuration for fields")
+
+def Type(node_type: str) -> Literal:
+    return node_type  # type: ignore
+
+
+def Title(label: str) -> Any:
+    return Field(default=label, const=True, exclude=True)
+
+
+def Tags(tags: list[str]) -> Any:
+    return Field(default=tags, const=True, exclude=True)

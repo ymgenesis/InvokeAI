@@ -1,56 +1,49 @@
 import io
-from typing import Literal, Optional, Any
+from typing import Literal, Optional
 
-# from PIL.Image import Image
-import PIL.Image
-from matplotlib.ticker import MaxNLocator
-from matplotlib.figure import Figure
-
-from pydantic import BaseModel, Field
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
+import PIL.Image
 from easing_functions import (
-    LinearInOut,
-    QuadEaseInOut,
-    QuadEaseIn,
-    QuadEaseOut,
-    CubicEaseInOut,
-    CubicEaseIn,
-    CubicEaseOut,
-    QuarticEaseInOut,
-    QuarticEaseIn,
-    QuarticEaseOut,
-    QuinticEaseInOut,
-    QuinticEaseIn,
-    QuinticEaseOut,
-    SineEaseInOut,
-    SineEaseIn,
-    SineEaseOut,
-    CircularEaseIn,
-    CircularEaseInOut,
-    CircularEaseOut,
-    ExponentialEaseInOut,
-    ExponentialEaseIn,
-    ExponentialEaseOut,
-    ElasticEaseIn,
-    ElasticEaseInOut,
-    ElasticEaseOut,
     BackEaseIn,
     BackEaseInOut,
     BackEaseOut,
     BounceEaseIn,
     BounceEaseInOut,
     BounceEaseOut,
+    CircularEaseIn,
+    CircularEaseInOut,
+    CircularEaseOut,
+    CubicEaseIn,
+    CubicEaseInOut,
+    CubicEaseOut,
+    ElasticEaseIn,
+    ElasticEaseInOut,
+    ElasticEaseOut,
+    ExponentialEaseIn,
+    ExponentialEaseInOut,
+    ExponentialEaseOut,
+    LinearInOut,
+    QuadEaseIn,
+    QuadEaseInOut,
+    QuadEaseOut,
+    QuarticEaseIn,
+    QuarticEaseInOut,
+    QuarticEaseOut,
+    QuinticEaseIn,
+    QuinticEaseInOut,
+    QuinticEaseOut,
+    SineEaseIn,
+    SineEaseInOut,
+    SineEaseOut,
 )
+from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
+from pydantic import BaseModel, Field
 
-from .baseinvocation import (
-    BaseInvocation,
-    BaseInvocationOutput,
-    InvocationContext,
-    UINodeConfig,
-)
 from ...backend.util.logging import InvokeAILogger
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, Tags, Title
 from .collections import FloatCollectionOutput
 
 
@@ -58,20 +51,13 @@ class FloatLinearRangeInvocation(BaseInvocation):
     """Creates a range"""
 
     type: Literal["float_range"] = "float_range"
+    title = Title("Float Range")
+    tags = Tags(["math", "range"])
 
     # Inputs
-    start: float = Field(default=5, description="The first value of the range")
-    stop: float = Field(default=10, description="The last value of the range")
-    steps: int = Field(default=30, description="number of values to interpolate over (including start and stop)")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Linear Range (Float)",
-                tags=["math", "range"],
-            )
-        }
+    start: float = InputField(default=5, description="The first value of the range")
+    stop: float = InputField(default=10, description="The last value of the range")
+    steps: int = InputField(default=30, description="number of values to interpolate over (including start and stop)")
 
     def invoke(self, context: InvocationContext) -> FloatCollectionOutput:
         param_list = list(np.linspace(self.start, self.stop, self.steps))
@@ -120,31 +106,24 @@ class StepParamEasingInvocation(BaseInvocation):
     """Experimental per-step parameter easing for denoising steps"""
 
     type: Literal["step_param_easing"] = "step_param_easing"
+    title = Title("Step Param Easing")
+    tags = Tags(["step", "easing"])
 
     # Inputs
-    easing: EASING_FUNCTION_KEYS = Field(default="Linear", description="The easing function to use")
-    num_steps: int = Field(default=20, description="number of denoising steps")
-    start_value: float = Field(default=0.0, description="easing starting value")
-    end_value: float = Field(default=1.0, description="easing ending value")
-    start_step_percent: float = Field(default=0.0, description="fraction of steps at which to start easing")
-    end_step_percent: float = Field(default=1.0, description="fraction of steps after which to end easing")
+    easing: EASING_FUNCTION_KEYS = InputField(default="Linear", description="The easing function to use")
+    num_steps: int = InputField(default=20, description="number of denoising steps")
+    start_value: float = InputField(default=0.0, description="easing starting value")
+    end_value: float = InputField(default=1.0, description="easing ending value")
+    start_step_percent: float = InputField(default=0.0, description="fraction of steps at which to start easing")
+    end_step_percent: float = InputField(default=1.0, description="fraction of steps after which to end easing")
     # if None, then start_value is used prior to easing start
-    pre_start_value: Optional[float] = Field(default=None, description="value before easing start")
+    pre_start_value: Optional[float] = InputField(default=None, description="value before easing start")
     # if None, then end value is used prior to easing end
-    post_end_value: Optional[float] = Field(default=None, description="value after easing end")
-    mirror: bool = Field(default=False, description="include mirror of easing function")
+    post_end_value: Optional[float] = InputField(default=None, description="value after easing end")
+    mirror: bool = InputField(default=False, description="include mirror of easing function")
     # FIXME: add alt_mirror option (alternative to default or mirror), or remove entirely
-    # alt_mirror: bool = Field(default=False, description="alternative mirroring by dual easing")
-    show_easing_plot: bool = Field(default=False, description="show easing plot")
-
-    # Schema Customisation
-    class Config:
-        schema_extra = {
-            "ui": UINodeConfig(
-                title="Param Easing By Step",
-                tags=["step", "easing"],
-            )
-        }
+    # alt_mirror: bool = InputField(default=False, description="alternative mirroring by dual easing")
+    show_easing_plot: bool = InputField(default=False, description="show easing plot")
 
     def invoke(self, context: InvocationContext) -> FloatCollectionOutput:
         log_diagnostics = False

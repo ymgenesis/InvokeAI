@@ -339,6 +339,20 @@ export type components = {
        * @default 0
        */
       b?: number;
+      /**
+       * Title
+       * @default Add Integers
+       * @constant
+       */
+      title?: 'Add Integers';
+      /**
+       * Tags
+       * @default [
+       *   "math"
+       * ]
+       * @constant
+       */
+      tags?: ['math'];
     };
     /**
      * AppConfig
@@ -581,6 +595,21 @@ export type components = {
        * @default 200
        */
       high_threshold?: number;
+      /**
+       * Title
+       * @default Canny Processor
+       * @constant
+       */
+      title?: 'Canny Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "canny"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'canny'];
     };
     /** ClipField */
     ClipField: {
@@ -638,6 +667,22 @@ export type components = {
        * @default 0
        */
       skipped_layers?: number;
+      /**
+       * Title
+       * @default CLIP Skip
+       * @constant
+       */
+      title?: 'CLIP Skip';
+      /**
+       * Tags
+       * @default [
+       *   "clipskip",
+       *   "clip",
+       *   "skip"
+       * ]
+       * @constant
+       */
+      tags?: ['clipskip', 'clip', 'skip'];
     };
     /**
      * ClipSkipInvocationOutput
@@ -762,6 +807,21 @@ export type components = {
        * @description Clip to use
        */
       clip?: components['schemas']['ClipField'];
+      /**
+       * Title
+       * @default Prompt (Compel)
+       * @constant
+       */
+      title?: 'Prompt (Compel)';
+      /**
+       * Tags
+       * @default [
+       *   "prompt",
+       *   "compel"
+       * ]
+       * @constant
+       */
+      tags?: ['prompt', 'compel'];
     };
     /**
      * CompelOutput
@@ -845,6 +905,21 @@ export type components = {
        * @default 256
        */
       f?: number;
+      /**
+       * Title
+       * @default Content Shuffle Processor
+       * @constant
+       */
+      title?: 'Content Shuffle Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "contentshuffle"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'contentshuffle'];
     };
     /** ControlField */
     ControlField: {
@@ -964,6 +1039,20 @@ export type components = {
         | 'crop_resize'
         | 'fill_resize'
         | 'just_resize_simple';
+      /**
+       * Title
+       * @default ControlNet
+       * @constant
+       */
+      title?: 'ControlNet';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet'];
     };
     /** ControlNetModelCheckpointConfig */
     ControlNetModelCheckpointConfig: {
@@ -1038,6 +1127,12 @@ export type components = {
        * @description The control info
        */
       control?: components['schemas']['ControlField'];
+      /**
+       * Title
+       * @default Control Output
+       * @constant
+       */
+      title?: 'Control Output';
     };
     /**
      * CoreMetadata
@@ -1202,6 +1297,21 @@ export type components = {
        * @description The mask to use when inpainting
        */
       mask?: components['schemas']['ImageField'];
+      /**
+       * Title
+       * @default OpenCV Inpaint
+       * @constant
+       */
+      title?: 'OpenCV Inpaint';
+      /**
+       * Tags
+       * @default [
+       *   "opencv",
+       *   "inpaint"
+       * ]
+       * @constant
+       */
+      tags?: ['opencv', 'inpaint'];
     };
     /** DeleteBoardResult */
     DeleteBoardResult: {
@@ -1260,6 +1370,20 @@ export type components = {
        * @default 0
        */
       b?: number;
+      /**
+       * Title
+       * @default Divide Integers
+       * @constant
+       */
+      title?: 'Divide Integers';
+      /**
+       * Tags
+       * @default [
+       *   "math"
+       * ]
+       * @constant
+       */
+      tags?: ['math'];
     };
     /**
      * DynamicPromptInvocation
@@ -1300,6 +1424,21 @@ export type components = {
        * @default false
        */
       combinatorial?: boolean;
+      /**
+       * Title
+       * @default Dynamic Prompt
+       * @constant
+       */
+      title?: 'Dynamic Prompt';
+      /**
+       * Tags
+       * @default [
+       *   "prompt",
+       *   "collection"
+       * ]
+       * @constant
+       */
+      tags?: ['prompt', 'collection'];
     };
     /**
      * ESRGANInvocation
@@ -1339,6 +1478,21 @@ export type components = {
         | 'RealESRGAN_x4plus_anime_6B.pth'
         | 'ESRGAN_SRx4_DF2KOST_official-ff704c30.pth'
         | 'RealESRGAN_x2plus.pth';
+      /**
+       * Title
+       * @default Upscale (RealESRGAN)
+       * @constant
+       */
+      title?: 'Upscale (RealESRGAN)';
+      /**
+       * Tags
+       * @default [
+       *   "esrgan",
+       *   "upscale"
+       * ]
+       * @constant
+       */
+      tags?: ['esrgan', 'upscale'];
     };
     /** Edge */
     Edge: {
@@ -1373,10 +1527,10 @@ export type components = {
     FloatCollectionOutput: {
       /**
        * Type
-       * @default float_collection
+       * @default float_collection_output
        * @enum {string}
        */
-      type?: 'float_collection';
+      type?: 'float_collection_output';
       /**
        * Collection
        * @description The float collection
@@ -1424,6 +1578,21 @@ export type components = {
        * @default 30
        */
       steps?: number;
+      /**
+       * Title
+       * @default Float Range
+       * @constant
+       */
+      title?: 'Float Range';
+      /**
+       * Tags
+       * @default [
+       *   "math",
+       *   "range"
+       * ]
+       * @constant
+       */
+      tags?: ['math', 'range'];
     };
     /**
      * FloatOutput
@@ -1605,6 +1774,7 @@ export type components = {
               | components['schemas']['StringOutput']
               | components['schemas']['IntCollectionOutput']
               | components['schemas']['FloatCollectionOutput']
+              | components['schemas']['StringCollectionOutput']
               | components['schemas']['ImageCollectionOutput']
               | components['schemas']['NoiseOutput']
               | components['schemas']['GraphInvocationOutput']
@@ -1725,6 +1895,22 @@ export type components = {
        * @default false
        */
       scribble?: boolean;
+      /**
+       * Title
+       * @default HED (softedge) Processor
+       * @constant
+       */
+      title?: 'HED (softedge) Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "hed",
+       *   "softedge"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'hed', 'softedge'];
     };
     /**
      * ImageBlurInvocation
@@ -1766,6 +1952,21 @@ export type components = {
        * @enum {string}
        */
       blur_type?: 'gaussian' | 'box';
+      /**
+       * Title
+       * @default Blur Image
+       * @constant
+       */
+      title?: 'Blur Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "blur"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'blur'];
     };
     /**
      * ImageCategory
@@ -1813,6 +2014,21 @@ export type components = {
        * @enum {string}
        */
       channel?: 'A' | 'R' | 'G' | 'B';
+      /**
+       * Title
+       * @default Extract Image Channel
+       * @constant
+       */
+      title?: 'Extract Image Channel';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "channel"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'channel'];
     };
     /**
      * ImageCollectionInvocation
@@ -1842,6 +2058,21 @@ export type components = {
        * @default []
        */
       images?: components['schemas']['ImageField'][];
+      /**
+       * Title
+       * @default Image Collection
+       * @constant
+       */
+      title?: 'Image Collection';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "collection"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'collection'];
     };
     /**
      * ImageCollectionOutput
@@ -1850,16 +2081,16 @@ export type components = {
     ImageCollectionOutput: {
       /**
        * Type
-       * @default image_collection
+       * @default image_collection_output
        * @enum {string}
        */
-      type: 'image_collection';
+      type?: 'image_collection_output';
       /**
        * Collection
        * @description The output images
        * @default []
        */
-      collection: components['schemas']['ImageField'][];
+      collection?: components['schemas']['ImageField'][];
     };
     /**
      * ImageConvertInvocation
@@ -1904,6 +2135,21 @@ export type components = {
         | 'HSV'
         | 'I'
         | 'F';
+      /**
+       * Title
+       * @default Convert Image Mode
+       * @constant
+       */
+      title?: 'Convert Image Mode';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "convert"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'convert'];
     };
     /**
      * ImageCropInvocation
@@ -1956,6 +2202,21 @@ export type components = {
        * @default 512
        */
       height?: number;
+      /**
+       * Title
+       * @default Crop Image
+       * @constant
+       */
+      title?: 'Crop Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "crop"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'crop'];
     };
     /**
      * ImageDTO
@@ -2077,6 +2338,21 @@ export type components = {
        * @default 255
        */
       max?: number;
+      /**
+       * Title
+       * @default Inverse Lerp Image
+       * @constant
+       */
+      title?: 'Inverse Lerp Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "ilerp"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'ilerp'];
     };
     /**
      * ImageLerpInvocation
@@ -2117,6 +2393,21 @@ export type components = {
        * @default 255
        */
       max?: number;
+      /**
+       * Title
+       * @default Lerp Image
+       * @constant
+       */
+      title?: 'Lerp Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "lerp"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'lerp'];
     };
     /**
      * ImageMetadata
@@ -2166,6 +2457,21 @@ export type components = {
        * @description The second image to multiply
        */
       image2?: components['schemas']['ImageField'];
+      /**
+       * Title
+       * @default Multiply Images
+       * @constant
+       */
+      title?: 'Multiply Images';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "multiply"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'multiply'];
     };
     /**
      * ImageNSFWBlurInvocation
@@ -2199,6 +2505,21 @@ export type components = {
        * @description Optional core metadata to be written to the image
        */
       metadata?: components['schemas']['CoreMetadata'];
+      /**
+       * Title
+       * @default Blur NSFW Image
+       * @constant
+       */
+      title?: 'Blur NSFW Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "nsfw"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'nsfw'];
     };
     /**
      * ImageOutput
@@ -2276,6 +2597,21 @@ export type components = {
        * @default 0
        */
       y?: number;
+      /**
+       * Title
+       * @default Paste Image
+       * @constant
+       */
+      title?: 'Paste Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "paste"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'paste'];
     };
     /**
      * ImageProcessorInvocation
@@ -2378,6 +2714,21 @@ export type components = {
         | 'hamming'
         | 'bicubic'
         | 'lanczos';
+      /**
+       * Title
+       * @default Resize Image
+       * @constant
+       */
+      title?: 'Resize Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "resize"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'resize'];
     };
     /**
      * ImageScaleInvocation
@@ -2425,6 +2776,21 @@ export type components = {
         | 'hamming'
         | 'bicubic'
         | 'lanczos';
+      /**
+       * Title
+       * @default Scale Image
+       * @constant
+       */
+      title?: 'Scale Image';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "scale"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'scale'];
     };
     /**
      * ImageToLatentsInvocation
@@ -2470,6 +2836,22 @@ export type components = {
        * @default false
        */
       fp32?: boolean;
+      /**
+       * Title
+       * @default Image to Latents
+       * @constant
+       */
+      title?: 'Image to Latents';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "image",
+       *   "vae"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'image', 'vae'];
     };
     /**
      * ImageUrlsDTO
@@ -2530,6 +2912,21 @@ export type components = {
        * @description Optional core metadata to be written to the image
        */
       metadata?: components['schemas']['CoreMetadata'];
+      /**
+       * Title
+       * @default Add Invisible Watermark
+       * @constant
+       */
+      title?: 'Add Invisible Watermark';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "watermark"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'watermark'];
     };
     /**
      * InfillColorInvocation
@@ -2569,6 +2966,21 @@ export type components = {
        * }
        */
       color?: components['schemas']['ColorField'];
+      /**
+       * Title
+       * @default Solid Color Infill
+       * @constant
+       */
+      title?: 'Solid Color Infill';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "inpaint"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'inpaint'];
     };
     /**
      * InfillPatchMatchInvocation
@@ -2597,6 +3009,21 @@ export type components = {
        * @description The image to infill
        */
       image?: components['schemas']['ImageField'];
+      /**
+       * Title
+       * @default PatchMatch Infill
+       * @constant
+       */
+      title?: 'PatchMatch Infill';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "inpaint"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'inpaint'];
     };
     /**
      * InfillTileInvocation
@@ -2636,6 +3063,21 @@ export type components = {
        * @description The seed to use for tile generation (omit for random)
        */
       seed?: number;
+      /**
+       * Title
+       * @default Tile Infill
+       * @constant
+       */
+      title?: 'Tile Infill';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "inpaint"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'inpaint'];
     };
     /**
      * InpaintInvocation
@@ -2823,6 +3265,21 @@ export type components = {
        * @default 0
        */
       inpaint_replace?: number;
+      /**
+       * Title
+       * @default Inpaint
+       * @constant
+       */
+      title?: 'Inpaint';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "inpaint"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'inpaint'];
     };
     /**
      * IntCollectionOutput
@@ -2831,10 +3288,10 @@ export type components = {
     IntCollectionOutput: {
       /**
        * Type
-       * @default int_collection
+       * @default int_collection_output
        * @enum {string}
        */
-      type?: 'int_collection';
+      type?: 'int_collection_output';
       /**
        * Collection
        * @description The int collection
@@ -2936,7 +3393,7 @@ export type components = {
        * Latents
        * @description The output latents
        */
-      latents?: components['schemas']['LatentsField'];
+      latents: components['schemas']['LatentsField'];
       /**
        * Width
        * @description The width of the latents in pixels
@@ -2997,6 +3454,22 @@ export type components = {
        * @description Optional core metadata to be written to the image
        */
       metadata?: components['schemas']['CoreMetadata'];
+      /**
+       * Title
+       * @default Latents to Image
+       * @constant
+       */
+      title?: 'Latents to Image';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "image",
+       *   "vae"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'image', 'vae'];
     };
     /**
      * LatentsToLatentsInvocation
@@ -3089,6 +3562,22 @@ export type components = {
         | components['schemas']['ControlField']
         | components['schemas']['ControlField'][];
       /**
+       * Title
+       * @default Latents to Latents
+       * @constant
+       */
+      title?: 'Latents to Latents';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "inference",
+       *   "img2img"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'inference', 'img2img'];
+      /**
        * Latents
        * @description The latents to use as a base image
        */
@@ -3157,6 +3646,22 @@ export type components = {
        * @default 512
        */
       image_resolution?: number;
+      /**
+       * Title
+       * @default Leres (Depth) Processor
+       * @constant
+       */
+      title?: 'Leres (Depth) Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "leres",
+       *   "depth"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'leres', 'depth'];
     };
     /**
      * LineartAnimeImageProcessorInvocation
@@ -3197,6 +3702,22 @@ export type components = {
        * @default 512
        */
       image_resolution?: number;
+      /**
+       * Title
+       * @default Lineart Anime Processor
+       * @constant
+       */
+      title?: 'Lineart Anime Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "lineart",
+       *   "anime"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'lineart', 'anime'];
     };
     /**
      * LineartImageProcessorInvocation
@@ -3243,6 +3764,21 @@ export type components = {
        * @default false
        */
       coarse?: boolean;
+      /**
+       * Title
+       * @default Lineart Processor
+       * @constant
+       */
+      title?: 'Lineart Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "lineart"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'lineart'];
     };
     /**
      * LoRAMetadataField
@@ -3323,6 +3859,20 @@ export type components = {
        * @description The image to load
        */
       image?: components['schemas']['ImageField'];
+      /**
+       * Title
+       * @default Load Image
+       * @constant
+       */
+      title?: 'Load Image';
+      /**
+       * Tags
+       * @default [
+       *   "image"
+       * ]
+       * @constant
+       */
+      tags?: ['image'];
     };
     /**
      * LogLevel
@@ -3392,6 +3942,21 @@ export type components = {
        * @description Clip model for applying lora
        */
       clip?: components['schemas']['ClipField'];
+      /**
+       * Title
+       * @default LoRA Loader
+       * @constant
+       */
+      title?: 'LoRA Loader';
+      /**
+       * Tags
+       * @default [
+       *   "lora",
+       *   "model"
+       * ]
+       * @constant
+       */
+      tags?: ['lora', 'model'];
     };
     /**
      * LoraLoaderOutput
@@ -3457,6 +4022,20 @@ export type components = {
        * @description The model to load
        */
       model: components['schemas']['MainModelField'];
+      /**
+       * Title
+       * @default Main Model Loader
+       * @constant
+       */
+      title?: 'Main Model Loader';
+      /**
+       * Tags
+       * @default [
+       *   "model"
+       * ]
+       * @constant
+       */
+      tags?: ['model'];
     };
     /**
      * MaskFromAlphaInvocation
@@ -3491,6 +4070,21 @@ export type components = {
        * @default false
        */
       invert?: boolean;
+      /**
+       * Title
+       * @default Mask from Alpha
+       * @constant
+       */
+      title?: 'Mask from Alpha';
+      /**
+       * Tags
+       * @default [
+       *   "image",
+       *   "mask"
+       * ]
+       * @constant
+       */
+      tags?: ['image', 'mask'];
     };
     /**
      * MaskOutput
@@ -3558,6 +4152,22 @@ export type components = {
        * @default 0.5
        */
       min_confidence?: number;
+      /**
+       * Title
+       * @default Mediapipe Face Processor
+       * @constant
+       */
+      title?: 'Mediapipe Face Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "mediapipe",
+       *   "face"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'mediapipe', 'face'];
     };
     /**
      * MergeInterpolationMethod
@@ -3716,6 +4326,20 @@ export type components = {
        * @description The start value used for refiner denoising
        */
       refiner_start?: number;
+      /**
+       * Title
+       * @default Metadata Accumulator
+       * @constant
+       */
+      title?: 'Metadata Accumulator';
+      /**
+       * Tags
+       * @default [
+       *   "metadata"
+       * ]
+       * @constant
+       */
+      tags?: ['metadata'];
     };
     /**
      * MetadataAccumulatorOutput
@@ -3773,6 +4397,22 @@ export type components = {
        * @default 0.1
        */
       bg_th?: number;
+      /**
+       * Title
+       * @default Midas (Depth) Processor
+       * @constant
+       */
+      title?: 'Midas (Depth) Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "midas",
+       *   "depth"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'midas', 'depth'];
     };
     /**
      * MlsdImageProcessorInvocation
@@ -3825,6 +4465,21 @@ export type components = {
        * @default 0.1
        */
       thr_d?: number;
+      /**
+       * Title
+       * @default MLSD Processor
+       * @constant
+       */
+      title?: 'MLSD Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "mlsd"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'mlsd'];
     };
     /**
      * ModelError
@@ -3858,17 +4513,17 @@ export type components = {
        */
       type?: 'model_loader_output';
       /**
-       * Unet
+       * UNet
        * @description UNet submodel
        */
       unet?: components['schemas']['UNetField'];
       /**
-       * Clip
+       * CLIP
        * @description Tokenizer and text_encoder submodels
        */
       clip?: components['schemas']['ClipField'];
       /**
-       * Vae
+       * VAE
        * @description Vae submodel
        */
       vae?: components['schemas']['VaeField'];
@@ -3938,6 +4593,20 @@ export type components = {
        * @default 0
        */
       b?: number;
+      /**
+       * Title
+       * @default Multiply Integers
+       * @constant
+       */
+      title?: 'Multiply Integers';
+      /**
+       * Tags
+       * @default [
+       *   "math"
+       * ]
+       * @constant
+       */
+      tags?: ['math'];
     };
     /**
      * NoiseInvocation
@@ -3984,6 +4653,21 @@ export type components = {
        * @default true
        */
       use_cpu?: boolean;
+      /**
+       * Title
+       * @default Noise
+       * @constant
+       */
+      title?: 'Noise';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "noise"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'noise'];
     };
     /**
      * NoiseOutput
@@ -4051,6 +4735,22 @@ export type components = {
        * @default 512
        */
       image_resolution?: number;
+      /**
+       * Title
+       * @default Normal BAE Processor
+       * @constant
+       */
+      title?: 'Normal BAE Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "normal",
+       *   "bae"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'normal', 'bae'];
     };
     /**
      * ONNXLatentsToImageInvocation
@@ -4089,6 +4789,23 @@ export type components = {
        * @description Optional core metadata to be written to the image
        */
       metadata?: components['schemas']['CoreMetadata'];
+      /**
+       * Title
+       * @default ONNX Latents to Image
+       * @constant
+       */
+      title?: 'ONNX Latents to Image';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "image",
+       *   "vae",
+       *   "onnx"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'image', 'vae', 'onnx'];
     };
     /**
      * ONNXModelLoaderOutput
@@ -4102,22 +4819,22 @@ export type components = {
        */
       type?: 'model_loader_output_onnx';
       /**
-       * Unet
+       * UNet
        * @description UNet submodel
        */
       unet?: components['schemas']['UNetField'];
       /**
-       * Clip
+       * CLIP
        * @description Tokenizer and text_encoder submodels
        */
       clip?: components['schemas']['ClipField'];
       /**
-       * Vae Decoder
+       * VAE Decoder
        * @description Vae submodel
        */
       vae_decoder?: components['schemas']['VaeField'];
       /**
-       * Vae Encoder
+       * VAE Encoder
        * @description Vae submodel
        */
       vae_encoder?: components['schemas']['VaeField'];
@@ -4156,6 +4873,21 @@ export type components = {
        * @description Clip to use
        */
       clip?: components['schemas']['ClipField'];
+      /**
+       * Title
+       * @default ONNX Prompt (Raw)
+       * @constant
+       */
+      title?: 'ONNX Prompt (Raw)';
+      /**
+       * Tags
+       * @default [
+       *   "onnx",
+       *   "prompt"
+       * ]
+       * @constant
+       */
+      tags?: ['onnx', 'prompt'];
     };
     /** ONNXStableDiffusion1ModelConfig */
     ONNXStableDiffusion1ModelConfig: {
@@ -4313,6 +5045,23 @@ export type components = {
       control?:
         | components['schemas']['ControlField']
         | components['schemas']['ControlField'][];
+      /**
+       * Title
+       * @default ONNX Text to Latents
+       * @constant
+       */
+      title?: 'ONNX Text to Latents';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "inference",
+       *   "txt2img",
+       *   "onnx"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'inference', 'txt2img', 'onnx'];
     };
     /**
      * OffsetPaginatedResults[BoardDTO]
@@ -4408,6 +5157,21 @@ export type components = {
        * @description The model to load
        */
       model: components['schemas']['OnnxModelField'];
+      /**
+       * Title
+       * @default ONNX Model Loader
+       * @constant
+       */
+      title?: 'ONNX Model Loader';
+      /**
+       * Tags
+       * @default [
+       *   "onnx",
+       *   "model"
+       * ]
+       * @constant
+       */
+      tags?: ['onnx', 'model'];
     };
     /**
      * OpenposeImageProcessorInvocation
@@ -4454,6 +5218,22 @@ export type components = {
        * @default 512
        */
       image_resolution?: number;
+      /**
+       * Title
+       * @default Openpose Processor
+       * @constant
+       */
+      title?: 'Openpose Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "openpose",
+       *   "pose"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'openpose', 'pose'];
     };
     /**
      * PaginatedResults[GraphExecutionState]
@@ -4514,6 +5294,20 @@ export type components = {
        * @default 0
        */
       param?: number;
+      /**
+       * Title
+       * @default Float Parameter
+       * @constant
+       */
+      title?: 'Float Parameter';
+      /**
+       * Tags
+       * @default [
+       *   "float"
+       * ]
+       * @constant
+       */
+      tags?: ['float'];
     };
     /**
      * ParamIntInvocation
@@ -4543,6 +5337,20 @@ export type components = {
        * @default 0
        */
       a?: number;
+      /**
+       * Title
+       * @default Integer Parameter
+       * @constant
+       */
+      title?: 'Integer Parameter';
+      /**
+       * Tags
+       * @default [
+       *   "integer"
+       * ]
+       * @constant
+       */
+      tags?: ['integer'];
     };
     /**
      * ParamPromptInvocation
@@ -4572,6 +5380,20 @@ export type components = {
        * @default
        */
       prompt?: string;
+      /**
+       * Title
+       * @default Prompt Parameter
+       * @constant
+       */
+      title?: 'Prompt Parameter';
+      /**
+       * Tags
+       * @default [
+       *   "prompt"
+       * ]
+       * @constant
+       */
+      tags?: ['prompt'];
     };
     /**
      * ParamStringInvocation
@@ -4601,6 +5423,20 @@ export type components = {
        * @default
        */
       text?: string;
+      /**
+       * Title
+       * @default String Parameter
+       * @constant
+       */
+      title?: 'String Parameter';
+      /**
+       * Tags
+       * @default [
+       *   "string"
+       * ]
+       * @constant
+       */
+      tags?: ['string'];
     };
     /**
      * PidiImageProcessorInvocation
@@ -4653,6 +5489,21 @@ export type components = {
        * @default false
        */
       scribble?: boolean;
+      /**
+       * Title
+       * @default PIDI Processor
+       * @constant
+       */
+      title?: 'PIDI Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "pidi"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'pidi'];
     };
     /**
      * PromptCollectionOutput
@@ -4664,7 +5515,7 @@ export type components = {
        * @default prompt_collection_output
        * @enum {string}
        */
-      type: 'prompt_collection_output';
+      type?: 'prompt_collection_output';
       /**
        * Prompt Collection
        * @description The output prompt collection
@@ -4686,7 +5537,7 @@ export type components = {
        * @default prompt
        * @enum {string}
        */
-      type: 'prompt';
+      type?: 'prompt';
       /**
        * Prompt
        * @description The output prompt
@@ -4742,6 +5593,21 @@ export type components = {
        * @default 1
        */
       max_prompts?: number;
+      /**
+       * Title
+       * @default Prompts from File
+       * @constant
+       */
+      title?: 'Prompts from File';
+      /**
+       * Tags
+       * @default [
+       *   "prompt",
+       *   "file"
+       * ]
+       * @constant
+       */
+      tags?: ['prompt', 'file'];
     };
     /**
      * RandomIntInvocation
@@ -4777,6 +5643,20 @@ export type components = {
        * @default 2147483647
        */
       high?: number;
+      /**
+       * Title
+       * @default Random Integer
+       * @constant
+       */
+      title?: 'Random Integer';
+      /**
+       * Tags
+       * @default [
+       *   "math"
+       * ]
+       * @constant
+       */
+      tags?: ['math'];
     };
     /**
      * RandomRangeInvocation
@@ -4823,6 +5703,23 @@ export type components = {
        * @description The seed for the RNG (omit for random)
        */
       seed?: number;
+      /**
+       * Title
+       * @default Random Range
+       * @constant
+       */
+      title?: 'Random Range';
+      /**
+       * Tags
+       * @default [
+       *   "range",
+       *   "integer",
+       *   "random",
+       *   "collection"
+       * ]
+       * @constant
+       */
+      tags?: ['range', 'integer', 'random', 'collection'];
     };
     /**
      * RangeInvocation
@@ -4864,6 +5761,22 @@ export type components = {
        * @default 1
        */
       step?: number;
+      /**
+       * Label
+       * @default Integer Range
+       * @constant
+       */
+      label?: 'Integer Range';
+      /**
+       * Tags
+       * @default [
+       *   "range",
+       *   "integer",
+       *   "collection"
+       * ]
+       * @constant
+       */
+      tags?: ['range', 'integer', 'collection'];
     };
     /**
      * RangeOfSizeInvocation
@@ -4883,10 +5796,9 @@ export type components = {
       is_intermediate?: boolean;
       /**
        * Type
-       * @default range_of_size
        * @enum {string}
        */
-      type?: 'range_of_size';
+      type: 'range_of_size';
       /**
        * Start
        * @description The start of the range
@@ -4905,6 +5817,23 @@ export type components = {
        * @default 1
        */
       step?: number;
+      /**
+       * Title
+       * @default Integer Range of Size
+       * @constant
+       */
+      title?: 'Integer Range of Size';
+      /**
+       * Tags
+       * @default [
+       *   "range",
+       *   "integer",
+       *   "size",
+       *   "collection"
+       * ]
+       * @constant
+       */
+      tags?: ['range', 'integer', 'size', 'collection'];
     };
     /** RemoveImagesFromBoardResult */
     RemoveImagesFromBoardResult: {
@@ -4973,6 +5902,21 @@ export type components = {
        * @default false
        */
       antialias?: boolean;
+      /**
+       * Title
+       * @default Resize Latents
+       * @constant
+       */
+      title?: 'Resize Latents';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "resize"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'resize'];
     };
     /**
      * ResourceOrigin
@@ -5058,6 +6002,22 @@ export type components = {
        * @description Clip2 to use
        */
       clip2?: components['schemas']['ClipField'];
+      /**
+       * Title
+       * @default SDXL Prompt (Compel)
+       * @constant
+       */
+      title?: 'SDXL Prompt (Compel)';
+      /**
+       * Tags
+       * @default [
+       *   "sdxl",
+       *   "compel",
+       *   "prompt"
+       * ]
+       * @constant
+       */
+      tags?: ['sdxl', 'compel', 'prompt'];
     };
     /**
      * SDXLLatentsToLatentsInvocation
@@ -5185,6 +6145,21 @@ export type components = {
        * @description The model to load
        */
       model: components['schemas']['MainModelField'];
+      /**
+       * Title
+       * @default SDXL Main Model Loader
+       * @constant
+       */
+      title?: 'SDXL Main Model Loader';
+      /**
+       * Tags
+       * @default [
+       *   "model",
+       *   "sdxl"
+       * ]
+       * @constant
+       */
+      tags?: ['model', 'sdxl'];
     };
     /**
      * SDXLModelLoaderOutput
@@ -5198,22 +6173,22 @@ export type components = {
        */
       type?: 'sdxl_model_loader_output';
       /**
-       * Unet
+       * UNet
        * @description UNet submodel
        */
       unet?: components['schemas']['UNetField'];
       /**
-       * Clip
+       * CLIP 1
        * @description Tokenizer and text_encoder submodels
        */
       clip?: components['schemas']['ClipField'];
       /**
-       * Clip2
+       * CLIP 2
        * @description Tokenizer and text_encoder submodels
        */
       clip2?: components['schemas']['ClipField'];
       /**
-       * Vae
+       * VAE
        * @description Vae submodel
        */
       vae?: components['schemas']['VaeField'];
@@ -5292,6 +6267,21 @@ export type components = {
        * @description Clip2 to use
        */
       clip2?: components['schemas']['ClipField'];
+      /**
+       * Title
+       * @default SDXL Prompt (Raw)
+       * @constant
+       */
+      title?: 'SDXL Prompt (Raw)';
+      /**
+       * Tags
+       * @default [
+       *   "sdxl",
+       *   "prompt"
+       * ]
+       * @constant
+       */
+      tags?: ['sdxl', 'prompt'];
     };
     /**
      * SDXLRefinerCompelPromptInvocation
@@ -5351,6 +6341,22 @@ export type components = {
        * @description Clip to use
        */
       clip2?: components['schemas']['ClipField'];
+      /**
+       * Title
+       * @default SDXL Refiner Prompt (Compel)
+       * @constant
+       */
+      title?: 'SDXL Refiner Prompt (Compel)';
+      /**
+       * Tags
+       * @default [
+       *   "sdxl",
+       *   "compel",
+       *   "prompt"
+       * ]
+       * @constant
+       */
+      tags?: ['sdxl', 'compel', 'prompt'];
     };
     /**
      * SDXLRefinerModelLoaderInvocation
@@ -5379,6 +6385,22 @@ export type components = {
        * @description The model to load
        */
       model: components['schemas']['MainModelField'];
+      /**
+       * Title
+       * @default SDXL Refiner Model Loader
+       * @constant
+       */
+      title?: 'SDXL Refiner Model Loader';
+      /**
+       * Tags
+       * @default [
+       *   "model",
+       *   "sdxl",
+       *   "refiner"
+       * ]
+       * @constant
+       */
+      tags?: ['model', 'sdxl', 'refiner'];
     };
     /**
      * SDXLRefinerModelLoaderOutput
@@ -5392,17 +6414,17 @@ export type components = {
        */
       type?: 'sdxl_refiner_model_loader_output';
       /**
-       * Unet
+       * UNet
        * @description UNet submodel
        */
       unet?: components['schemas']['UNetField'];
       /**
-       * Clip2
+       * CLIP 2
        * @description Tokenizer and text_encoder submodels
        */
       clip2?: components['schemas']['ClipField'];
       /**
-       * Vae
+       * VAE
        * @description Vae submodel
        */
       vae?: components['schemas']['VaeField'];
@@ -5465,6 +6487,21 @@ export type components = {
        * @description Clip to use
        */
       clip2?: components['schemas']['ClipField'];
+      /**
+       * Title
+       * @default SDXL Refiner Prompt (Raw)
+       * @constant
+       */
+      title?: 'SDXL Refiner Prompt (Raw)';
+      /**
+       * Tags
+       * @default [
+       *   "sdxl",
+       *   "prompt"
+       * ]
+       * @constant
+       */
+      tags?: ['sdxl', 'prompt'];
     };
     /**
      * SDXLTextToLatentsInvocation
@@ -5554,6 +6591,23 @@ export type components = {
        * @default 1
        */
       denoising_end?: number;
+      /**
+       * Title
+       * @default SDXL Text to Latents
+       * @constant
+       */
+      title?: 'SDXL Text to Latents';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "inference",
+       *   "txt2img",
+       *   "sdxl"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'inference', 'txt2img', 'sdxl'];
     };
     /**
      * ScaleLatentsInvocation
@@ -5581,7 +6635,7 @@ export type components = {
        * Latents
        * @description The latents to scale
        */
-      latents?: components['schemas']['LatentsField'];
+      latents: components['schemas']['LatentsField'];
       /**
        * Scale Factor
        * @description The factor by which to scale the latents
@@ -5607,6 +6661,21 @@ export type components = {
        * @default false
        */
       antialias?: boolean;
+      /**
+       * Title
+       * @default Scale Latents
+       * @constant
+       */
+      title?: 'Scale Latents';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "resize"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'resize'];
     };
     /**
      * SchedulerPredictionType
@@ -5641,6 +6710,21 @@ export type components = {
        * @description The image to process
        */
       image?: components['schemas']['ImageField'];
+      /**
+       * Title
+       * @default Segment Anything Processor
+       * @constant
+       */
+      title?: 'Segment Anything Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "segmentanything"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'segmentanything'];
     };
     /**
      * ShowImageInvocation
@@ -5669,6 +6753,20 @@ export type components = {
        * @description The image to show
        */
       image?: components['schemas']['ImageField'];
+      /**
+       * Title
+       * @default Show Image
+       * @constant
+       */
+      title?: 'Show Image';
+      /**
+       * Tags
+       * @default [
+       *   "image"
+       * ]
+       * @constant
+       */
+      tags?: ['image'];
     };
     /** StableDiffusion1ModelCheckpointConfig */
     StableDiffusion1ModelCheckpointConfig: {
@@ -5932,6 +7030,39 @@ export type components = {
        * @default false
        */
       show_easing_plot?: boolean;
+      /**
+       * Title
+       * @default Step Param Easing
+       * @constant
+       */
+      title?: 'Step Param Easing';
+      /**
+       * Tags
+       * @default [
+       *   "step",
+       *   "easing"
+       * ]
+       * @constant
+       */
+      tags?: ['step', 'easing'];
+    };
+    /**
+     * StringCollectionOutput
+     * @description A collection of strings
+     */
+    StringCollectionOutput: {
+      /**
+       * Type
+       * @default string_collection_output
+       * @enum {string}
+       */
+      type?: 'string_collection_output';
+      /**
+       * Collection
+       * @description The output strings
+       * @default []
+       */
+      collection?: string[];
     };
     /**
      * StringOutput
@@ -6000,6 +7131,20 @@ export type components = {
        * @default 0
        */
       b?: number;
+      /**
+       * Title
+       * @default Subtract Integers
+       * @constant
+       */
+      title?: 'Subtract Integers';
+      /**
+       * Tags
+       * @default [
+       *   "math"
+       * ]
+       * @constant
+       */
+      tags?: ['math'];
     };
     /**
      * TextToLatentsInvocation
@@ -6091,6 +7236,22 @@ export type components = {
       control?:
         | components['schemas']['ControlField']
         | components['schemas']['ControlField'][];
+      /**
+       * Title
+       * @default Text to Latents
+       * @constant
+       */
+      title?: 'Text to Latents';
+      /**
+       * Tags
+       * @default [
+       *   "latents",
+       *   "inference",
+       *   "txt2img"
+       * ]
+       * @constant
+       */
+      tags?: ['latents', 'inference', 'txt2img'];
     };
     /** TextualInversionModelConfig */
     TextualInversionModelConfig: {
@@ -6143,6 +7304,21 @@ export type components = {
        * @default 1
        */
       down_sampling_rate?: number;
+      /**
+       * Title
+       * @default Tile Resample Processor
+       * @constant
+       */
+      title?: 'Tile Resample Processor';
+      /**
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "tile"
+       * ]
+       * @constant
+       */
+      tags?: ['controlnet', 'tile'];
     };
     /** UNetField */
     UNetField: {
@@ -6219,10 +7395,25 @@ export type components = {
        */
       type?: 'vae_loader';
       /**
-       * Vae Model
+       * VAE
        * @description The VAE to load
        */
       vae_model: components['schemas']['VAEModelField'];
+      /**
+       * Title
+       * @default VAE Loader
+       * @constant
+       */
+      title?: 'VAE Loader';
+      /**
+       * Tags
+       * @default [
+       *   "vae",
+       *   "model"
+       * ]
+       * @constant
+       */
+      tags?: ['vae', 'model'];
     };
     /**
      * VaeLoaderOutput
@@ -6236,7 +7427,7 @@ export type components = {
        */
       type?: 'vae_loader_output';
       /**
-       * Vae
+       * VAE
        * @description Vae model
        */
       vae?: components['schemas']['VaeField'];
@@ -6300,83 +7491,28 @@ export type components = {
        * @description The image to process
        */
       image?: components['schemas']['ImageField'];
-    };
-    /**
-     * UIInputField
-     * @description Provides additional node input field configuration to the UI.
-     */
-    UIInputField: {
       /**
-       * Input Kind
-       * @description The kind of input accepted by the field ['any']
-       * @default any
-       * @enum {string}
+       * Title
+       * @default Zoe (Depth) Processor
+       * @constant
        */
-      input_kind?: 'connection' | 'direct' | 'any';
+      title?: 'Zoe (Depth) Processor';
       /**
-       * Input Requirement
-       * @description The input requirements of the field ['required']
-       * @default required
-       * @enum {string}
+       * Tags
+       * @default [
+       *   "controlnet",
+       *   "zoe",
+       *   "depth"
+       * ]
+       * @constant
        */
-      input_requirement?: 'none' | 'required' | 'optional';
-      /**
-       * Field Type
-       * @description The type of the field; overrides the type inferred from pydantic model
-       * @enum {string}
-       */
-      field_type?:
-        | 'integer'
-        | 'float'
-        | 'boolean'
-        | 'string'
-        | 'enum'
-        | 'image'
-        | 'latents'
-        | 'conditioning'
-        | 'control'
-        | 'main_model'
-        | 'sdxl_main_model'
-        | 'sdxl_refiner_model'
-        | 'onnx_model'
-        | 'vae_model'
-        | 'lora_model'
-        | 'controlnet_model'
-        | 'unet_field'
-        | 'vae_field'
-        | 'lora_field'
-        | 'clip_field'
-        | 'array'
-        | 'color'
-        | 'image_collection'
-        | 'item'
-        | 'any_collection'
-        | 'collection_item';
-      /**
-       * Component
-       * @description The component to use for the field
-       * @enum {string}
-       */
-      component?: 'none' | 'textarea' | 'slider';
-      /**
-       * Hidden
-       * @description Whether or not to hide the field
-       * @default false
-       */
-      hidden?: boolean;
+      tags?: ['controlnet', 'zoe', 'depth'];
     };
     /**
      * UINodeConfig
      * @description Provides additional node configuration to the UI.
      */
     UINodeConfig: {
-      /**
-       * Fields
-       * @description Additional UI configuration for fields
-       */
-      fields?: {
-        [key: string]: components['schemas']['UIInputField'] | undefined;
-      };
       /**
        * Tags
        * @description The tags to display in the UI
@@ -6389,68 +7525,84 @@ export type components = {
       title?: string;
     };
     /**
-     * UIOutputField
-     * @description Provides additional node output field configuration to the UI.
-     */
-    UIOutputField: {
-      /**
-       * Field Type
-       * @description The type of the field; overrides the type inferred from pydantic model
-       * @enum {string}
-       */
-      field_type?:
-        | 'integer'
-        | 'float'
-        | 'boolean'
-        | 'string'
-        | 'enum'
-        | 'image'
-        | 'latents'
-        | 'conditioning'
-        | 'control'
-        | 'main_model'
-        | 'sdxl_main_model'
-        | 'sdxl_refiner_model'
-        | 'onnx_model'
-        | 'vae_model'
-        | 'lora_model'
-        | 'controlnet_model'
-        | 'unet_field'
-        | 'vae_field'
-        | 'lora_field'
-        | 'clip_field'
-        | 'array'
-        | 'color'
-        | 'image_collection'
-        | 'item'
-        | 'any_collection'
-        | 'collection_item';
-      /**
-       * Hidden
-       * @description Whether or not to hide the field
-       * @default false
-       */
-      hidden?: boolean;
-    };
-    /**
-     * UIOutputConfig
-     * @description Provides additional node output configuration to the UI.
-     */
-    UIOutputConfig: {
-      /**
-       * Fields
-       * @description Additional UI configuration for fields
-       */
-      fields?: {
-        [key: string]: components['schemas']['UIOutputField'] | undefined;
-      };
-    };
-    /**
-     * StableDiffusion1ModelFormat
+     * InputKind
      * @description An enumeration.
      * @enum {string}
      */
-    StableDiffusion1ModelFormat: 'checkpoint' | 'diffusers';
+    InputKind: 'connection' | 'direct' | 'any';
+    /**
+     * InputRequirement
+     * @description An enumeration.
+     * @enum {string}
+     */
+    InputRequirement: 'none' | 'required' | 'optional';
+    /**
+     * UITypeHint
+     * @description An enumeration.
+     * @enum {string}
+     */
+    UITypeHint:
+      | 'integer'
+      | 'float'
+      | 'boolean'
+      | 'string'
+      | 'enum'
+      | 'image'
+      | 'latents'
+      | 'conditioning'
+      | 'control'
+      | 'main_model'
+      | 'sdxl_main_model'
+      | 'sdxl_refiner_model'
+      | 'onnx_model'
+      | 'vae_model'
+      | 'lora_model'
+      | 'controlnet_model'
+      | 'unet_field'
+      | 'vae_field'
+      | 'lora_field'
+      | 'clip_field'
+      | 'array'
+      | 'color'
+      | 'image_collection'
+      | 'integer_collection'
+      | 'float_collection'
+      | 'string_collection'
+      | 'bool_collection'
+      | 'item'
+      | 'any_collection'
+      | 'collection_item'
+      | 'seed'
+      | 'file_path';
+    /**
+     * UIComponent
+     * @description An enumeration.
+     * @enum {string}
+     */
+    UIComponent: 'none' | 'textarea' | 'slider';
+    /** InputFieldExtra */
+    InputFieldExtra: {
+      /** @default any */
+      input_kind: components['schemas']['InputKind'];
+      /** @default required */
+      input_requirement: components['schemas']['InputRequirement'];
+      /**
+       * Ui Hidden
+       * @default false
+       */
+      ui_hidden: boolean;
+      ui_type_hint?: components['schemas']['UITypeHint'];
+      ui_component?: components['schemas']['UIComponent'];
+    };
+    /** OutputFieldExtra */
+    OutputFieldExtra: {
+      /**
+       * Ui Hidden
+       * @default false
+       */
+      ui_hidden: boolean;
+      ui_type_hint?: components['schemas']['UITypeHint'];
+    };
     /**
      * ControlNetModelFormat
      * @description An enumeration.
@@ -6458,23 +7610,29 @@ export type components = {
      */
     ControlNetModelFormat: 'checkpoint' | 'diffusers';
     /**
-     * StableDiffusionXLModelFormat
-     * @description An enumeration.
-     * @enum {string}
-     */
-    StableDiffusionXLModelFormat: 'checkpoint' | 'diffusers';
-    /**
      * StableDiffusionOnnxModelFormat
      * @description An enumeration.
      * @enum {string}
      */
     StableDiffusionOnnxModelFormat: 'olive' | 'onnx';
     /**
+     * StableDiffusionXLModelFormat
+     * @description An enumeration.
+     * @enum {string}
+     */
+    StableDiffusionXLModelFormat: 'checkpoint' | 'diffusers';
+    /**
      * StableDiffusion2ModelFormat
      * @description An enumeration.
      * @enum {string}
      */
     StableDiffusion2ModelFormat: 'checkpoint' | 'diffusers';
+    /**
+     * StableDiffusion1ModelFormat
+     * @description An enumeration.
+     * @enum {string}
+     */
+    StableDiffusion1ModelFormat: 'checkpoint' | 'diffusers';
   };
   responses: never;
   parameters: never;
