@@ -584,7 +584,7 @@ class LatentsToImageInvocation(BaseInvocation):
         )
 
         return ImageOutput(
-            image=ImageInputField(image_name=image_dto.image_name),
+            image=ImageField(image_name=image_dto.image_name),
             width=image_dto.width,
             height=image_dto.height,
         )
