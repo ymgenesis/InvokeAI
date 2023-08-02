@@ -93,8 +93,7 @@ t = "range_of_size"
 class RangeOfSizeInvocation(BaseInvocation):
     """Creates a range from start to start + size with step"""
 
-    # type = Type("range_of_size")
-    type: Literal["range_of_size"]
+    type: Literal["range_of_size"] = "range_of_size"
     title = Title("Integer Range of Size")
     tags = Tags(["range", "integer", "size", "collection"])
 
