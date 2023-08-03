@@ -6,9 +6,16 @@ import {
 } from 'features/parameters/types/parameterSchemas';
 import { OpenAPIV3 } from 'openapi-types';
 import { RgbaColor } from 'react-colorful';
-import { Graph, ImageDTO, ImageField } from 'services/api/types';
+import {
+  Graph,
+  ImageDTO,
+  ImageField,
+  InputFieldExtra,
+  OutputFieldExtra,
+} from 'services/api/types';
 import { AnyInvocationType } from 'services/events/types';
 import { O } from 'ts-toolbelt';
+import { z } from 'zod';
 
 export type NonNullableGraph = O.Required<Graph, 'nodes' | 'edges'>;
 
@@ -53,31 +60,44 @@ export type FieldUIConfig = {
   description: string;
 };
 
-/**
- * The valid invocation field types
- */
-export type FieldType =
-  | 'integer'
-  | 'float'
-  | 'string'
-  | 'boolean'
-  | 'enum'
-  | 'image'
-  | 'latents'
-  | 'conditioning'
-  | 'unet'
-  | 'clip'
-  | 'vae'
-  | 'control'
-  | 'model'
-  | 'refiner_model'
-  | 'vae_model'
-  | 'lora_model'
-  | 'controlnet_model'
-  | 'array'
-  | 'item'
-  | 'color'
-  | 'image_collection';
+// TODO: Get this from the OpenAPI schema? may be tricky...
+export const zFieldType = z.enum([
+  'integer',
+  'float',
+  'boolean',
+  'string',
+  'enum',
+  'ImageField',
+  'LatentsField',
+  'ConditioningField',
+  'ControlField',
+  'MainModelField',
+  'SDXLMainModelField',
+  'SDXLRefinerModelField',
+  'ONNXModelField',
+  'VaeModelField',
+  'LoRAModelField',
+  'ControlNetModelField',
+  'UNetField',
+  'VaeField',
+  'LoRAField',
+  'ClipField',
+  'ColorField',
+  'ImageCollection',
+  'IntegerCollection',
+  'FloatCollection',
+  'StringCollection',
+  'BooleanCollection',
+  'Seed',
+  'FilePath',
+  'Collection',
+  'CollectionItem',
+]);
+
+export type FieldType = z.infer<typeof zFieldType>;
+
+export const isFieldType = (value: unknown): value is FieldType =>
+  zFieldType.safeParse(value).success;
 
 /**
  * An input field is persisted across reloads as part of the user's local state.
@@ -105,8 +125,8 @@ export type InputFieldValue =
   | VaeModelInputFieldValue
   | LoRAModelInputFieldValue
   | ControlNetModelInputFieldValue
-  | ArrayInputFieldValue
-  | ItemInputFieldValue
+  | CollectionInputFieldValue
+  | CollectionItemInputFieldValue
   | ColorInputFieldValue
   | ImageCollectionInputFieldValue;
 
@@ -134,8 +154,8 @@ export type InputFieldTemplate =
   | VaeModelInputFieldTemplate
   | LoRAModelInputFieldTemplate
   | ControlNetModelInputFieldTemplate
-  | ArrayInputFieldTemplate
-  | ItemInputFieldTemplate
+  | CollectionInputFieldTemplate
+  | CollectionItemInputFieldTemplate
   | ColorInputFieldTemplate
   | ImageCollectionInputFieldTemplate;
 
@@ -202,82 +222,82 @@ export type EnumInputFieldValue = FieldValueBase & {
 };
 
 export type LatentsInputFieldValue = FieldValueBase & {
-  type: 'latents';
+  type: 'LatentsField';
   value?: undefined;
 };
 
 export type ConditioningInputFieldValue = FieldValueBase & {
-  type: 'conditioning';
+  type: 'ConditioningField';
   value?: string;
 };
 
 export type ControlInputFieldValue = FieldValueBase & {
-  type: 'control';
+  type: 'ControlField';
   value?: undefined;
 };
 
 export type UNetInputFieldValue = FieldValueBase & {
-  type: 'unet';
+  type: 'UNetField';
   value?: undefined;
 };
 
 export type ClipInputFieldValue = FieldValueBase & {
-  type: 'clip';
+  type: 'ClipField';
   value?: undefined;
 };
 
 export type VaeInputFieldValue = FieldValueBase & {
-  type: 'vae';
+  type: 'VaeField';
   value?: undefined;
 };
 
 export type ImageInputFieldValue = FieldValueBase & {
-  type: 'image';
+  type: 'ImageField';
   value?: ImageField;
 };
 
 export type ImageCollectionInputFieldValue = FieldValueBase & {
-  type: 'image_collection';
+  type: 'ImageCollection';
   value?: ImageField[];
 };
 
 export type MainModelInputFieldValue = FieldValueBase & {
-  type: 'model';
+  type: 'MainModelField';
   value?: MainModelParam;
 };
 
 export type RefinerModelInputFieldValue = FieldValueBase & {
-  type: 'refiner_model';
+  type: 'SDXLRefinerModelField';
   value?: MainModelParam;
 };
 
 export type VaeModelInputFieldValue = FieldValueBase & {
-  type: 'vae_model';
+  type: 'VaeModelField';
   value?: VaeModelParam;
 };
 
 export type LoRAModelInputFieldValue = FieldValueBase & {
-  type: 'lora_model';
+  type: 'LoRAModelField';
   value?: LoRAModelParam;
 };
 
 export type ControlNetModelInputFieldValue = FieldValueBase & {
-  type: 'controlnet_model';
+  type: 'ControlNetModelField';
   value?: ControlNetModelParam;
 };
 
-export type ArrayInputFieldValue = FieldValueBase & {
-  type: 'array';
+export type CollectionInputFieldValue = FieldValueBase & {
+  type: 'Collection';
   value?: (string | number)[];
 };
 
-export type ItemInputFieldValue = FieldValueBase & {
-  type: 'item';
+export type CollectionItemInputFieldValue = FieldValueBase & {
+  type: 'CollectionItem';
   value?: undefined;
 };
 
 export type ColorInputFieldValue = FieldValueBase & {
-  type: 'color';
+  type: 'ColorField';
   value?: RgbaColor;
 };
 
@@ -286,9 +306,7 @@ export type InputFieldTemplateBase = {
   title: string;
   description: string;
   type: FieldType;
-  inputRequirement: InputRequirement;
-  inputKind: InputKind;
-};
+} & InputFieldExtra;
 
 export type IntegerInputFieldTemplate = InputFieldTemplateBase & {
   type: 'integer';
@@ -325,42 +343,42 @@ export type BooleanInputFieldTemplate = InputFieldTemplateBase & {
 
 export type ImageInputFieldTemplate = InputFieldTemplateBase & {
   default: ImageDTO;
-  type: 'image';
+  type: 'ImageField';
 };
 
 export type ImageCollectionInputFieldTemplate = InputFieldTemplateBase & {
   default: ImageField[];
-  type: 'image_collection';
+  type: 'ImageCollection';
 };
 
 export type LatentsInputFieldTemplate = InputFieldTemplateBase & {
   default: string;
-  type: 'latents';
+  type: 'LatentsField';
 };
 
 export type ConditioningInputFieldTemplate = InputFieldTemplateBase & {
   default: undefined;
-  type: 'conditioning';
+  type: 'ConditioningField';
 };
 
 export type UNetInputFieldTemplate = InputFieldTemplateBase & {
   default: undefined;
-  type: 'unet';
+  type: 'UNetField';
 };
 
 export type ClipInputFieldTemplate = InputFieldTemplateBase & {
   default: undefined;
-  type: 'clip';
+  type: 'ClipField';
 };
 
 export type VaeInputFieldTemplate = InputFieldTemplateBase & {
   default: undefined;
-  type: 'vae';
+  type: 'VaeField';
 };
 
 export type ControlInputFieldTemplate = InputFieldTemplateBase & {
   default: undefined;
-  type: 'control';
+  type: 'ControlField';
 };
 
 export type EnumInputFieldTemplate = InputFieldTemplateBase & {
@@ -372,42 +390,42 @@ export type EnumInputFieldTemplate = InputFieldTemplateBase & {
 
 export type ModelInputFieldTemplate = InputFieldTemplateBase & {
   default: string;
-  type: 'model';
+  type: 'MainModelField';
 };
 
 export type RefinerModelInputFieldTemplate = InputFieldTemplateBase & {
   default: string;
-  type: 'refiner_model';
+  type: 'SDXLRefinerModelField';
 };
 
 export type VaeModelInputFieldTemplate = InputFieldTemplateBase & {
   default: string;
-  type: 'vae_model';
+  type: 'VaeModelField';
 };
 
 export type LoRAModelInputFieldTemplate = InputFieldTemplateBase & {
   default: string;
-  type: 'lora_model';
+  type: 'LoRAModelField';
 };
 
 export type ControlNetModelInputFieldTemplate = InputFieldTemplateBase & {
   default: string;
-  type: 'controlnet_model';
+  type: 'ControlNetModelField';
 };
 
-export type ArrayInputFieldTemplate = InputFieldTemplateBase & {
+export type CollectionInputFieldTemplate = InputFieldTemplateBase & {
   default: [];
-  type: 'array';
+  type: 'Collection';
 };
 
-export type ItemInputFieldTemplate = InputFieldTemplateBase & {
+export type CollectionItemInputFieldTemplate = InputFieldTemplateBase & {
   default: undefined;
-  type: 'item';
+  type: 'CollectionItem';
 };
 
 export type ColorInputFieldTemplate = InputFieldTemplateBase & {
   default: RgbaColor;
-  type: 'color';
+  type: 'ColorField';
 };
 
 /**
@@ -422,12 +440,12 @@ export type InvocationSchemaExtra = {
   output: OpenAPIV3.ReferenceObject; // the output of the invocation
   ui?: {
     tags?: string[];
-    type_hints?: TypeHints;
     title?: string;
   };
   title: string;
   properties: Omit<
-    NonNullable<OpenAPIV3.SchemaObject['properties']>,
+    NonNullable<OpenAPIV3.SchemaObject['properties']> &
+      (InputFieldExtra | OutputFieldExtra),
     'type'
   > & {
     type: Omit<OpenAPIV3.SchemaObject, 'default'> & {
@@ -446,6 +464,8 @@ export type InvocationBaseSchemaObject = Omit<
 > &
   InvocationSchemaExtra;
 
+export type InvocationFieldSchema = OpenAPIV3.SchemaObject & InputFieldExtra;
+
 export interface ArraySchemaObject extends InvocationBaseSchemaObject {
   type: OpenAPIV3.ArraySchemaObjectType;
   items: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject;
@@ -459,3 +479,7 @@ export type InvocationSchemaObject = ArraySchemaObject | NonArraySchemaObject;
 export const isInvocationSchemaObject = (
   obj: OpenAPIV3.ReferenceObject | InvocationSchemaObject
 ): obj is InvocationSchemaObject => !('$ref' in obj);
+
+export const isInvocationFieldSchema = (
+  obj: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject
+): obj is InvocationFieldSchema => !('$ref' in obj);

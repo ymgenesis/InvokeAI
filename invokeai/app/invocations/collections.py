@@ -13,11 +13,10 @@ from .baseinvocation import (
     BaseInvocationOutput,
     InputField,
     InvocationContext,
-    Title,
-    Tags,
     OutputField,
-    Type,
     UITypeHint,
+    node_tags,
+    node_title,
 )
 
 
@@ -65,12 +64,12 @@ class ImageCollectionOutput(BaseInvocationOutput):
     )
 
 
+@node_title("Integer Range")
+@node_tags("collection", "integer", "range")
 class RangeInvocation(BaseInvocation):
     """Creates a range of numbers from start to stop with step"""
 
     type: Literal["range"] = "range"
-    label = Title("Integer Range")
-    tags = Tags(["range", "integer", "collection"])
 
     # Inputs
     start: int = InputField(default=0, description="The start of the range")
@@ -90,12 +89,12 @@ class RangeInvocation(BaseInvocation):
 t = "range_of_size"
 
 
+@node_title("Integer Range of Size")
+@node_tags("range", "integer", "size", "collection")
 class RangeOfSizeInvocation(BaseInvocation):
     """Creates a range from start to start + size with step"""
 
     type: Literal["range_of_size"] = "range_of_size"
-    title = Title("Integer Range of Size")
-    tags = Tags(["range", "integer", "size", "collection"])
 
     # Inputs
     start: int = InputField(default=0, description="The start of the range")
@@ -106,12 +105,12 @@ class RangeOfSizeInvocation(BaseInvocation):
         return IntCollectionOutput(collection=list(range(self.start, self.start + self.size, self.step)))
 
 
+@node_title("Random Range")
+@node_tags("range", "integer", "random", "collection")
 class RandomRangeInvocation(BaseInvocation):
     """Creates a collection of random numbers"""
 
     type: Literal["random_range"] = "random_range"
-    title = Title("Random Range")
-    tags = Tags(["range", "integer", "random", "collection"])
 
     # Inputs
     low: int = InputField(default=0, description="The inclusive low value")
@@ -130,12 +129,12 @@ class RandomRangeInvocation(BaseInvocation):
         return IntCollectionOutput(collection=list(rng.integers(low=self.low, high=self.high, size=self.size)))
 
 
+@node_title("Image Collection")
+@node_tags("image", "collection")
 class ImageCollectionInvocation(BaseInvocation):
     """Load a collection of images and provide it as output."""
 
     type: Literal["image_collection"] = "image_collection"
-    title = Title("Image Collection")
-    tags = Tags(["image", "collection"])
 
     # Inputs
     images: list[ImageField] = InputField(

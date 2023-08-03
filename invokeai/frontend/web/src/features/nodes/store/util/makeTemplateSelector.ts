@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from 'app/store/store';
-import { InvocationTemplate } from 'features/nodes/types/types';
+import { defaultSelectorOptions } from 'app/store/util/defaultMemoizeOptions';
 import { AnyInvocationType } from 'services/events/types';
 
 export const makeTemplateSelector = (type: AnyInvocationType) =>
@@ -13,12 +13,5 @@ export const makeTemplateSelector = (type: AnyInvocationType) =>
       }
       return template;
     },
-    {
-      memoizeOptions: {
-        resultEqualityCheck: (
-          a: InvocationTemplate | undefined,
-          b: InvocationTemplate | undefined
-        ) => a !== undefined && b !== undefined && a.type === b.type,
-      },
-    }
+    defaultSelectorOptions
   );

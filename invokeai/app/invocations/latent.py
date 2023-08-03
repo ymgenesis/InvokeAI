@@ -40,9 +40,9 @@ from .baseinvocation import (
     InputRequirement,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
     UITypeHint,
+    node_tags,
+    node_title,
 )
 from .compel import ConditioningField
 from .controlnet_image_processors import ControlField
@@ -70,7 +70,6 @@ class LatentsOutput(BaseInvocationOutput):
     latents: LatentsField = OutputField(
         description="The output latents",
         title="Latents",
-        ui_type_hint=UITypeHint.Latents,
         ui_hidden=False,
     )
     width: int = OutputField(description="The width of the latents in pixels")
@@ -117,13 +116,12 @@ def get_scheduler(
 
 
 # Text to image
+@node_title("Text to Latents")
+@node_tags("latents", "inference", "txt2img")
 class TextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
-    # Metadata
     type: Literal["t2l"] = "t2l"
-    title = Title("Text to Latents")
-    tags = Tags(["latents", "inference", "txt2img"])
 
     # Inputs
     positive_conditioning: Optional[ConditioningField] = InputField(
@@ -151,7 +149,7 @@ class TextToLatentsInvocation(BaseInvocation):
         input_kind=InputKind.Connection,
     )
     control: Union[ControlField, list[ControlField]] = InputField(
-        default=None, description="The control to use", ui_type_hint=UITypeHint.Control
+        default=None, description="The control to use", ui_type_hint=UITypeHint.ControlField
     )
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
@@ -394,12 +392,12 @@ class TextToLatentsInvocation(BaseInvocation):
             return build_latents_output(latents_name=name, latents=result_latents)
 
 
+@node_title("Latents to Latents")
+@node_tags("latents", "inference", "img2img")
 class LatentsToLatentsInvocation(TextToLatentsInvocation):
     """Generates latents using latents as base image."""
 
     type: Literal["l2l"] = "l2l"
-    title = Title("Latents to Latents")
-    tags = Tags(["latents", "inference", "img2img"])
 
     # Inputs
     latents: Optional[LatentsField] = InputField(
@@ -490,13 +488,12 @@ class LatentsToLatentsInvocation(TextToLatentsInvocation):
         return build_latents_output(latents_name=name, latents=result_latents)
 
 
-# Latent to image
+@node_title("Latents to Image")
+@node_tags("latents", "image", "vae")
 class LatentsToImageInvocation(BaseInvocation):
     """Generates an image from latents."""
 
     type: Literal["l2i"] = "l2i"
-    title = Title("Latents to Image")
-    tags = Tags(["latents", "image", "vae"])
 
     # Inputs
     latents: Optional[LatentsField] = InputField(
@@ -593,12 +590,12 @@ class LatentsToImageInvocation(BaseInvocation):
 LATENTS_INTERPOLATION_MODE = Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area", "nearest-exact"]
 
 
+@node_title("Resize Latents")
+@node_tags("latents", "resize")
 class ResizeLatentsInvocation(BaseInvocation):
     """Resizes latents to explicit width/height (in pixels). Provided dimensions are floor-divided by 8."""
 
     type: Literal["lresize"] = "lresize"
-    title = Title("Resize Latents")
-    tags = Tags(["latents", "resize"])
 
     # Inputs
     latents: Optional[LatentsField] = InputField(
@@ -645,12 +642,12 @@ class ResizeLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=resized_latents)
 
 
+@node_title("Scale Latents")
+@node_tags("latents", "resize")
 class ScaleLatentsInvocation(BaseInvocation):
     """Scales latents by a given factor."""
 
     type: Literal["lscale"] = "lscale"
-    title = Title("Scale Latents")
-    tags = Tags(["latents", "resize"])
 
     # Inputs
     latents: LatentsField = InputField(
@@ -687,12 +684,12 @@ class ScaleLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=resized_latents)
 
 
+@node_title("Image to Latents")
+@node_tags("latents", "image", "vae")
 class ImageToLatentsInvocation(BaseInvocation):
     """Encodes an image into latents."""
 
     type: Literal["i2l"] = "i2l"
-    title = Title("Image to Latents")
-    tags = Tags(["latents", "image", "vae"])
 
     # Inputs
     image: Optional[ImageField] = InputField(

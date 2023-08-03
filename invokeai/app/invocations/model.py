@@ -12,8 +12,9 @@ from .baseinvocation import (
     InputRequirement,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
+    UITypeHint,
+    node_tags,
+    node_title,
 )
 
 
@@ -71,12 +72,12 @@ class LoRAModelField(BaseModel):
     base_model: BaseModelType = Field(description="Base model")
 
 
+@node_title("Main Model Loader")
+@node_tags("model")
 class MainModelLoaderInvocation(BaseInvocation):
     """Loads a main model, outputting its submodels."""
 
     type: Literal["main_model_loader"] = "main_model_loader"
-    title = Title("Main Model Loader")
-    tags = Tags(["model"])
 
     # Inputs
     model: MainModelField = InputField(description="The model to load", input_kind=InputKind.Direct)
@@ -194,12 +195,12 @@ class LoraLoaderOutput(BaseInvocationOutput):
     # fmt: on
 
 
+@node_title("LoRA Loader")
+@node_tags("lora", "model")
 class LoraLoaderInvocation(BaseInvocation):
     """Apply selected lora to unet and text_encoder."""
 
     type: Literal["lora_loader"] = "lora_loader"
-    title = Title("LoRA Loader")
-    tags = Tags(["lora", "model"])
 
     # Inputs
     lora: Union[LoRAModelField, None] = InputField(
@@ -379,15 +380,17 @@ class VaeLoaderOutput(BaseInvocationOutput):
     vae: VaeField = OutputField(default=None, description="Vae model", title="VAE")
 
 
+@node_title("VAE Loader")
+@node_tags("vae", "model")
 class VaeLoaderInvocation(BaseInvocation):
     """Loads a VAE model, outputting a VaeLoaderOutput"""
 
     type: Literal["vae_loader"] = "vae_loader"
-    title = Title("VAE Loader")
-    tags = Tags(["vae", "model"])
 
     # Inputs
-    vae_model: VAEModelField = InputField(description="The VAE to load", input_kind=InputKind.Direct, title="VAE")
+    vae_model: VAEModelField = InputField(
+        description="The VAE to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.VaeModelField, title="VAE"
+    )
 
     def invoke(self, context: InvocationContext) -> VaeLoaderOutput:
         base_model = self.vae_model.base_model

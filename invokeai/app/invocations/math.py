@@ -10,8 +10,8 @@ from .baseinvocation import (
     InputField,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
+    node_tags,
+    node_title,
 )
 
 
@@ -29,12 +29,12 @@ class FloatOutput(BaseInvocationOutput):
     a: float = OutputField(default=None, description="The output float")
 
 
+@node_title("Add Integers")
+@node_tags("math")
 class AddInvocation(BaseInvocation):
     """Adds two numbers"""
 
     type: Literal["add"] = "add"
-    title = Title("Add Integers")
-    tags = Tags(["math"])
 
     # Inputs
     a: int = InputField(default=0, description="The first number")
@@ -44,12 +44,12 @@ class AddInvocation(BaseInvocation):
         return IntOutput(a=self.a + self.b)
 
 
+@node_title("Subtract Integers")
+@node_tags("math")
 class SubtractInvocation(BaseInvocation):
     """Subtracts two numbers"""
 
     type: Literal["sub"] = "sub"
-    title = Title("Subtract Integers")
-    tags = Tags(["math"])
 
     # Inputs
     a: int = InputField(default=0, description="The first number")
@@ -59,12 +59,12 @@ class SubtractInvocation(BaseInvocation):
         return IntOutput(a=self.a - self.b)
 
 
+@node_title("Multiply Integers")
+@node_tags("math")
 class MultiplyInvocation(BaseInvocation):
     """Multiplies two numbers"""
 
     type: Literal["mul"] = "mul"
-    title = Title("Multiply Integers")
-    tags = Tags(["math"])
 
     # Inputs
     a: int = InputField(default=0, description="The first number")
@@ -74,12 +74,12 @@ class MultiplyInvocation(BaseInvocation):
         return IntOutput(a=self.a * self.b)
 
 
+@node_title("Divide Integers")
+@node_tags("math")
 class DivideInvocation(BaseInvocation):
     """Divides two numbers"""
 
     type: Literal["div"] = "div"
-    title = Title("Divide Integers")
-    tags = Tags(["math"])
 
     # Inputs
     a: int = InputField(default=0, description="The first number")
@@ -89,12 +89,12 @@ class DivideInvocation(BaseInvocation):
         return IntOutput(a=int(self.a / self.b))
 
 
+@node_title("Random Integer")
+@node_tags("math")
 class RandomIntInvocation(BaseInvocation):
     """Outputs a single random integer."""
 
     type: Literal["rand_int"] = "rand_int"
-    title = Title("Random Integer")
-    tags = Tags(["math"])
 
     # Inputs
     low: int = InputField(default=0, description="The inclusive low value")

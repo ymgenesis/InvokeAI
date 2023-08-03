@@ -35,9 +35,9 @@ from .baseinvocation import (
     InputKind,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
     UITypeHint,
+    node_tags,
+    node_title,
 )
 from ..models.image import ImageOutput
 
@@ -101,18 +101,17 @@ class ControlOutput(BaseInvocationOutput):
     """node output for ControlNet info"""
 
     type: Literal["control_output"] = "control_output"
-    title = Title("Control Output")
 
     # Outputs
     control: ControlField = OutputField(default=None, description="The control info")
 
 
+@node_title("ControlNet")
+@node_tags("controlnet")
 class ControlNetInvocation(BaseInvocation):
     """Collects ControlNet info to pass to other nodes"""
 
     type: Literal["controlnet"] = "controlnet"
-    title = Title("ControlNet")
-    tags = Tags(["controlnet"])
 
     # Inputs
     image: ImageField = InputField(default=None, description="The control image")
@@ -190,12 +189,12 @@ class ImageProcessorInvocation(BaseInvocation):
         )
 
 
+@node_title("Canny Processor")
+@node_tags("controlnet", "canny")
 class CannyImageProcessorInvocation(ImageProcessorInvocation):
     """Canny edge detection for ControlNet"""
 
     type: Literal["canny_image_processor"] = "canny_image_processor"
-    title = Title("Canny Processor")
-    tags = Tags(["controlnet", "canny"])
 
     # Input
     low_threshold: int = InputField(
@@ -211,12 +210,12 @@ class CannyImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("HED (softedge) Processor")
+@node_tags("controlnet", "hed", "softedge")
 class HedImageProcessorInvocation(ImageProcessorInvocation):
     """Applies HED edge detection to image"""
 
     type: Literal["hed_image_processor"] = "hed_image_processor"
-    title = Title("HED (softedge) Processor")
-    tags = Tags(["controlnet", "hed", "softedge"])
 
     # Inputs
     detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
@@ -238,12 +237,12 @@ class HedImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Lineart Processor")
+@node_tags("controlnet", "lineart")
 class LineartImageProcessorInvocation(ImageProcessorInvocation):
     """Applies line art processing to image"""
 
     type: Literal["lineart_image_processor"] = "lineart_image_processor"
-    title = Title("Lineart Processor")
-    tags = Tags(["controlnet", "lineart"])
 
     # Inputs
     detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
@@ -258,12 +257,12 @@ class LineartImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Lineart Anime Processor")
+@node_tags("controlnet", "lineart", "anime")
 class LineartAnimeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies line art anime processing to image"""
 
     type: Literal["lineart_anime_image_processor"] = "lineart_anime_image_processor"
-    title = Title("Lineart Anime Processor")
-    tags = Tags(["controlnet", "lineart", "anime"])
 
     # Inputs
     detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
@@ -279,12 +278,12 @@ class LineartAnimeImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Openpose Processor")
+@node_tags("controlnet", "openpose", "pose")
 class OpenposeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Openpose processing to image"""
 
     type: Literal["openpose_image_processor"] = "openpose_image_processor"
-    title = Title("Openpose Processor")
-    tags = Tags(["controlnet", "openpose", "pose"])
 
     # Inputs
     hand_and_face: bool = InputField(default=False, description="Whether to use hands and face mode")
@@ -302,12 +301,12 @@ class OpenposeImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Midas (Depth) Processor")
+@node_tags("controlnet", "midas", "depth")
 class MidasDepthImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Midas depth processing to image"""
 
     type: Literal["midas_depth_image_processor"] = "midas_depth_image_processor"
-    title = Title("Midas (Depth) Processor")
-    tags = Tags(["controlnet", "midas", "depth"])
 
     # Inputs
     a_mult: float = InputField(default=2.0, ge=0, description="Midas parameter `a_mult` (a = a_mult * PI)")
@@ -327,12 +326,12 @@ class MidasDepthImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Normal BAE Processor")
+@node_tags("controlnet", "normal", "bae")
 class NormalbaeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies NormalBae processing to image"""
 
     type: Literal["normalbae_image_processor"] = "normalbae_image_processor"
-    title = Title("Normal BAE Processor")
-    tags = Tags(["controlnet", "normal", "bae"])
 
     # Inputs
     detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
@@ -346,12 +345,12 @@ class NormalbaeImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("MLSD Processor")
+@node_tags("controlnet", "mlsd")
 class MlsdImageProcessorInvocation(ImageProcessorInvocation):
     """Applies MLSD processing to image"""
 
     type: Literal["mlsd_image_processor"] = "mlsd_image_processor"
-    title = Title("MLSD Processor")
-    tags = Tags(["controlnet", "mlsd"])
 
     # Inputs
     detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
@@ -371,12 +370,12 @@ class MlsdImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("PIDI Processor")
+@node_tags("controlnet", "pidi")
 class PidiImageProcessorInvocation(ImageProcessorInvocation):
     """Applies PIDI processing to image"""
 
     type: Literal["pidi_image_processor"] = "pidi_image_processor"
-    title = Title("PIDI Processor")
-    tags = Tags(["controlnet", "pidi"])
 
     # Inputs
     detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
@@ -396,12 +395,12 @@ class PidiImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Content Shuffle Processor")
+@node_tags("controlnet", "contentshuffle")
 class ContentShuffleImageProcessorInvocation(ImageProcessorInvocation):
     """Applies content shuffle processing to image"""
 
     type: Literal["content_shuffle_image_processor"] = "content_shuffle_image_processor"
-    title = Title("Content Shuffle Processor")
-    tags = Tags(["controlnet", "contentshuffle"])
 
     # Inputs
     detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
@@ -424,12 +423,12 @@ class ContentShuffleImageProcessorInvocation(ImageProcessorInvocation):
 
 
 # should work with controlnet_aux >= 0.0.4 and timm <= 0.6.13
+@node_title("Zoe (Depth) Processor")
+@node_tags("controlnet", "zoe", "depth")
 class ZoeDepthImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Zoe depth processing to image"""
 
     type: Literal["zoe_depth_image_processor"] = "zoe_depth_image_processor"
-    title = Title("Zoe (Depth) Processor")
-    tags = Tags(["controlnet", "zoe", "depth"])
 
     def run_processor(self, image):
         zoe_depth_processor = ZoeDetector.from_pretrained("lllyasviel/Annotators")
@@ -437,12 +436,12 @@ class ZoeDepthImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Mediapipe Face Processor")
+@node_tags("controlnet", "mediapipe", "face")
 class MediapipeFaceProcessorInvocation(ImageProcessorInvocation):
     """Applies mediapipe face processing to image"""
 
     type: Literal["mediapipe_face_processor"] = "mediapipe_face_processor"
-    title = Title("Mediapipe Face Processor")
-    tags = Tags(["controlnet", "mediapipe", "face"])
 
     # Inputs
     max_faces: int = InputField(default=1, ge=1, description="Maximum number of faces to detect")
@@ -458,12 +457,12 @@ class MediapipeFaceProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Leres (Depth) Processor")
+@node_tags("controlnet", "leres", "depth")
 class LeresImageProcessorInvocation(ImageProcessorInvocation):
     """Applies leres processing to image"""
 
     type: Literal["leres_image_processor"] = "leres_image_processor"
-    title = Title("Leres (Depth) Processor")
-    tags = Tags(["controlnet", "leres", "depth"])
 
     # Inputs
     thr_a: float = InputField(default=0, description="Leres parameter `thr_a`")
@@ -485,12 +484,12 @@ class LeresImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Tile Resample Processor")
+@node_tags("controlnet", "tile")
 class TileResamplerProcessorInvocation(ImageProcessorInvocation):
     """Tile resampler processor"""
 
     type: Literal["tile_image_processor"] = "tile_image_processor"
-    title = Title("Tile Resample Processor")
-    tags = Tags(["controlnet", "tile"])
 
     # Inputs
     # res: int = InputField(default=512, ge=0, le=1024, description="The pixel resolution for each tile")
@@ -523,12 +522,12 @@ class TileResamplerProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
+@node_title("Segment Anything Processor")
+@node_tags("controlnet", "segmentanything")
 class SegmentAnythingProcessorInvocation(ImageProcessorInvocation):
     """Applies segment anything processing to image"""
 
     type: Literal["segment_anything_processor"] = "segment_anything_processor"
-    title = Title("Segment Anything Processor")
-    tags = Tags(["controlnet", "segmentanything"])
 
     def run_processor(self, image):
         # segment_anything_processor = SamDetector.from_pretrained("ybelkada/segment-anything", subfolder="checkpoints")
