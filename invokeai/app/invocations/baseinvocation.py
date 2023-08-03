@@ -3,9 +3,22 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import copy
 from enum import Enum
 from inspect import signature
-from typing import TYPE_CHECKING, AbstractSet, Any, Mapping, Optional, Union, get_args, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    AbstractSet,
+    Any,
+    Mapping,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    get_args,
+    get_type_hints,
+)
 
 from pydantic import BaseModel, Field
 from pydantic.fields import Undefined
@@ -85,6 +98,15 @@ class BaseInvocation(ABC, BaseModel):
     @classmethod
     def get_output_type(cls):
         return signature(cls.invoke).return_annotation
+
+    class Config:
+        @staticmethod
+        def schema_extra(schema: dict[str, Any], model_class: Type[BaseModel]):
+            uiconfig = getattr(model_class, "UIConfig", None)
+            if uiconfig and hasattr(uiconfig, "title"):
+                schema["title"] = uiconfig.title
+            if uiconfig and hasattr(uiconfig, "tags"):
+                schema["tags"] = uiconfig.tags
 
     @abstractmethod
     def invoke(self, context: InvocationContext) -> BaseInvocationOutput:
@@ -174,13 +196,6 @@ class OutputFieldExtra(BaseModel):
                 "ui_hidden",
             ]
         }
-
-
-class UINodeConfig(BaseModel):
-    """Provides additional node configuration to the UI."""
-
-    tags: list[str] = Field(default_factory=list, description="The tags to display in the UI")
-    title: Optional[str] = Field(default=None, description="The display name of the node")
 
 
 def InputField(
@@ -317,35 +332,32 @@ def OutputField(
     )
 
 
+class UIConfig(BaseModel):
+    """Provides additional node configuration to the UI."""
+
+    tags: Optional[list[str]] = Field(default_factory=None, description="The tags to display in the UI")
+    title: Optional[str] = Field(default=None, description="The display name of the node")
+
+
 def node_title(title):
+    """Adds a title to the node."""
+
     def wrapper(cls):
-        if cls.Config is BaseInvocation.Config:
-            cls.Config = type(cls.__qualname__ + ".Config", (BaseInvocation.Config,), dict())
-        if cls.Config.schema_extra is BaseInvocation.Config.schema_extra:
-            cls.Config.schema_extra = dict(BaseInvocation.Config.schema_extra)
-        if "ui" not in cls.Config.schema_extra:
-            cls.Config.schema_extra["ui"] = dict()
-        cls.Config.schema_extra["ui"]["title"] = title
+        if not hasattr(cls, "UIConfig"):
+            cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfig,), dict())
+        cls.UIConfig.title = title
         return cls
 
     return wrapper
 
 
-# def node_title(title: str):
-#     def wrapper(cls):
-#         if "ui" not in cls.Config.schema_extra:
-#             cls.Config.schema_extra["ui"] = dict()
-#         cls.Config.schema_extra["ui"]["title"] = title
-#         return cls
+def node_tags(*tags: str):
+    """Adds tags to the node."""
 
-#     return wrapper
-
-
-def node_tags(*args: str):
     def wrapper(cls):
-        if "ui" not in cls.Config.schema_extra:
-            cls.Config.schema_extra["ui"] = dict()
-        cls.Config.schema_extra["ui"]["tags"] = list(args)
+        if not hasattr(cls, "UIConfig"):
+            cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfig,), dict())
+        cls.UIConfig.tags = list(tags)
         return cls
 
     return wrapper
