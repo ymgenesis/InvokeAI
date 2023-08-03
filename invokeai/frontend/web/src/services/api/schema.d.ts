@@ -307,7 +307,7 @@ export type components = {
       added_image_names: (string)[];
     };
     /**
-     * AddInvocation 
+     * Add Integers 
      * @description Adds two numbers
      */
     AddInvocation: {
@@ -544,7 +544,7 @@ export type components = {
       file: Blob;
     };
     /**
-     * CannyImageProcessorInvocation 
+     * Canny Processor 
      * @description Canny edge detection for ControlNet
      */
     CannyImageProcessorInvocation: {
@@ -607,7 +607,7 @@ export type components = {
       loras: (components["schemas"]["LoraInfo"])[];
     };
     /**
-     * ClipSkipInvocation 
+     * CLIP Skip 
      * @description Skip layers in clip text_encoder model.
      */
     ClipSkipInvocation: {
@@ -731,7 +731,7 @@ export type components = {
       a: number;
     };
     /**
-     * CompelInvocation 
+     * Prompt (Compel) 
      * @description Parse prompt using compel package to conditioning.
      */
     CompelInvocation: {
@@ -790,7 +790,7 @@ export type components = {
       conditioning_name: string;
     };
     /**
-     * ContentShuffleImageProcessorInvocation 
+     * Content Shuffle Processor 
      * @description Applies content shuffle processing to image
      */
     ContentShuffleImageProcessorInvocation: {
@@ -893,7 +893,7 @@ export type components = {
       resize_mode?: "just_resize" | "crop_resize" | "fill_resize" | "just_resize_simple";
     };
     /**
-     * ControlNetInvocation 
+     * ControlNet 
      * @description Collects ControlNet info to pass to other nodes
      */
     ControlNetInvocation: {
@@ -1164,7 +1164,7 @@ export type components = {
       refiner_start?: number;
     };
     /**
-     * CvInpaintInvocation 
+     * OpenCV Inpaint 
      * @description Simple inpaint using opencv.
      */
     CvInpaintInvocation: {
@@ -1220,7 +1220,7 @@ export type components = {
       deleted_images: (string)[];
     };
     /**
-     * DivideInvocation 
+     * Divide Integers 
      * @description Divides two numbers
      */
     DivideInvocation: {
@@ -1255,7 +1255,7 @@ export type components = {
       b?: number;
     };
     /**
-     * DynamicPromptInvocation 
+     * Dynamic Prompt 
      * @description Parses a prompt using adieyal/dynamicprompts' random or combinatorial generator
      */
     DynamicPromptInvocation: {
@@ -1295,7 +1295,7 @@ export type components = {
       combinatorial?: boolean;
     };
     /**
-     * ESRGANInvocation 
+     * Upscale (RealESRGAN) 
      * @description Upscales an image using RealESRGAN.
      */
     ESRGANInvocation: {
@@ -1374,7 +1374,7 @@ export type components = {
       collection?: (number)[];
     };
     /**
-     * FloatLinearRangeInvocation 
+     * Float Range 
      * @description Creates a range
      */
     FloatLinearRangeInvocation: {
@@ -1556,7 +1556,7 @@ export type components = {
       detail?: (components["schemas"]["ValidationError"])[];
     };
     /**
-     * HedImageProcessorInvocation 
+     * HED (softedge) Processor 
      * @description Applies HED edge detection to image
      */
     HedImageProcessorInvocation: {
@@ -1602,7 +1602,7 @@ export type components = {
       scribble?: boolean;
     };
     /**
-     * ImageBlurInvocation 
+     * Blur Image 
      * @description Blurs an image
      */
     ImageBlurInvocation: {
@@ -1655,7 +1655,7 @@ export type components = {
      */
     ImageCategory: "general" | "mask" | "control" | "user" | "other";
     /**
-     * ImageChannelInvocation 
+     * Extract Image Channel 
      * @description Gets a channel from an image.
      */
     ImageChannelInvocation: {
@@ -1690,7 +1690,7 @@ export type components = {
       channel?: "A" | "R" | "G" | "B";
     };
     /**
-     * ImageCollectionInvocation 
+     * Image Collection 
      * @description Load a collection of images and provide it as output.
      */
     ImageCollectionInvocation: {
@@ -1737,7 +1737,7 @@ export type components = {
       collection?: (components["schemas"]["ImageField"])[];
     };
     /**
-     * ImageConvertInvocation 
+     * Convert Image Mode 
      * @description Converts an image to a different mode.
      */
     ImageConvertInvocation: {
@@ -1772,7 +1772,7 @@ export type components = {
       mode?: "L" | "RGB" | "RGBA" | "CMYK" | "YCbCr" | "LAB" | "HSV" | "I" | "F";
     };
     /**
-     * ImageCropInvocation 
+     * Crop Image 
      * @description Crops an image to a specified box. The box can be outside of the image.
      */
     ImageCropInvocation: {
@@ -1905,7 +1905,7 @@ export type components = {
       image_name: string;
     };
     /**
-     * ImageInverseLerpInvocation 
+     * Inverse Lerp Image 
      * @description Inverse linear interpolation of all pixels of an image
      */
     ImageInverseLerpInvocation: {
@@ -1945,7 +1945,7 @@ export type components = {
       max?: number;
     };
     /**
-     * ImageLerpInvocation 
+     * Lerp Image 
      * @description Linear interpolation of all pixels of an image
      */
     ImageLerpInvocation: {
@@ -2001,7 +2001,7 @@ export type components = {
       graph?: Record<string, never>;
     };
     /**
-     * ImageMultiplyInvocation 
+     * Multiply Images 
      * @description Multiplies two images together using `PIL.ImageChops.multiply()`.
      */
     ImageMultiplyInvocation: {
@@ -2034,7 +2034,7 @@ export type components = {
       image2?: components["schemas"]["ImageField"];
     };
     /**
-     * ImageNSFWBlurInvocation 
+     * Blur NSFW Image 
      * @description Add blur to NSFW-flagged images
      */
     ImageNSFWBlurInvocation: {
@@ -2094,7 +2094,7 @@ export type components = {
       height: number;
     };
     /**
-     * ImagePasteInvocation 
+     * Paste Image 
      * @description Pastes an image into another image.
      */
     ImagePasteInvocation: {
@@ -2195,7 +2195,7 @@ export type components = {
       is_intermediate?: boolean;
     };
     /**
-     * ImageResizeInvocation 
+     * Resize Image 
      * @description Resizes an image to specific dimensions
      */
     ImageResizeInvocation: {
@@ -2240,7 +2240,7 @@ export type components = {
       resample_mode?: "nearest" | "box" | "bilinear" | "hamming" | "bicubic" | "lanczos";
     };
     /**
-     * ImageScaleInvocation 
+     * Scale Image 
      * @description Scales an image by a factor
      */
     ImageScaleInvocation: {
@@ -2281,7 +2281,7 @@ export type components = {
       resample_mode?: "nearest" | "box" | "bilinear" | "hamming" | "bicubic" | "lanczos";
     };
     /**
-     * ImageToLatentsInvocation 
+     * Image to Latents 
      * @description Encodes an image into latents.
      */
     ImageToLatentsInvocation: {
@@ -2347,7 +2347,7 @@ export type components = {
       thumbnail_url: string;
     };
     /**
-     * ImageWatermarkInvocation 
+     * Add Invisible Watermark 
      * @description Add an invisible watermark to an image
      */
     ImageWatermarkInvocation: {
@@ -2386,7 +2386,7 @@ export type components = {
       metadata?: components["schemas"]["CoreMetadata"];
     };
     /**
-     * InfillColorInvocation 
+     * Solid Color Infill 
      * @description Infills transparent areas of an image with a solid color
      */
     InfillColorInvocation: {
@@ -2425,7 +2425,7 @@ export type components = {
       color?: components["schemas"]["ColorField"];
     };
     /**
-     * InfillPatchMatchInvocation 
+     * PatchMatch Infill 
      * @description Infills transparent areas of an image using the PatchMatch algorithm
      */
     InfillPatchMatchInvocation: {
@@ -2453,7 +2453,7 @@ export type components = {
       image?: components["schemas"]["ImageField"];
     };
     /**
-     * InfillTileInvocation 
+     * Tile Infill 
      * @description Infills transparent areas of an image with tiles of the image
      */
     InfillTileInvocation: {
@@ -2492,7 +2492,7 @@ export type components = {
       seed?: number;
     };
     /**
-     * InpaintInvocation 
+     * Inpaint 
      * @description Generates an image using inpaint.
      */
     InpaintInvocation: {
@@ -2781,7 +2781,7 @@ export type components = {
       height: number;
     };
     /**
-     * LatentsToImageInvocation 
+     * Latents to Image 
      * @description Generates an image from latents.
      */
     LatentsToImageInvocation: {
@@ -2831,7 +2831,7 @@ export type components = {
       metadata?: components["schemas"]["CoreMetadata"];
     };
     /**
-     * LatentsToLatentsInvocation 
+     * Latents to Latents 
      * @description Generates latents using latents as base image.
      */
     LatentsToLatentsInvocation: {
@@ -2909,7 +2909,7 @@ export type components = {
       strength?: number;
     };
     /**
-     * LeresImageProcessorInvocation 
+     * Leres (Depth) Processor 
      * @description Applies leres processing to image
      */
     LeresImageProcessorInvocation: {
@@ -2967,7 +2967,7 @@ export type components = {
       image_resolution?: number;
     };
     /**
-     * LineartAnimeImageProcessorInvocation 
+     * Lineart Anime Processor 
      * @description Applies line art anime processing to image
      */
     LineartAnimeImageProcessorInvocation: {
@@ -3007,7 +3007,7 @@ export type components = {
       image_resolution?: number;
     };
     /**
-     * LineartImageProcessorInvocation 
+     * Lineart Processor 
      * @description Applies line art processing to image
      */
     LineartImageProcessorInvocation: {
@@ -3105,7 +3105,7 @@ export type components = {
      */
     LoRAModelFormat: "lycoris" | "diffusers";
     /**
-     * LoadImageInvocation 
+     * Load Image 
      * @description Load an image and provide it as output.
      */
     LoadImageInvocation: {
@@ -3158,7 +3158,7 @@ export type components = {
       weight: number;
     };
     /**
-     * LoraLoaderInvocation 
+     * LoRA Loader 
      * @description Apply selected lora to unet and text_encoder.
      */
     LoraLoaderInvocation: {
@@ -3239,7 +3239,7 @@ export type components = {
       model_type: components["schemas"]["ModelType"];
     };
     /**
-     * MainModelLoaderInvocation 
+     * Main Model Loader 
      * @description Loads a main model, outputting its submodels.
      */
     MainModelLoaderInvocation: {
@@ -3267,7 +3267,7 @@ export type components = {
       model: components["schemas"]["MainModelField"];
     };
     /**
-     * MaskFromAlphaInvocation 
+     * Mask from Alpha 
      * @description Extracts the alpha channel of an image as a mask.
      */
     MaskFromAlphaInvocation: {
@@ -3328,7 +3328,7 @@ export type components = {
       height?: number;
     };
     /**
-     * MediapipeFaceProcessorInvocation 
+     * Mediapipe Face Processor 
      * @description Applies mediapipe face processing to image
      */
     MediapipeFaceProcessorInvocation: {
@@ -3374,7 +3374,7 @@ export type components = {
      */
     MergeInterpolationMethod: "weighted_sum" | "sigmoid" | "inv_sigmoid" | "add_difference";
     /**
-     * MetadataAccumulatorInvocation 
+     * Metadata Accumulator 
      * @description Outputs a Core Metadata Object
      */
     MetadataAccumulatorInvocation: {
@@ -3539,7 +3539,7 @@ export type components = {
       metadata: components["schemas"]["CoreMetadata"];
     };
     /**
-     * MidasDepthImageProcessorInvocation 
+     * Midas (Depth) Processor 
      * @description Applies Midas depth processing to image
      */
     MidasDepthImageProcessorInvocation: {
@@ -3579,7 +3579,7 @@ export type components = {
       bg_th?: number;
     };
     /**
-     * MlsdImageProcessorInvocation 
+     * MLSD Processor 
      * @description Applies MLSD processing to image
      */
     MlsdImageProcessorInvocation: {
@@ -3695,7 +3695,7 @@ export type components = {
       models: (components["schemas"]["ONNXStableDiffusion1ModelConfig"] | components["schemas"]["StableDiffusion1ModelCheckpointConfig"] | components["schemas"]["StableDiffusion1ModelDiffusersConfig"] | components["schemas"]["VaeModelConfig"] | components["schemas"]["LoRAModelConfig"] | components["schemas"]["ControlNetModelCheckpointConfig"] | components["schemas"]["ControlNetModelDiffusersConfig"] | components["schemas"]["TextualInversionModelConfig"] | components["schemas"]["ONNXStableDiffusion2ModelConfig"] | components["schemas"]["StableDiffusion2ModelCheckpointConfig"] | components["schemas"]["StableDiffusion2ModelDiffusersConfig"] | components["schemas"]["StableDiffusionXLModelCheckpointConfig"] | components["schemas"]["StableDiffusionXLModelDiffusersConfig"])[];
     };
     /**
-     * MultiplyInvocation 
+     * Multiply Integers 
      * @description Multiplies two numbers
      */
     MultiplyInvocation: {
@@ -3730,7 +3730,7 @@ export type components = {
       b?: number;
     };
     /**
-     * NoiseInvocation 
+     * Noise 
      * @description Generates latent noise.
      */
     NoiseInvocation: {
@@ -3803,7 +3803,7 @@ export type components = {
       height: number;
     };
     /**
-     * NormalbaeImageProcessorInvocation 
+     * Normal BAE Processor 
      * @description Applies NormalBae processing to image
      */
     NormalbaeImageProcessorInvocation: {
@@ -3843,7 +3843,7 @@ export type components = {
       image_resolution?: number;
     };
     /**
-     * ONNXLatentsToImageInvocation 
+     * ONNX Latents to Image 
      * @description Generates an image from latents.
      */
     ONNXLatentsToImageInvocation: {
@@ -3913,7 +3913,7 @@ export type components = {
       vae_encoder?: components["schemas"]["VaeField"];
     };
     /**
-     * ONNXPromptInvocation 
+     * ONNX Prompt (Raw) 
      * @description A node to process inputs and produce outputs.
      * May use dependency injection in __init__ to receive providers.
      */
@@ -3995,7 +3995,7 @@ export type components = {
       upcast_attention: boolean;
     };
     /**
-     * ONNXTextToLatentsInvocation 
+     * ONNX Text to Latents 
      * @description Generates latents from conditionings.
      */
     ONNXTextToLatentsInvocation: {
@@ -4136,7 +4136,7 @@ export type components = {
       model_type: components["schemas"]["ModelType"];
     };
     /**
-     * OnnxModelLoaderInvocation 
+     * ONNX Model Loader 
      * @description Loads a main model, outputting its submodels.
      */
     OnnxModelLoaderInvocation: {
@@ -4164,7 +4164,7 @@ export type components = {
       model: components["schemas"]["OnnxModelField"];
     };
     /**
-     * OpenposeImageProcessorInvocation 
+     * Openpose Processor 
      * @description Applies Openpose processing to image
      */
     OpenposeImageProcessorInvocation: {
@@ -4241,7 +4241,7 @@ export type components = {
       total: number;
     };
     /**
-     * ParamFloatInvocation 
+     * Float Parameter 
      * @description A float parameter
      */
     ParamFloatInvocation: {
@@ -4270,7 +4270,7 @@ export type components = {
       param?: number;
     };
     /**
-     * ParamIntInvocation 
+     * Integer Parameter 
      * @description An integer parameter
      */
     ParamIntInvocation: {
@@ -4299,7 +4299,7 @@ export type components = {
       a?: number;
     };
     /**
-     * ParamPromptInvocation 
+     * Prompt Parameter 
      * @description A prompt input parameter
      */
     ParamPromptInvocation: {
@@ -4328,7 +4328,7 @@ export type components = {
       prompt?: string;
     };
     /**
-     * ParamStringInvocation 
+     * String Parameter 
      * @description A string parameter
      */
     ParamStringInvocation: {
@@ -4357,7 +4357,7 @@ export type components = {
       text?: string;
     };
     /**
-     * PidiImageProcessorInvocation 
+     * PIDI Processor 
      * @description Applies PIDI processing to image
      */
     PidiImageProcessorInvocation: {
@@ -4448,7 +4448,7 @@ export type components = {
       prompt: string;
     };
     /**
-     * PromptsFromFileInvocation 
+     * Prompts from File 
      * @description Loads prompts from a text file
      */
     PromptsFromFileInvocation: {
@@ -4498,7 +4498,7 @@ export type components = {
       max_prompts?: number;
     };
     /**
-     * RandomIntInvocation 
+     * Random Integer 
      * @description Outputs a single random integer.
      */
     RandomIntInvocation: {
@@ -4533,7 +4533,7 @@ export type components = {
       high?: number;
     };
     /**
-     * RandomRangeInvocation 
+     * Random Range 
      * @description Creates a collection of random numbers
      */
     RandomRangeInvocation: {
@@ -4579,7 +4579,7 @@ export type components = {
       seed?: number;
     };
     /**
-     * RangeInvocation 
+     * Integer Range 
      * @description Creates a range of numbers from start to stop with step
      */
     RangeInvocation: {
@@ -4620,7 +4620,7 @@ export type components = {
       step?: number;
     };
     /**
-     * RangeOfSizeInvocation 
+     * Integer Range of Size 
      * @description Creates a range from start to start + size with step
      */
     RangeOfSizeInvocation: {
@@ -4669,7 +4669,7 @@ export type components = {
       removed_image_names: (string)[];
     };
     /**
-     * ResizeLatentsInvocation 
+     * Resize Latents 
      * @description Resizes latents to explicit width/height (in pixels). Provided dimensions are floor-divided by 8.
      */
     ResizeLatentsInvocation: {
@@ -4732,7 +4732,7 @@ export type components = {
      */
     ResourceOrigin: "internal" | "external";
     /**
-     * SDXLCompelPromptInvocation 
+     * SDXL Prompt (Compel) 
      * @description Parse prompt using compel package to conditioning.
      */
     SDXLCompelPromptInvocation: {
@@ -4884,7 +4884,7 @@ export type components = {
       denoising_end?: number;
     };
     /**
-     * SDXLModelLoaderInvocation 
+     * SDXL Main Model Loader 
      * @description Loads an sdxl base model, outputting its submodels.
      */
     SDXLModelLoaderInvocation: {
@@ -4944,7 +4944,7 @@ export type components = {
       vae?: components["schemas"]["VaeField"];
     };
     /**
-     * SDXLRawPromptInvocation 
+     * SDXL Prompt (Raw) 
      * @description Pass unmodified prompt to conditioning without compel processing.
      */
     SDXLRawPromptInvocation: {
@@ -5019,7 +5019,7 @@ export type components = {
       clip2?: components["schemas"]["ClipField"];
     };
     /**
-     * SDXLRefinerCompelPromptInvocation 
+     * SDXL Refiner Prompt (Compel) 
      * @description Parse prompt using compel package to conditioning.
      */
     SDXLRefinerCompelPromptInvocation: {
@@ -5078,7 +5078,7 @@ export type components = {
       clip2?: components["schemas"]["ClipField"];
     };
     /**
-     * SDXLRefinerModelLoaderInvocation 
+     * SDXL Refiner Model Loader 
      * @description Loads an sdxl refiner model, outputting its submodels.
      */
     SDXLRefinerModelLoaderInvocation: {
@@ -5133,7 +5133,7 @@ export type components = {
       vae?: components["schemas"]["VaeField"];
     };
     /**
-     * SDXLRefinerRawPromptInvocation 
+     * SDXL Refiner Prompt (Raw) 
      * @description Parse prompt using compel package to conditioning.
      */
     SDXLRefinerRawPromptInvocation: {
@@ -5192,7 +5192,7 @@ export type components = {
       clip2?: components["schemas"]["ClipField"];
     };
     /**
-     * SDXLTextToLatentsInvocation 
+     * SDXL Text to Latents 
      * @description Generates latents from conditionings.
      */
     SDXLTextToLatentsInvocation: {
@@ -5259,7 +5259,7 @@ export type components = {
       denoising_end?: number;
     };
     /**
-     * ScaleLatentsInvocation 
+     * Scale Latents 
      * @description Scales latents by a given factor.
      */
     ScaleLatentsInvocation: {
@@ -5311,7 +5311,7 @@ export type components = {
      */
     SchedulerPredictionType: "epsilon" | "v_prediction" | "sample";
     /**
-     * SegmentAnythingProcessorInvocation 
+     * Segment Anything Processor 
      * @description Applies segment anything processing to image
      */
     SegmentAnythingProcessorInvocation: {
@@ -5339,7 +5339,7 @@ export type components = {
       image?: components["schemas"]["ImageField"];
     };
     /**
-     * ShowImageInvocation 
+     * Show Image 
      * @description Displays a provided image, and passes it forward in the pipeline.
      */
     ShowImageInvocation: {
@@ -5517,7 +5517,7 @@ export type components = {
       variant: components["schemas"]["ModelVariantType"];
     };
     /**
-     * StepParamEasingInvocation 
+     * Step Param Easing 
      * @description Experimental per-step parameter easing for denoising steps
      */
     StepParamEasingInvocation: {
@@ -5640,7 +5640,7 @@ export type components = {
      */
     SubModelType: "unet" | "text_encoder" | "text_encoder_2" | "tokenizer" | "tokenizer_2" | "vae" | "vae_decoder" | "vae_encoder" | "scheduler" | "safety_checker";
     /**
-     * SubtractInvocation 
+     * Subtract Integers 
      * @description Subtracts two numbers
      */
     SubtractInvocation: {
@@ -5675,7 +5675,7 @@ export type components = {
       b?: number;
     };
     /**
-     * TextToLatentsInvocation 
+     * Latents to Latents 
      * @description Generates latents from conditionings.
      */
     TextToLatentsInvocation: {
@@ -5760,7 +5760,7 @@ export type components = {
       error?: components["schemas"]["ModelError"];
     };
     /**
-     * TileResamplerProcessorInvocation 
+     * Tile Resample Processor 
      * @description Tile resampler processor
      */
     TileResamplerProcessorInvocation: {
@@ -5846,7 +5846,7 @@ export type components = {
       vae: components["schemas"]["ModelInfo"];
     };
     /**
-     * VaeLoaderInvocation 
+     * VAE Loader 
      * @description Loads a VAE model, outputting a VaeLoaderOutput
      */
     VaeLoaderInvocation: {
@@ -5923,7 +5923,7 @@ export type components = {
       type: string;
     };
     /**
-     * ZoeDepthImageProcessorInvocation 
+     * Zoe (Depth) Processor 
      * @description Applies Zoe depth processing to image
      */
     ZoeDepthImageProcessorInvocation: {
@@ -5951,10 +5951,10 @@ export type components = {
       image?: components["schemas"]["ImageField"];
     };
     /**
-     * UINodeConfig 
+     * UIConfig 
      * @description Provides additional node configuration to the UI.
      */
-    UINodeConfig: {
+    UIConfig: {
       /**
        * Tags 
        * @description The tags to display in the UI
@@ -5983,7 +5983,7 @@ export type components = {
      * @description An enumeration. 
      * @enum {string}
      */
-    UITypeHint: "integer" | "float" | "boolean" | "string" | "enum" | "image" | "latents" | "conditioning" | "control" | "main_model" | "sdxl_main_model" | "sdxl_refiner_model" | "onnx_model" | "vae_model" | "lora_model" | "controlnet_model" | "unet_field" | "vae_field" | "lora_field" | "clip_field" | "array" | "color" | "image_collection" | "integer_collection" | "float_collection" | "string_collection" | "bool_collection" | "item" | "any_collection" | "collection_item" | "seed" | "file_path";
+    UITypeHint: "integer" | "float" | "boolean" | "string" | "enum" | "array" | "ImageField" | "LatentsField" | "ConditioningField" | "ControlField" | "MainModelField" | "SDXLMainModelField" | "SDXLRefinerModelField" | "ONNXModelField" | "VaeModelField" | "LoRAModelField" | "ControlNetModelField" | "UNetField" | "VaeField" | "LoRAField" | "ClipField" | "ColorField" | "ImageCollection" | "IntegerCollection" | "FloatCollection" | "StringCollection" | "BooleanCollection" | "Collection" | "CollectionItem" | "Seed" | "FilePath";
     /**
      * UIComponent 
      * @description An enumeration. 
@@ -5992,39 +5992,19 @@ export type components = {
     UIComponent: "none" | "textarea" | "slider";
     /** InputFieldExtra */
     InputFieldExtra: {
-      /** @default any */
       input_kind: components["schemas"]["InputKind"];
-      /** @default required */
       input_requirement: components["schemas"]["InputRequirement"];
-      /**
-       * Ui Hidden 
-       * @default false
-       */
+      /** Ui Hidden */
       ui_hidden: boolean;
       ui_type_hint?: components["schemas"]["UITypeHint"];
       ui_component?: components["schemas"]["UIComponent"];
     };
     /** OutputFieldExtra */
     OutputFieldExtra: {
-      /**
-       * Ui Hidden 
-       * @default false
-       */
+      /** Ui Hidden */
       ui_hidden: boolean;
       ui_type_hint?: components["schemas"]["UITypeHint"];
     };
-    /**
-     * StableDiffusion2ModelFormat 
-     * @description An enumeration. 
-     * @enum {string}
-     */
-    StableDiffusion2ModelFormat: "checkpoint" | "diffusers";
-    /**
-     * StableDiffusion1ModelFormat 
-     * @description An enumeration. 
-     * @enum {string}
-     */
-    StableDiffusion1ModelFormat: "checkpoint" | "diffusers";
     /**
      * ControlNetModelFormat 
      * @description An enumeration. 
@@ -6043,6 +6023,18 @@ export type components = {
      * @enum {string}
      */
     StableDiffusionOnnxModelFormat: "olive" | "onnx";
+    /**
+     * StableDiffusion2ModelFormat 
+     * @description An enumeration. 
+     * @enum {string}
+     */
+    StableDiffusion2ModelFormat: "checkpoint" | "diffusers";
+    /**
+     * StableDiffusion1ModelFormat 
+     * @description An enumeration. 
+     * @enum {string}
+     */
+    StableDiffusion1ModelFormat: "checkpoint" | "diffusers";
   };
   responses: never;
   parameters: never;
