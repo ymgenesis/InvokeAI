@@ -38,7 +38,7 @@ import mimetypes
 from .api.dependencies import ApiDependencies
 from .api.routers import sessions, models, images, boards, board_images, app_info
 from .api.sockets import SocketIO
-from .invocations.baseinvocation import BaseInvocation, InputFieldExtra, OutputFieldExtra, UINodeConfig
+from .invocations.baseinvocation import BaseInvocation, InputFieldExtra, OutputFieldExtra, UIConfig
 
 
 import torch
@@ -135,7 +135,7 @@ def custom_openapi():
         output_type_titles[schema_key] = output_schema["title"]
 
     # Add Node Editor UI helper schemas
-    ui_config_schemas = schema([UINodeConfig, InputFieldExtra, OutputFieldExtra], ref_prefix="#/components/schemas/")
+    ui_config_schemas = schema([UIConfig, InputFieldExtra, OutputFieldExtra], ref_prefix="#/components/schemas/")
     for schema_key, output_schema in ui_config_schemas["definitions"].items():
         openapi_schema["components"]["schemas"][schema_key] = output_schema
 
