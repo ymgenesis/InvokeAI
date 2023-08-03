@@ -20,7 +20,23 @@ import {
 } from 'reactflow';
 import { receivedOpenAPISchema } from 'services/api/thunks/schema';
 import { ImageField } from 'services/api/types';
-import { InvocationTemplate, InvocationValue } from '../types/types';
+import {
+  BooleanInputFieldValue,
+  ColorInputFieldValue,
+  ControlNetModelInputFieldValue,
+  EnumInputFieldValue,
+  FloatInputFieldValue,
+  ImageInputFieldValue,
+  InputFieldValue,
+  IntegerInputFieldValue,
+  InvocationTemplate,
+  InvocationValue,
+  LoRAModelInputFieldValue,
+  MainModelInputFieldValue,
+  RefinerModelInputFieldValue,
+  StringInputFieldValue,
+  VaeModelInputFieldValue,
+} from '../types/types';
 import { NodesState } from './types';
 
 export const initialNodesState: NodesState = {
@@ -34,6 +50,27 @@ export const initialNodesState: NodesState = {
   shouldShowMinimapPanel: true,
   editorInstance: undefined,
   progressNodeSize: { width: 512, height: 512 },
+};
+
+type FieldValueAction<T extends InputFieldValue> = PayloadAction<{
+  nodeId: string;
+  fieldName: string;
+  value: T['value'];
+}>;
+
+const fieldValueReducer = <T extends InputFieldValue>(
+  state: NodesState,
+  action: FieldValueAction<T>
+) => {
+  const { nodeId, fieldName, value } = action.payload;
+  const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
+  const input = state.nodes?.[nodeIndex]?.data?.inputs[fieldName];
+  if (!input) {
+    return;
+  }
+  if (nodeIndex > -1) {
+    input.value = value;
+  }
 };
 
 const nodesSlice = createSlice({
@@ -57,6 +94,72 @@ const nodesSlice = createSlice({
     },
     connectionEnded: (state) => {
       state.connectionStartParams = null;
+    },
+    fieldStringValueChanged: (
+      state,
+      action: FieldValueAction<StringInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldNumberValueChanged: (
+      state,
+      action: FieldValueAction<IntegerInputFieldValue | FloatInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldBooleanValueChanged: (
+      state,
+      action: FieldValueAction<BooleanInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldImageValueChanged: (
+      state,
+      action: FieldValueAction<ImageInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldColorValueChanged: (
+      state,
+      action: FieldValueAction<ColorInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldMainModelValueChanged: (
+      state,
+      action: FieldValueAction<MainModelInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldRefinerModelValueChanged: (
+      state,
+      action: FieldValueAction<RefinerModelInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldVaeModelValueChanged: (
+      state,
+      action: FieldValueAction<VaeModelInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldLoRAModelValueChanged: (
+      state,
+      action: FieldValueAction<LoRAModelInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldControlNetModelValueChanged: (
+      state,
+      action: FieldValueAction<ControlNetModelInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
+    },
+    fieldEnumModelValueChanged: (
+      state,
+      action: FieldValueAction<EnumInputFieldValue>
+    ) => {
+      fieldValueReducer(state, action);
     },
     fieldValueChanged: (
       state,
@@ -182,6 +285,17 @@ export const {
   loadFileNodes,
   loadFileEdges,
   setProgressNodeSize,
+  fieldStringValueChanged,
+  fieldNumberValueChanged,
+  fieldBooleanValueChanged,
+  fieldImageValueChanged,
+  fieldColorValueChanged,
+  fieldMainModelValueChanged,
+  fieldVaeModelValueChanged,
+  fieldLoRAModelValueChanged,
+  fieldEnumModelValueChanged,
+  fieldControlNetModelValueChanged,
+  fieldRefinerModelValueChanged,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

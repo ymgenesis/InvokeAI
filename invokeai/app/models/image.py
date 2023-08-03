@@ -11,7 +11,7 @@ from ..invocations.baseinvocation import (
 class ImageField(BaseModel):
     """An image field used for passing image objects between invocations"""
 
-    image_name: Optional[str] = Field(default=None, description="The name of the image")
+    image_name: str = Field(description="The name of the image")
 
     class Config:
         schema_extra = {"required": ["image_name"]}

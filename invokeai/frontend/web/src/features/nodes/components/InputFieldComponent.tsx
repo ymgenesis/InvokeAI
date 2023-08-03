@@ -14,13 +14,14 @@ import ImageInputFieldComponent from './fields/ImageInputFieldComponent';
 import CollectionItemInputFieldComponent from './fields/CollectionItemInputFieldComponent';
 import LatentsInputFieldComponent from './fields/LatentsInputFieldComponent';
 import LoRAModelInputFieldComponent from './fields/LoRAModelInputFieldComponent';
-import ModelInputFieldComponent from './fields/ModelInputFieldComponent';
-import NumberInputFieldComponent from './fields/NumberInputFieldComponent';
+import MainModelInputFieldComponent from './fields/MainModelInputFieldComponent';
+import FloatInputFieldComponent from './fields/NumberInputFieldComponent';
 import StringInputFieldComponent from './fields/StringInputFieldComponent';
 import UnetInputFieldComponent from './fields/UnetInputFieldComponent';
 import VaeInputFieldComponent from './fields/VaeInputFieldComponent';
 import VaeModelInputFieldComponent from './fields/VaeModelInputFieldComponent';
 import RefinerModelInputFieldComponent from './fields/RefinerModelInputFieldComponent';
+import SDXLMainModelInputFieldComponent from './fields/SDXLMainModelInputFieldComponent';
 
 type InputFieldComponentProps = {
   nodeId: string;
@@ -58,7 +59,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     (type === 'float' && template.type === 'float')
   ) {
     return (
-      <NumberInputFieldComponent
+      <FloatInputFieldComponent
         nodeId={nodeId}
         field={field}
         template={template}
@@ -148,7 +149,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
 
   if (type === 'MainModelField' && template.type === 'MainModelField') {
     return (
-      <ModelInputFieldComponent
+      <MainModelInputFieldComponent
         nodeId={nodeId}
         field={field}
         template={template}
@@ -235,6 +236,16 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
   if (type === 'ImageCollection' && template.type === 'ImageCollection') {
     return (
       <ImageCollectionInputFieldComponent
+        nodeId={nodeId}
+        field={field}
+        template={template}
+      />
+    );
+  }
+
+  if (type === 'SDXLMainModelField' && template.type === 'SDXLMainModelField') {
+    return (
+      <SDXLMainModelInputFieldComponent
         nodeId={nodeId}
         field={field}
         template={template}

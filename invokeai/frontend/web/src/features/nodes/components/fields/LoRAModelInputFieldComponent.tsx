@@ -3,7 +3,7 @@ import { SelectItem } from '@mantine/core';
 import { useAppDispatch } from 'app/store/storeHooks';
 import IAIMantineSearchableSelect from 'common/components/IAIMantineSearchableSelect';
 import IAIMantineSelectItemWithTooltip from 'common/components/IAIMantineSelectItemWithTooltip';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldLoRAModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   LoRAModelInputFieldTemplate,
   LoRAModelInputFieldValue,
@@ -68,7 +68,7 @@ const LoRAModelInputFieldComponent = (
       }
 
       dispatch(
-        fieldValueChanged({
+        fieldLoRAModelValueChanged({
           nodeId,
           fieldName: field.name,
           value: newLoRAModel,

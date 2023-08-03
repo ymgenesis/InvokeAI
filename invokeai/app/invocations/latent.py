@@ -37,7 +37,6 @@ from .baseinvocation import (
     BaseInvocationOutput,
     InputField,
     InputKind,
-    InputRequirement,
     InvocationContext,
     OutputField,
     UITypeHint,
@@ -55,7 +54,7 @@ DEFAULT_PRECISION = choose_precision(choose_torch_device())
 class LatentsField(BaseModel):
     """A latents field used for passing latents between invocations"""
 
-    latents_name: Optional[str] = Field(default=None, description="The name of the latents")
+    latents_name: str = Field(description="The name of the latents")
 
     class Config:
         schema_extra = {"required": ["latents_name"]}
@@ -148,11 +147,10 @@ class TextToLatentsInvocation(BaseInvocation):
         description="UNet submodel",
         input_kind=InputKind.Connection,
     )
-    control: Optional[Union[ControlField, list[ControlField]]] = InputField(
+    control: Union[ControlField, list[ControlField]] = InputField(
         default=None,
         description="The control to use",
         ui_type_hint=UITypeHint.ControlField,
-        input_requirement=InputRequirement.Optional,
     )
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
@@ -403,7 +401,7 @@ class LatentsToLatentsInvocation(TextToLatentsInvocation):
     type: Literal["l2l"] = "l2l"
 
     # Inputs
-    latents: Optional[LatentsField] = InputField(
+    latents: LatentsField = InputField(
         description="The latents to use as a base image",
         input_kind=InputKind.Connection,
     )
@@ -499,21 +497,19 @@ class LatentsToImageInvocation(BaseInvocation):
     type: Literal["l2i"] = "l2i"
 
     # Inputs
-    latents: Optional[LatentsField] = InputField(
+    latents: LatentsField = InputField(
         description="The latents to generate an image from",
         input_kind=InputKind.Connection,
     )
     vae: VaeField = InputField(
-        default=None,
         description="Vae submodel",
         input_kind=InputKind.Connection,
     )
     tiled: bool = InputField(default=False, description="Decode latents by overlaping tiles (less memory consumption)")
     fp32: bool = InputField(default=DEFAULT_PRECISION == "float32", description="Decode in full precision")
-    metadata: Optional[CoreMetadata] = InputField(
+    metadata: CoreMetadata = InputField(
         default=None,
         description="Optional core metadata to be written to the image",
-        input_requirement=InputRequirement.Optional,
         ui_hidden=True,
     )
 
@@ -601,18 +597,16 @@ class ResizeLatentsInvocation(BaseInvocation):
     type: Literal["lresize"] = "lresize"
 
     # Inputs
-    latents: Optional[LatentsField] = InputField(
+    latents: LatentsField = InputField(
         description="The latents to resize",
         input_kind=InputKind.Connection,
     )
-    width: Optional[int] = InputField(
-        default=512,
+    width: int = InputField(
         ge=64,
         multiple_of=8,
         description="The width to resize to (px)",
     )
-    height: Optional[int] = InputField(
-        default=512,
+    height: int = InputField(
         ge=64,
         multiple_of=8,
         description="The height to resize to (px)",
@@ -695,11 +689,10 @@ class ImageToLatentsInvocation(BaseInvocation):
     type: Literal["i2l"] = "i2l"
 
     # Inputs
-    image: Optional[ImageField] = InputField(
+    image: ImageField = InputField(
         description="The image to encode",
     )
-    vae: Optional[VaeField] = InputField(
-        default=None,
+    vae: VaeField = InputField(
         description="Vae submodel",
         input_kind=InputKind.Connection,
     )

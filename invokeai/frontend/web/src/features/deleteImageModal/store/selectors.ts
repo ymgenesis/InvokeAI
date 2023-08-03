@@ -16,7 +16,7 @@ export const getImageUsage = (state: RootState, image_name: string) => {
     return some(
       node.data.inputs,
       (input) =>
-        input.type === 'image' && input.value?.image_name === image_name
+        input.type === 'ImageField' && input.value?.image_name === image_name
     );
   });
 

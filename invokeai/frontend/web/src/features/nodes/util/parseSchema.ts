@@ -51,9 +51,9 @@ export const parseSchema = (
           description: itemProperty.description ?? '',
           title: 'Collection Item',
           input_kind: 'connection',
-          input_requirement: 'required',
           default: undefined,
           ui_hidden: false,
+          required: true,
         };
       } else if (type === 'iterate') {
         const itemProperty = schema.properties
@@ -64,9 +64,9 @@ export const parseSchema = (
           title: itemProperty.title ?? '',
           default: [],
           description: itemProperty.description ?? '',
-          input_requirement: 'required',
           input_kind: 'connection',
           ui_hidden: false,
+          required: true,
         };
       } else {
         reduce(
@@ -76,7 +76,11 @@ export const parseSchema = (
               !RESERVED_FIELD_NAMES.includes(propertyName) &&
               isInvocationFieldSchema(property)
             ) {
-              const field = buildInputFieldTemplate(property, propertyName);
+              const field = buildInputFieldTemplate(
+                schema,
+                property,
+                propertyName
+              );
 
               if (field) {
                 inputsAccumulator[propertyName] = field;

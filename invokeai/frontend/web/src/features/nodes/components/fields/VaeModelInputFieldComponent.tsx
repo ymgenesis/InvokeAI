@@ -2,7 +2,7 @@ import { SelectItem } from '@mantine/core';
 import { useAppDispatch } from 'app/store/storeHooks';
 import IAIMantineSearchableSelect from 'common/components/IAIMantineSearchableSelect';
 import IAIMantineSelectItemWithTooltip from 'common/components/IAIMantineSelectItemWithTooltip';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldVaeModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   VaeModelInputFieldTemplate,
   VaeModelInputFieldValue,
@@ -73,7 +73,7 @@ const VaeModelInputFieldComponent = (
       }
 
       dispatch(
-        fieldValueChanged({
+        fieldVaeModelValueChanged({
           nodeId,
           fieldName: field.name,
           value: newVaeModel,

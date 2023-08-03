@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
 import { numberStringRegex } from 'common/components/IAINumberInput';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldNumberValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   FloatInputFieldTemplate,
   FloatInputFieldValue,
@@ -35,7 +35,7 @@ const NumberInputFieldComponent = (
     if (!v.match(numberStringRegex)) {
       // Cast the value to number. Floor it if it should be an integer.
       dispatch(
-        fieldValueChanged({
+        fieldNumberValueChanged({
           nodeId,
           fieldName: field.name,
           value:

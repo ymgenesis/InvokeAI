@@ -9,7 +9,6 @@ from .baseinvocation import (
     BaseInvocationOutput,
     InputField,
     InputKind,
-    InputRequirement,
     InvocationContext,
     OutputField,
     UITypeHint,
@@ -203,18 +202,16 @@ class LoraLoaderInvocation(BaseInvocation):
     type: Literal["lora_loader"] = "lora_loader"
 
     # Inputs
-    lora: Union[LoRAModelField, None] = InputField(
-        default=None, description="Lora model name", input_kind=InputKind.Direct
-    )
+    lora: LoRAModelField = InputField(description="Lora model name", input_kind=InputKind.Direct)
     weight: float = InputField(default=0.75, description="With what weight to apply lora")
     unet: Optional[UNetField] = InputField(
+        default=None,
         description="UNet model for applying lora",
-        input_requirement=InputRequirement.Optional,
         input_kind=InputKind.Connection,
     )
     clip: Optional[ClipField] = InputField(
+        default=None,
         description="Clip model for applying lora",
-        input_requirement=InputRequirement.Optional,
         input_kind=InputKind.Connection,
     )
 

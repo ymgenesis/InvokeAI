@@ -1,7 +1,7 @@
 import { SelectItem } from '@mantine/core';
 import { useAppDispatch } from 'app/store/storeHooks';
 import IAIMantineSelect from 'common/components/IAIMantineSelect';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldControlNetModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   ControlNetModelInputFieldTemplate,
   ControlNetModelInputFieldValue,
@@ -73,7 +73,7 @@ const ControlNetModelInputFieldComponent = (
       }
 
       dispatch(
-        fieldValueChanged({
+        fieldControlNetModelValueChanged({
           nodeId,
           fieldName: field.name,
           value: newControlNetModel,

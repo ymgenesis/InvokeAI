@@ -6,7 +6,7 @@ import {
 } from 'app/components/ImageDnd/typesafeDnd';
 import { useAppDispatch } from 'app/store/storeHooks';
 import IAIDndImage from 'common/components/IAIDndImage';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldImageValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   ImageInputFieldTemplate,
   ImageInputFieldValue,
@@ -29,7 +29,7 @@ const ImageInputFieldComponent = (
 
   const handleReset = useCallback(() => {
     dispatch(
-      fieldValueChanged({
+      fieldImageValueChanged({
         nodeId,
         fieldName: field.name,
         value: undefined,

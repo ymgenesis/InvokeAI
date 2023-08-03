@@ -63,8 +63,8 @@ class InpaintInvocation(BaseInvocation):
 
     type: Literal["inpaint"] = "inpaint"
 
-    positive_conditioning: Optional[ConditioningField] = InputField(description="Positive conditioning for generation")
-    negative_conditioning: Optional[ConditioningField] = InputField(description="Negative conditioning for generation")
+    positive_conditioning: ConditioningField = InputField(description="Positive conditioning for generation")
+    negative_conditioning: ConditioningField = InputField(description="Negative conditioning for generation")
     seed: int = InputField(
         ge=0, le=SEED_MAX, description="The seed to use (omit for random)", default_factory=get_random_seed
     )
@@ -87,11 +87,11 @@ class InpaintInvocation(BaseInvocation):
         description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
     )
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    unet: UNetField = InputField(default=None, description="UNet model")
-    vae: VaeField = InputField(default=None, description="Vae model")
+    unet: UNetField = InputField(description="UNet model")
+    vae: VaeField = InputField(description="Vae model")
 
     # Inputs
-    image: Optional[ImageField] = InputField(description="The input image")
+    image: ImageField = InputField(description="The input image")
     strength: float = InputField(default=0.75, gt=0, le=1, description="The strength of the original image")
     fit: bool = InputField(
         default=True,
@@ -99,7 +99,7 @@ class InpaintInvocation(BaseInvocation):
     )
 
     # Inputs
-    mask: Optional[ImageField] = InputField(description="The mask")
+    mask: ImageField = InputField(description="The mask")
     seam_size: int = InputField(default=96, ge=1, description="The seam inpaint size (px)")
     seam_blur: int = InputField(default=16, ge=0, description="The seam inpaint blur radius (px)")
     seam_strength: float = InputField(default=0.75, gt=0, le=1, description="The seam inpaint strength")
@@ -109,19 +109,19 @@ class InpaintInvocation(BaseInvocation):
         default=DEFAULT_INFILL_METHOD,
         description="The method used to infill empty regions (px)",
     )
-    inpaint_width: Optional[int] = InputField(
+    inpaint_width: int = InputField(
         default=None,
         multiple_of=8,
         gt=0,
         description="The width of the inpaint region (px)",
     )
-    inpaint_height: Optional[int] = InputField(
+    inpaint_height: int = InputField(
         default=None,
         multiple_of=8,
         gt=0,
         description="The height of the inpaint region (px)",
     )
-    inpaint_fill: Optional[ColorField] = InputField(
+    inpaint_fill: ColorField = InputField(
         default=ColorField(r=127, g=127, b=127, a=255),
         description="The solid infill method color",
     )

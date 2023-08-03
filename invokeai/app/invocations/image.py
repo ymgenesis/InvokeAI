@@ -17,7 +17,6 @@ from ..models.image import (
 from .baseinvocation import (
     BaseInvocation,
     InputField,
-    InputRequirement,
     InvocationContext,
     node_tags,
     node_title,
@@ -35,7 +34,7 @@ class LoadImageInvocation(BaseInvocation):
     type: Literal["load_image"] = "load_image"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to load")
+    image: ImageField = InputField(description="The image to load")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -56,7 +55,7 @@ class ShowImageInvocation(BaseInvocation):
     type: Literal["show_image"] = "show_image"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to show")
+    image: ImageField = InputField(description="The image to show")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -81,7 +80,7 @@ class ImageCropInvocation(BaseInvocation):
     type: Literal["img_crop"] = "img_crop"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to crop")
+    image: ImageField = InputField(description="The image to crop")
     x: int = InputField(default=0, description="The left x coordinate of the crop rectangle")
     y: int = InputField(default=0, description="The top y coordinate of the crop rectangle")
     width: int = InputField(default=512, gt=0, description="The width of the crop rectangle")
@@ -118,10 +117,11 @@ class ImagePasteInvocation(BaseInvocation):
     type: Literal["img_paste"] = "img_paste"
 
     # Inputs
-    base_image: Optional[ImageField] = InputField(default=None, description="The base image")
-    image: Optional[ImageField] = InputField(default=None, description="The image to paste")
+    base_image: ImageField = InputField(description="The base image")
+    image: ImageField = InputField(description="The image to paste")
     mask: Optional[ImageField] = InputField(
-        default=None, description="The mask to use when pasting", input_requirement=InputRequirement.Optional
+        default=None,
+        description="The mask to use when pasting",
     )
     x: int = InputField(default=0, description="The left x coordinate at which to paste the image")
     y: int = InputField(default=0, description="The top y coordinate at which to paste the image")
@@ -168,7 +168,7 @@ class MaskFromAlphaInvocation(BaseInvocation):
     type: Literal["tomask"] = "tomask"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to create the mask from")
+    image: ImageField = InputField(description="The image to create the mask from")
     invert: bool = InputField(default=False, description="Whether or not to invert the mask")
 
     def invoke(self, context: InvocationContext) -> MaskOutput:
@@ -203,8 +203,8 @@ class ImageMultiplyInvocation(BaseInvocation):
     type: Literal["img_mul"] = "img_mul"
 
     # Inputs
-    image1: Optional[ImageField] = InputField(default=None, description="The first image to multiply")
-    image2: Optional[ImageField] = InputField(default=None, description="The second image to multiply")
+    image1: ImageField = InputField(description="The first image to multiply")
+    image2: ImageField = InputField(description="The second image to multiply")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image1 = context.services.images.get_pil_image(self.image1.image_name)
@@ -240,7 +240,7 @@ class ImageChannelInvocation(BaseInvocation):
     type: Literal["img_chan"] = "img_chan"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to get the channel from")
+    image: ImageField = InputField(description="The image to get the channel from")
     channel: IMAGE_CHANNELS = InputField(default="A", description="The channel to get")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -276,7 +276,7 @@ class ImageConvertInvocation(BaseInvocation):
     type: Literal["img_conv"] = "img_conv"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to convert")
+    image: ImageField = InputField(description="The image to convert")
     mode: IMAGE_MODES = InputField(default="L", description="The mode to convert to")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -309,7 +309,7 @@ class ImageBlurInvocation(BaseInvocation):
     type: Literal["img_blur"] = "img_blur"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to blur")
+    image: ImageField = InputField(description="The image to blur")
     radius: float = InputField(default=8.0, ge=0, description="The blur radius")
     # Metadata
     blur_type: Literal["gaussian", "box"] = InputField(default="gaussian", description="The type of blur")
@@ -367,9 +367,9 @@ class ImageResizeInvocation(BaseInvocation):
     type: Literal["img_resize"] = "img_resize"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to resize")
-    width: Union[int, None] = InputField(ge=64, multiple_of=8, description="The width to resize to (px)")
-    height: Union[int, None] = InputField(ge=64, multiple_of=8, description="The height to resize to (px)")
+    image: ImageField = InputField(description="The image to resize")
+    width: int = InputField(default=512, ge=64, multiple_of=8, description="The width to resize to (px)")
+    height: int = InputField(default=512, ge=64, multiple_of=8, description="The height to resize to (px)")
     resample_mode: PIL_RESAMPLING_MODES = InputField(default="bicubic", description="The resampling mode")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -407,12 +407,11 @@ class ImageScaleInvocation(BaseInvocation):
     type: Literal["img_scale"] = "img_scale"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to scale")
-    scale_factor: Optional[float] = InputField(
+    image: ImageField = InputField(description="The image to scale")
+    scale_factor: float = InputField(
         default=2.0,
         gt=0,
         description="The factor by which to scale the image",
-        input_requirement=InputRequirement.Required,
     )
     resample_mode: PIL_RESAMPLING_MODES = InputField(default="bicubic", description="The resampling mode")
 
@@ -453,7 +452,7 @@ class ImageLerpInvocation(BaseInvocation):
     type: Literal["img_lerp"] = "img_lerp"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to lerp")
+    image: ImageField = InputField(description="The image to lerp")
     min: int = InputField(default=0, ge=0, le=255, description="The minimum output value")
     max: int = InputField(default=255, ge=0, le=255, description="The maximum output value")
 
@@ -490,7 +489,7 @@ class ImageInverseLerpInvocation(BaseInvocation):
     type: Literal["img_ilerp"] = "img_ilerp"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to lerp")
+    image: ImageField = InputField(description="The image to lerp")
     min: int = InputField(default=0, ge=0, le=255, description="The minimum input value")
     max: int = InputField(default=255, ge=0, le=255, description="The maximum input value")
 
@@ -527,7 +526,7 @@ class ImageNSFWBlurInvocation(BaseInvocation):
     type: Literal["img_nsfw"] = "img_nsfw"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to check")
+    image: ImageField = InputField(description="The image to check")
     metadata: Optional[CoreMetadata] = InputField(
         default=None, description="Optional core metadata to be written to the image", ui_hidden=True
     )
@@ -576,7 +575,7 @@ class ImageWatermarkInvocation(BaseInvocation):
     type: Literal["img_watermark"] = "img_watermark"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to check")
+    image: ImageField = InputField(description="The image to check")
     text: str = InputField(default="InvokeAI", description="Watermark text")
     metadata: Optional[CoreMetadata] = InputField(
         default=None, description="Optional core metadata to be written to the image", ui_hidden=True
