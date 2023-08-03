@@ -20,9 +20,10 @@ import {
   InputFieldTemplateBase,
   IntegerInputFieldTemplate,
   InvocationFieldSchema,
+  InvocationSchemaObject,
   LatentsInputFieldTemplate,
   LoRAModelInputFieldTemplate,
-  ModelInputFieldTemplate,
+  MainModelInputFieldTemplate,
   OutputFieldTemplate,
   RefinerModelInputFieldTemplate,
   StringInputFieldTemplate,
@@ -165,8 +166,8 @@ const buildBooleanInputFieldTemplate = ({
 const buildModelInputFieldTemplate = ({
   schemaObject,
   baseField,
-}: BuildInputFieldArg): ModelInputFieldTemplate => {
-  const template: ModelInputFieldTemplate = {
+}: BuildInputFieldArg): MainModelInputFieldTemplate => {
+  const template: MainModelInputFieldTemplate = {
     ...baseField,
     type: 'MainModelField',
     default: schemaObject.default ?? undefined,
@@ -388,7 +389,7 @@ const buildColorInputFieldTemplate = ({
 export const getFieldType = (
   schemaObject: InvocationFieldSchema
 ): FieldType => {
-  let fieldType: any = '';
+  let fieldType = '';
 
   const { ui_type_hint } = schemaObject;
   if (ui_type_hint) {
@@ -432,102 +433,157 @@ export const getFieldType = (
 
 /**
  * Builds an input field from an invocation schema property.
- * @param schemaObject The schema object
+ * @param fieldSchema The schema object
  * @returns An input field
  */
 export const buildInputFieldTemplate = (
-  schemaObject: InvocationFieldSchema,
+  nodeSchema: InvocationSchemaObject,
+  fieldSchema: InvocationFieldSchema,
   name: string
 ) => {
   // console.log('input', schemaObject);
-  const fieldType = getFieldType(schemaObject);
+  const fieldType = getFieldType(fieldSchema);
   // console.log('input fieldType', fieldType);
 
-  const {
-    input_kind,
-    input_requirement,
-    ui_hidden,
-    ui_component,
-    ui_type_hint,
-  } = schemaObject;
+  const { input_kind, ui_hidden, ui_component, ui_type_hint } = fieldSchema;
 
   const extra = {
     input_kind,
-    input_requirement,
     ui_hidden,
     ui_component,
     ui_type_hint,
+    required: nodeSchema.required?.includes(name) ?? false,
   };
 
   const baseField = {
     name,
-    title: schemaObject.title ?? '',
-    description: schemaObject.description ?? '',
+    title: fieldSchema.title ?? '',
+    description: fieldSchema.description ?? '',
     ...extra,
   };
 
   if (fieldType === 'ImageField') {
-    return buildImageInputFieldTemplate({ schemaObject, baseField });
+    return buildImageInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'ImageCollection') {
-    return buildImageCollectionInputFieldTemplate({ schemaObject, baseField });
+    return buildImageCollectionInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'LatentsField') {
-    return buildLatentsInputFieldTemplate({ schemaObject, baseField });
+    return buildLatentsInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'ConditioningField') {
-    return buildConditioningInputFieldTemplate({ schemaObject, baseField });
+    return buildConditioningInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'UNetField') {
-    return buildUNetInputFieldTemplate({ schemaObject, baseField });
+    return buildUNetInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'ClipField') {
-    return buildClipInputFieldTemplate({ schemaObject, baseField });
+    return buildClipInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'VaeField') {
-    return buildVaeInputFieldTemplate({ schemaObject, baseField });
+    return buildVaeInputFieldTemplate({ schemaObject: fieldSchema, baseField });
   }
   if (fieldType === 'ControlField') {
-    return buildControlInputFieldTemplate({ schemaObject, baseField });
+    return buildControlInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'MainModelField') {
-    return buildModelInputFieldTemplate({ schemaObject, baseField });
+    return buildModelInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'SDXLRefinerModelField') {
-    return buildRefinerModelInputFieldTemplate({ schemaObject, baseField });
+    return buildRefinerModelInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'VaeModelField') {
-    return buildVaeModelInputFieldTemplate({ schemaObject, baseField });
+    return buildVaeModelInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'LoRAModelField') {
-    return buildLoRAModelInputFieldTemplate({ schemaObject, baseField });
+    return buildLoRAModelInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'ControlNetModelField') {
-    return buildControlNetModelInputFieldTemplate({ schemaObject, baseField });
+    return buildControlNetModelInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'enum') {
-    return buildEnumInputFieldTemplate({ schemaObject, baseField });
+    return buildEnumInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'integer') {
-    return buildIntegerInputFieldTemplate({ schemaObject, baseField });
+    return buildIntegerInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'float') {
-    return buildFloatInputFieldTemplate({ schemaObject, baseField });
+    return buildFloatInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'string') {
-    return buildStringInputFieldTemplate({ schemaObject, baseField });
+    return buildStringInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'boolean') {
-    return buildBooleanInputFieldTemplate({ schemaObject, baseField });
+    return buildBooleanInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'Collection') {
-    return buildCollectionInputFieldTemplate({ schemaObject, baseField });
+    return buildCollectionInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'CollectionItem') {
-    return buildCollectionItemInputFieldTemplate({ schemaObject, baseField });
+    return buildCollectionItemInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   if (fieldType === 'ColorField') {
-    return buildColorInputFieldTemplate({ schemaObject, baseField });
+    return buildColorInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
   }
   return;
 };

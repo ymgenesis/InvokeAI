@@ -121,6 +121,7 @@ export type InputFieldValue =
   | ControlInputFieldValue
   | EnumInputFieldValue
   | MainModelInputFieldValue
+  | SDXLMainModelInputFieldValue
   | RefinerModelInputFieldValue
   | VaeModelInputFieldValue
   | LoRAModelInputFieldValue
@@ -149,7 +150,8 @@ export type InputFieldTemplate =
   | VaeInputFieldTemplate
   | ControlInputFieldTemplate
   | EnumInputFieldTemplate
-  | ModelInputFieldTemplate
+  | MainModelInputFieldTemplate
+  | SDXLMainModelInputFieldTemplate
   | RefinerModelInputFieldTemplate
   | VaeModelInputFieldTemplate
   | LoRAModelInputFieldTemplate
@@ -179,11 +181,6 @@ export type OutputFieldTemplate = {
   title: string;
   description: string;
 };
-
-/**
- * Indicates when/if this field needs an input.
- */
-export type InputRequirement = 'always' | 'never' | 'optional';
 
 /**
  * Indicates the kind of input(s) this field may have.
@@ -266,6 +263,11 @@ export type MainModelInputFieldValue = FieldValueBase & {
   value?: MainModelParam;
 };
 
+export type SDXLMainModelInputFieldValue = FieldValueBase & {
+  type: 'SDXLMainModelField';
+  value?: MainModelParam;
+};
+
 export type RefinerModelInputFieldValue = FieldValueBase & {
   type: 'SDXLRefinerModelField';
   value?: MainModelParam;
@@ -306,6 +308,7 @@ export type InputFieldTemplateBase = {
   title: string;
   description: string;
   type: FieldType;
+  required: boolean;
 } & InputFieldExtra;
 
 export type IntegerInputFieldTemplate = InputFieldTemplateBase & {
@@ -388,13 +391,18 @@ export type EnumInputFieldTemplate = InputFieldTemplateBase & {
   options: Array<string | number>;
 };
 
-export type ModelInputFieldTemplate = InputFieldTemplateBase & {
-  default: string;
+export type MainModelInputFieldTemplate = InputFieldTemplateBase & {
+  default: undefined;
   type: 'MainModelField';
 };
 
+export type SDXLMainModelInputFieldTemplate = InputFieldTemplateBase & {
+  default: undefined;
+  type: 'SDXLMainModelField';
+};
+
 export type RefinerModelInputFieldTemplate = InputFieldTemplateBase & {
-  default: string;
+  default: undefined;
   type: 'SDXLRefinerModelField';
 };
 

@@ -91,7 +91,7 @@ class CompelInvocation(BaseInvocation):
     type: Literal["compel"] = "compel"
 
     prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
-    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
+    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -366,8 +366,8 @@ class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     crop_left: int = InputField(default=0, description="")
     target_width: int = InputField(default=1024, description="")
     target_height: int = InputField(default=1024, description="")
-    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
-    clip2: ClipField = InputField(default=None, description="Clip2 to use", input_kind=InputKind.Connection)
+    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(description="Clip2 to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -417,7 +417,7 @@ class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     aesthetic_score: float = InputField(default=6.0, description="")
-    clip2: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -465,8 +465,8 @@ class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     crop_left: int = InputField(default=0, description="")
     target_width: int = InputField(default=1024, description="")
     target_height: int = InputField(default=1024, description="")
-    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
-    clip2: ClipField = InputField(default=None, description="Clip2 to use", input_kind=InputKind.Connection)
+    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(description="Clip2 to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -516,7 +516,7 @@ class SDXLRefinerRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     aesthetic_score: float = InputField(default=6.0, description="")
-    clip2: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -563,7 +563,7 @@ class ClipSkipInvocation(BaseInvocation):
 
     type: Literal["clip_skip"] = "clip_skip"
 
-    clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
+    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
     skipped_layers: int = InputField(default=0, description="Number of layers to skip in text_encoder")
 
     def invoke(self, context: InvocationContext) -> ClipSkipInvocationOutput:

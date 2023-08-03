@@ -3,6 +3,7 @@ import {
   CannyImageProcessorInvocation,
   ContentShuffleImageProcessorInvocation,
   HedImageProcessorInvocation,
+  ImageField,
   LineartAnimeImageProcessorInvocation,
   LineartImageProcessorInvocation,
   MediapipeFaceProcessorInvocation,
@@ -42,97 +43,127 @@ export type ControlNetProcessorType = NonNullable<
 /**
  * The Canny processor node, with parameters flagged as required
  */
-export type RequiredCannyImageProcessorInvocation = O.Required<
-  CannyImageProcessorInvocation,
-  'type' | 'low_threshold' | 'high_threshold'
+export type RequiredCannyImageProcessorInvocation = O.Optional<
+  O.Required<
+    CannyImageProcessorInvocation,
+    'type' | 'low_threshold' | 'high_threshold'
+  >,
+  'image'
 >;
 
 /**
  * The ContentShuffle processor node, with parameters flagged as required
  */
-export type RequiredContentShuffleImageProcessorInvocation = O.Required<
-  ContentShuffleImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution' | 'w' | 'h' | 'f'
+export type RequiredContentShuffleImageProcessorInvocation = O.Optional<
+  O.Required<
+    ContentShuffleImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution' | 'w' | 'h' | 'f'
+  >,
+  'image'
 >;
 
 /**
  * The HED processor node, with parameters flagged as required
  */
-export type RequiredHedImageProcessorInvocation = O.Required<
-  HedImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution' | 'scribble'
+export type RequiredHedImageProcessorInvocation = O.Optional<
+  O.Required<
+    HedImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution' | 'scribble'
+  >,
+  'image'
 >;
 
 /**
  * The Lineart Anime processor node, with parameters flagged as required
  */
-export type RequiredLineartAnimeImageProcessorInvocation = O.Required<
-  LineartAnimeImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution'
+export type RequiredLineartAnimeImageProcessorInvocation = O.Optional<
+  O.Required<
+    LineartAnimeImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution'
+  >,
+  'image'
 >;
 
 /**
  * The Lineart processor node, with parameters flagged as required
  */
-export type RequiredLineartImageProcessorInvocation = O.Required<
-  LineartImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution' | 'coarse'
+export type RequiredLineartImageProcessorInvocation = O.Optional<
+  O.Required<
+    LineartImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution' | 'coarse'
+  >,
+  'image'
 >;
 
 /**
  * The MediapipeFace processor node, with parameters flagged as required
  */
-export type RequiredMediapipeFaceProcessorInvocation = O.Required<
-  MediapipeFaceProcessorInvocation,
-  'type' | 'max_faces' | 'min_confidence'
+export type RequiredMediapipeFaceProcessorInvocation = O.Optional<
+  O.Required<
+    MediapipeFaceProcessorInvocation,
+    'type' | 'max_faces' | 'min_confidence'
+  >,
+  'image'
 >;
 
 /**
  * The MidasDepth processor node, with parameters flagged as required
  */
-export type RequiredMidasDepthImageProcessorInvocation = O.Required<
-  MidasDepthImageProcessorInvocation,
-  'type' | 'a_mult' | 'bg_th'
+export type RequiredMidasDepthImageProcessorInvocation = O.Optional<
+  O.Required<MidasDepthImageProcessorInvocation, 'type' | 'a_mult' | 'bg_th'>,
+  'image'
 >;
 
 /**
  * The MLSD processor node, with parameters flagged as required
  */
-export type RequiredMlsdImageProcessorInvocation = O.Required<
-  MlsdImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution' | 'thr_v' | 'thr_d'
+export type RequiredMlsdImageProcessorInvocation = O.Optional<
+  O.Required<
+    MlsdImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution' | 'thr_v' | 'thr_d'
+  >,
+  'image'
 >;
 
 /**
  * The NormalBae processor node, with parameters flagged as required
  */
-export type RequiredNormalbaeImageProcessorInvocation = O.Required<
-  NormalbaeImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution'
+export type RequiredNormalbaeImageProcessorInvocation = O.Optional<
+  O.Required<
+    NormalbaeImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution'
+  >,
+  'image'
 >;
 
 /**
  * The Openpose processor node, with parameters flagged as required
  */
-export type RequiredOpenposeImageProcessorInvocation = O.Required<
-  OpenposeImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution' | 'hand_and_face'
+export type RequiredOpenposeImageProcessorInvocation = O.Optional<
+  O.Required<
+    OpenposeImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution' | 'hand_and_face'
+  >,
+  'image'
 >;
 
 /**
  * The Pidi processor node, with parameters flagged as required
  */
-export type RequiredPidiImageProcessorInvocation = O.Required<
-  PidiImageProcessorInvocation,
-  'type' | 'detect_resolution' | 'image_resolution' | 'safe' | 'scribble'
+export type RequiredPidiImageProcessorInvocation = O.Optional<
+  O.Required<
+    PidiImageProcessorInvocation,
+    'type' | 'detect_resolution' | 'image_resolution' | 'safe' | 'scribble'
+  >,
+  'image'
 >;
 
 /**
  * The ZoeDepth processor node, with parameters flagged as required
  */
-export type RequiredZoeDepthImageProcessorInvocation = O.Required<
-  ZoeDepthImageProcessorInvocation,
-  'type'
+export type RequiredZoeDepthImageProcessorInvocation = O.Optional<
+  O.Required<ZoeDepthImageProcessorInvocation, 'type'>,
+  'image'
 >;
 
 /**

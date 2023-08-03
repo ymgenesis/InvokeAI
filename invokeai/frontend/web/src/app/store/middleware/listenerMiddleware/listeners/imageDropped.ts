@@ -7,7 +7,7 @@ import { logger } from 'app/logging/logger';
 import { setInitialCanvasImage } from 'features/canvas/store/canvasSlice';
 import { controlNetImageChanged } from 'features/controlNet/store/controlNetSlice';
 import { imageSelected } from 'features/gallery/store/gallerySlice';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldImageValueChanged } from 'features/nodes/store/nodesSlice';
 import { initialImageChanged } from 'features/parameters/store/generationSlice';
 import { imagesApi } from 'services/api/endpoints/images';
 import { startAppListening } from '../';
@@ -99,7 +99,7 @@ export const addImageDroppedListener = () => {
       ) {
         const { fieldName, nodeId } = overData.context;
         dispatch(
-          fieldValueChanged({
+          fieldImageValueChanged({
             nodeId,
             fieldName,
             value: activeData.payload.imageDTO,

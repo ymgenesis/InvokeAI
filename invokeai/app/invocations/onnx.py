@@ -26,7 +26,6 @@ from .baseinvocation import (
     BaseInvocationOutput,
     InputField,
     InputKind,
-    InputRequirement,
     InvocationContext,
     OutputField,
     UIComponent,
@@ -64,7 +63,7 @@ class ONNXPromptInvocation(BaseInvocation):
     type: Literal["prompt_onnx"] = "prompt_onnx"
 
     prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
-    clip: ClipField = InputField(default=None, description="Clip to use")
+    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
 
     def invoke(self, context: InvocationContext) -> CompelOutput:
         tokenizer_info = context.services.model_manager.get_model(
@@ -151,15 +150,15 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
     type: Literal["t2l_onnx"] = "t2l_onnx"
 
     # Inputs
-    positive_conditioning: Optional[ConditioningField] = InputField(
+    positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
         input_kind=InputKind.Connection,
     )
-    negative_conditioning: Optional[ConditioningField] = InputField(
+    negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
         input_kind=InputKind.Connection,
     )
-    noise: Optional[LatentsField] = InputField(
+    noise: LatentsField = InputField(
         description="The noise to use",
         input_kind=InputKind.Connection,
     )
@@ -175,14 +174,13 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
         default="tensor(float16)", description="The precision to use when generating latents"
     )
     unet: UNetField = InputField(
-        default=None,
         description="UNet submodel",
         input_kind=InputKind.Connection,
     )
     control: Optional[Union[ControlField, list[ControlField]]] = InputField(
+        default=None,
         description="The control to use",
         ui_type_hint=UITypeHint.ControlField,
-        input_requirement=InputRequirement.Optional,
     )
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
@@ -326,19 +324,17 @@ class ONNXLatentsToImageInvocation(BaseInvocation):
     type: Literal["l2i_onnx"] = "l2i_onnx"
 
     # Inputs
-    latents: Optional[LatentsField] = InputField(
+    latents: LatentsField = InputField(
         description="The latents to generate an image from",
         input_kind=InputKind.Connection,
     )
     vae: VaeField = InputField(
-        default=None,
         description="Vae submodel",
         input_kind=InputKind.Connection,
     )
     metadata: Optional[CoreMetadata] = InputField(
         default=None,
         description="Optional core metadata to be written to the image",
-        input_requirement=InputRequirement.Optional,
         ui_hidden=True,
     )
     # tiled: bool = InputField(default=False, description="Decode latents by overlaping tiles(less memory consumption)")

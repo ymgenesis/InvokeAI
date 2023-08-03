@@ -1,6 +1,6 @@
 import { Select } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldEnumModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   EnumInputFieldTemplate,
   EnumInputFieldValue,
@@ -17,7 +17,7 @@ const EnumInputFieldComponent = (
 
   const handleValueChanged = (e: ChangeEvent<HTMLSelectElement>) => {
     dispatch(
-      fieldValueChanged({
+      fieldEnumModelValueChanged({
         nodeId,
         fieldName: field.name,
         value: e.target.value,

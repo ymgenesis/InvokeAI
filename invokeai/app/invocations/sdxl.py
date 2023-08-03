@@ -208,15 +208,15 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
     type: Literal["t2l_sdxl"] = "t2l_sdxl"
 
     # Inputs
-    positive_conditioning: Optional[ConditioningField] = InputField(
+    positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
         input_kind=InputKind.Connection,
     )
-    negative_conditioning: Optional[ConditioningField] = InputField(
+    negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
         input_kind=InputKind.Connection,
     )
-    noise: Optional[LatentsField] = InputField(
+    noise: LatentsField = InputField(
         description="The noise to use",
         input_kind=InputKind.Connection,
     )
@@ -228,9 +228,9 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
         ui_type_hint=UITypeHint.Float,
     )
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    unet: UNetField = InputField(default=None, description="UNet submodel", input_kind=InputKind.Connection)
+    unet: UNetField = InputField(description="UNet submodel", input_kind=InputKind.Connection)
     denoising_end: float = InputField(default=1.0, gt=0, le=1, description="")
-    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use", input_requirement=InputRequirement.Optional)
+    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
 
@@ -459,15 +459,16 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
     type: Literal["l2l_sdxl"] = "l2l_sdxl"
 
     # Inputs
-    positive_conditioning: Optional[ConditioningField] = InputField(
+    positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
         input_kind=InputKind.Connection,
     )
-    negative_conditioning: Optional[ConditioningField] = InputField(
+    negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
         input_kind=InputKind.Connection,
     )
     noise: Optional[LatentsField] = InputField(
+        default=None,
         description="The noise to use",
         input_kind=InputKind.Connection,
     )
@@ -480,17 +481,16 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
     )
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
     unet: UNetField = InputField(
-        default=None,
         description="UNet submodel",
         input_kind=InputKind.Connection,
     )
-    latents: Optional[LatentsField] = InputField(
+    latents: LatentsField = InputField(
         description="Initial latents",
         input_kind=InputKind.Connection,
     )
     denoising_start: float = InputField(default=0.0, ge=0, le=1, description="")
     denoising_end: float = InputField(default=1.0, ge=0, le=1, description="")
-    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use", input_requirement=InputRequirement.Optional)
+    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
 

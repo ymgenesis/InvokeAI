@@ -1,7 +1,7 @@
 import { useAppDispatch } from 'app/store/storeHooks';
 import IAIInput from 'common/components/IAIInput';
 import IAITextarea from 'common/components/IAITextarea';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldStringValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   StringInputFieldTemplate,
   StringInputFieldValue,
@@ -19,12 +19,19 @@ const StringInputFieldComponent = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     dispatch(
-      fieldValueChanged({
+      fieldStringValueChanged({
         nodeId,
         fieldName: field.name,
         value: e.target.value,
       })
     );
+    // dispatch(
+    //   fieldValueChanged({
+    //     nodeId,
+    //     fieldName: field.name,
+    //     value: e.target.value,
+    //   })
+    // );
   };
 
   if (template.ui_component === 'textarea') {

@@ -31,7 +31,7 @@ class ESRGANInvocation(BaseInvocation):
     type: Literal["esrgan"] = "esrgan"
 
     # Inputs
-    image: Union[ImageField, None] = InputField(default=None, description="The input image")
+    image: ImageField = InputField(description="The input image")
     model_name: ESRGAN_MODELS = InputField(default="RealESRGAN_x4plus.pth", description="The Real-ESRGAN model to use")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

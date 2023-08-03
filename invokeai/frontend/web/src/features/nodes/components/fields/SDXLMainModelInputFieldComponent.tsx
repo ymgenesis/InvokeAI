@@ -1,8 +1,8 @@
 import { useAppDispatch } from 'app/store/storeHooks';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
+import { fieldMainModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
-  MainModelInputFieldValue,
-  ModelInputFieldTemplate,
+  SDXLMainModelInputFieldTemplate,
+  SDXLMainModelInputFieldValue,
 } from 'features/nodes/types/types';
 
 import { Box, Flex } from '@chakra-ui/react';
@@ -14,16 +14,19 @@ import SyncModelsButton from 'features/ui/components/tabs/ModelManager/subpanels
 import { forEach } from 'lodash-es';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SDXL_MAIN_MODELS } from 'services/api/constants';
 import {
   useGetMainModelsQuery,
   useGetOnnxModelsQuery,
 } from 'services/api/endpoints/models';
-import { NON_REFINER_BASE_MODELS } from 'services/api/constants';
-import { FieldComponentProps } from './types';
 import { useFeatureStatus } from '../../../system/hooks/useFeatureStatus';
+import { FieldComponentProps } from './types';
 
 const ModelInputFieldComponent = (
-  props: FieldComponentProps<MainModelInputFieldValue, ModelInputFieldTemplate>
+  props: FieldComponentProps<
+    SDXLMainModelInputFieldValue,
+    SDXLMainModelInputFieldTemplate
+  >
 ) => {
   const { nodeId, field } = props;
 
@@ -31,10 +34,9 @@ const ModelInputFieldComponent = (
   const { t } = useTranslation();
   const isSyncModelEnabled = useFeatureStatus('syncModels').isFeatureEnabled;
 
-  const { data: onnxModels } = useGetOnnxModelsQuery(NON_REFINER_BASE_MODELS);
-  const { data: mainModels, isLoading } = useGetMainModelsQuery(
-    NON_REFINER_BASE_MODELS
-  );
+  const { data: onnxModels } = useGetOnnxModelsQuery(SDXL_MAIN_MODELS);
+  const { data: mainModels, isLoading } =
+    useGetMainModelsQuery(SDXL_MAIN_MODELS);
 
   const data = useMemo(() => {
     if (!mainModels) {
@@ -44,7 +46,7 @@ const ModelInputFieldComponent = (
     const data: SelectItem[] = [];
 
     forEach(mainModels.entities, (model, id) => {
-      if (!model) {
+      if (!model || model.base_model !== 'sdxl') {
         return;
       }
 
@@ -57,7 +59,7 @@ const ModelInputFieldComponent = (
 
     if (onnxModels) {
       forEach(onnxModels.entities, (model, id) => {
-        if (!model) {
+        if (!model || model.base_model !== 'sdxl') {
           return;
         }
 
@@ -103,7 +105,7 @@ const ModelInputFieldComponent = (
       }
 
       dispatch(
-        fieldValueChanged({
+        fieldMainModelValueChanged({
           nodeId,
           fieldName: field.name,
           value: newModel,

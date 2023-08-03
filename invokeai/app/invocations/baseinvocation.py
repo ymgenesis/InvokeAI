@@ -60,7 +60,14 @@ class RequiredConnectionException(Exception):
     """Raised when an field which requires a connection did not receive a value."""
 
     def __init__(self, node_id: str, field_name: str):
-        super().__init__(f"Field {field_name} of node {node_id} must set input from connection!")
+        super().__init__(f"Node {node_id} missing connections for field {field_name}")
+
+
+class MissingInputException(Exception):
+    """Raised when an field which requires some input, but did not receive a value."""
+
+    def __init__(self, node_id: str, field_name: str):
+        super().__init__(f"Node {node_id} missing value or connection for field {field_name}")
 
 
 class BaseInvocation(ABC, BaseModel):
@@ -114,35 +121,34 @@ class BaseInvocation(ABC, BaseModel):
         """Invoke with provided context and return outputs."""
         pass
 
+    def __init__(self, **data):
+        # nodes may have required fields, that can accept input from connections
+        # on instantiation of the model, we need to exclude these from validation
+        restore = dict()
+        try:
+            field_names = list(self.__fields__.keys())
+            for field_name in field_names:
+                # if the field is required and may get its value from a connection, exclude it from validation
+                field = self.__fields__[field_name]
+                input_kind = field.field_info.extra.get("input_kind", None)
+                if input_kind in [InputKind.Connection, InputKind.Any] and field.required:
+                    if field_name not in data:
+                        restore[field_name] = self.__fields__.pop(field_name)
+            # instantiate the node, which will validate the data
+            super().__init__(**data)
+        finally:
+            # restore the removed fields
+            for field_name, field in restore.items():
+                self.__fields__[field_name] = field
+
     def __invoke__(self, context: InvocationContext) -> BaseInvocationOutput:
-        """Invoke with provided context and return outputs."""
-
-        print(f"================{self.__fields__['type'].default}================\n")
         for field_name, field in self.__fields__.items():
-            print(f". . . . . . . . . {field_name}. . . . . . . . . ")
-            print("field", field)
-            print("field_name", field_name)
-
-            # input_requirement = field.field_info.extra.get("input_requirement", None)
-            # print("input_requirement", input_requirement)
             input_kind = field.field_info.extra.get("input_kind", None)
-            print("input_kind", input_kind)
-
-            field_value = getattr(self, field_name)
-
-            # if input_requirement == InputRequirement.Required and field_value is None:
-            if (input_kind == InputKind.Connection or input_kind == InputKind.Any) and field_value is None:
-                conn_default = self.__fields__[field_name].field_info.extra["conn_default"]
-                if conn_default == Undefined:
-                    if get_origin(self.__fields__[field_name].annotation) is Optional:
-                        conn_default = None
-                else:
-                    conn_default = ...
-                if conn_default == ...:
-                    raise RequiredConnectionException(field_name=field_name, node_id=self.id)
-                setattr(self, field_name, conn_default)
-
-            print("================END================\n")
+            if field.required and not hasattr(self, field_name):
+                if input_kind == InputKind.Connection:
+                    raise RequiredConnectionException(self.__fields__["type"].default, field_name)
+                elif input_kind == InputKind.Any:
+                    raise MissingInputException(self.__fields__["type"].default, field_name)
         return self.invoke(context)
 
     id: str = Field(description="The id of this node. Must be unique among all nodes.")
@@ -153,12 +159,6 @@ class InputKind(str, Enum):
     Connection = "connection"
     Direct = "direct"
     Any = "any"
-
-
-class InputRequirement(str, Enum):
-    None_ = "none"
-    Required = "required"
-    Optional = "optional"
 
 
 class UITypeHint(str, Enum):
@@ -203,7 +203,6 @@ class UIComponent(str, Enum):
 
 class InputFieldExtra(BaseModel):
     input_kind: InputKind
-    input_requirement: InputRequirement
     ui_hidden: bool
     ui_type_hint: Optional[UITypeHint]
     ui_component: Optional[UIComponent]
@@ -242,17 +241,11 @@ def InputField(
     discriminator: Optional[str] = None,
     repr: bool = True,
     input_kind: InputKind = InputKind.Any,
-    input_requirement: InputRequirement = InputRequirement.Required,
-    ui_type_hint: Optional[UITypeHint] = None,  # infer from type
-    ui_component: Optional[UIComponent] = None,  # infer from type
+    ui_type_hint: Optional[UITypeHint] = None,  # if not provided, infer from type
+    ui_component: Optional[UIComponent] = None,  # if not provided, infer from type
     ui_hidden: bool = False,
     **kwargs: Any,
 ) -> Any:
-    if input_kind == InputKind.Connection or input_kind == InputKind.Any:
-        kwargs["conn_default"] = default
-        if default == ...:
-            default = None
-
     return Field(
         *args,
         default=default,
@@ -281,7 +274,6 @@ def InputField(
         discriminator=discriminator,
         repr=repr,
         input_kind=input_kind,
-        input_requirement=input_requirement,
         ui_type_hint=ui_type_hint,
         ui_component=ui_component,
         ui_hidden=ui_hidden,

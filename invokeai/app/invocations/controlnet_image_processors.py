@@ -103,7 +103,7 @@ class ControlOutput(BaseInvocationOutput):
     type: Literal["control_output"] = "control_output"
 
     # Outputs
-    control: ControlField = OutputField(default=None, description="The control info")
+    control: ControlField = OutputField(description="The control info")
 
 
 @node_title("ControlNet")
@@ -114,7 +114,7 @@ class ControlNetInvocation(BaseInvocation):
     type: Literal["controlnet"] = "controlnet"
 
     # Inputs
-    image: ImageField = InputField(default=None, description="The control image")
+    image: ImageField = InputField(description="The control image")
     control_model: ControlNetModelField = InputField(
         default="lllyasviel/sd-controlnet-canny", description="control model used", input_kind=InputKind.Connection
     )
@@ -150,7 +150,7 @@ class ImageProcessorInvocation(BaseInvocation):
     type: Literal["image_processor"] = "image_processor"
 
     # Inputs
-    image: ImageField = InputField(default=None, description="The image to process")
+    image: ImageField = InputField(description="The image to process")
 
     def run_processor(self, image):
         # superclass just passes through image without processing

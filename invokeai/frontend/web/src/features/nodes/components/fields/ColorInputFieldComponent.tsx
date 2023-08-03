@@ -1,12 +1,12 @@
+import { useAppDispatch } from 'app/store/storeHooks';
+import { fieldColorValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   ColorInputFieldTemplate,
   ColorInputFieldValue,
 } from 'features/nodes/types/types';
 import { memo } from 'react';
-import { FieldComponentProps } from './types';
 import { RgbaColor, RgbaColorPicker } from 'react-colorful';
-import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
-import { useAppDispatch } from 'app/store/storeHooks';
+import { FieldComponentProps } from './types';
 
 const ColorInputFieldComponent = (
   props: FieldComponentProps<ColorInputFieldValue, ColorInputFieldTemplate>
@@ -16,7 +16,7 @@ const ColorInputFieldComponent = (
   const dispatch = useAppDispatch();
 
   const handleValueChanged = (value: RgbaColor) => {
-    dispatch(fieldValueChanged({ nodeId, fieldName: field.name, value }));
+    dispatch(fieldColorValueChanged({ nodeId, fieldName: field.name, value }));
   };
 
   return (

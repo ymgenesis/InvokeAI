@@ -6,7 +6,6 @@ from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
-    InputRequirement,
     InvocationContext,
     node_tags,
     node_title,
@@ -44,34 +43,34 @@ class CoreMetadata(BaseModelExcludeNull):
     model: MainModelField = Field(description="The main model used for inference")
     controlnets: list[ControlField] = Field(description="The ControlNets used for inference")
     loras: list[LoRAMetadataField] = Field(description="The LoRAs used for inference")
-    vae: Union[VAEModelField, None] = Field(
+    vae: Optional[VAEModelField] = Field(
         default=None,
         description="The VAE used for decoding, if the main model's default was not used",
     )
 
     # Latents-to-Latents
-    strength: Union[float, None] = Field(
+    strength: Optional[float] = Field(
         default=None,
         description="The strength used for latents-to-latents",
     )
-    init_image: Union[str, None] = Field(default=None, description="The name of the initial image")
+    init_image: Optional[str] = Field(default=None, description="The name of the initial image")
 
     # SDXL
-    positive_style_prompt: Union[str, None] = Field(default=None, description="The positive style prompt parameter")
-    negative_style_prompt: Union[str, None] = Field(default=None, description="The negative style prompt parameter")
+    positive_style_prompt: Optional[str] = Field(default=None, description="The positive style prompt parameter")
+    negative_style_prompt: Optional[str] = Field(default=None, description="The negative style prompt parameter")
 
     # SDXL Refiner
-    refiner_model: Union[MainModelField, None] = Field(default=None, description="The SDXL Refiner model used")
-    refiner_cfg_scale: Union[float, None] = Field(
+    refiner_model: Optional[MainModelField] = Field(default=None, description="The SDXL Refiner model used")
+    refiner_cfg_scale: Optional[float] = Field(
         default=None,
         description="The classifier-free guidance scale parameter used for the refiner",
     )
-    refiner_steps: Union[int, None] = Field(default=None, description="The number of steps used for the refiner")
-    refiner_scheduler: Union[str, None] = Field(default=None, description="The scheduler used for the refiner")
-    refiner_aesthetic_store: Union[float, None] = Field(
+    refiner_steps: Optional[int] = Field(default=None, description="The number of steps used for the refiner")
+    refiner_scheduler: Optional[str] = Field(default=None, description="The scheduler used for the refiner")
+    refiner_aesthetic_store: Optional[float] = Field(
         default=None, description="The aesthetic score used for the refiner"
     )
-    refiner_start: Union[float, None] = Field(default=None, description="The start value used for refiner denoising")
+    refiner_start: Optional[float] = Field(default=None, description="The start value used for refiner denoising")
 
 
 class ImageMetadata(BaseModelExcludeNull):
@@ -117,54 +116,53 @@ class MetadataAccumulatorInvocation(BaseInvocation):
     model: MainModelField = InputField(description="The main model used for inference")
     controlnets: list[ControlField] = InputField(description="The ControlNets used for inference")
     loras: list[LoRAMetadataField] = InputField(description="The LoRAs used for inference")
-    strength: Union[float, None] = InputField(
+    strength: Optional[float] = InputField(
         default=None,
         description="The strength used for latents-to-latents",
-        input_requirement=InputRequirement.Optional,
     )
-    init_image: Union[str, None] = InputField(
-        default=None, description="The name of the initial image", input_requirement=InputRequirement.Optional
+    init_image: Optional[str] = InputField(
+        default=None,
+        description="The name of the initial image",
     )
-    vae: Union[VAEModelField, None] = InputField(
+    vae: Optional[VAEModelField] = InputField(
         default=None,
         description="The VAE used for decoding, if the main model's default was not used",
-        input_requirement=InputRequirement.Optional,
     )
 
     # SDXL
-    positive_style_prompt: Union[str, None] = InputField(
-        default=None, description="The positive style prompt parameter", input_requirement=InputRequirement.Optional
+    positive_style_prompt: Optional[str] = InputField(
+        default=None,
+        description="The positive style prompt parameter",
     )
-    negative_style_prompt: Union[str, None] = InputField(
-        default=None, description="The negative style prompt parameter", input_requirement=InputRequirement.Optional
+    negative_style_prompt: Optional[str] = InputField(
+        default=None,
+        description="The negative style prompt parameter",
     )
 
     # SDXL Refiner
-    refiner_model: Union[MainModelField, None] = InputField(
-        default=None, description="The SDXL Refiner model used", input_requirement=InputRequirement.Optional
+    refiner_model: Optional[MainModelField] = InputField(
+        default=None,
+        description="The SDXL Refiner model used",
     )
-    refiner_cfg_scale: Union[float, None] = InputField(
+    refiner_cfg_scale: Optional[float] = InputField(
         default=None,
         description="The classifier-free guidance scale parameter used for the refiner",
-        input_requirement=InputRequirement.Optional,
     )
-    refiner_steps: Union[int, None] = InputField(
+    refiner_steps: Optional[int] = InputField(
         default=None,
         description="The number of steps used for the refiner",
-        input_requirement=InputRequirement.Optional,
     )
-    refiner_scheduler: Union[str, None] = InputField(
-        default=None, description="The scheduler used for the refiner", input_requirement=InputRequirement.Optional
+    refiner_scheduler: Optional[str] = InputField(
+        default=None,
+        description="The scheduler used for the refiner",
     )
-    refiner_aesthetic_store: Union[float, None] = InputField(
+    refiner_aesthetic_store: Optional[float] = InputField(
         default=None,
         description="The aesthetic score used for the refiner",
-        input_requirement=InputRequirement.Optional,
     )
-    refiner_start: Union[float, None] = InputField(
+    refiner_start: Optional[float] = InputField(
         default=None,
         description="The start value used for refiner denoising",
-        input_requirement=InputRequirement.Optional,
     )
 
     def invoke(self, context: InvocationContext) -> MetadataAccumulatorOutput:

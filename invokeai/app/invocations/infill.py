@@ -117,7 +117,7 @@ class InfillColorInvocation(BaseInvocation):
     type: Literal["infill_rgba"] = "infill_rgba"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to infill")
+    image: ImageField = InputField(description="The image to infill")
     color: ColorField = InputField(
         default=ColorField(r=127, g=127, b=127, a=255),
         description="The color to use to infill",
@@ -155,7 +155,7 @@ class InfillTileInvocation(BaseInvocation):
     type: Literal["infill_tile"] = "infill_tile"
 
     # Input
-    image: Optional[ImageField] = InputField(default=None, description="The image to infill")
+    image: ImageField = InputField(description="The image to infill")
     tile_size: int = InputField(default=32, ge=1, description="The tile size (px)")
     seed: int = InputField(
         ge=0,
@@ -195,7 +195,7 @@ class InfillPatchMatchInvocation(BaseInvocation):
     type: Literal["infill_patchmatch"] = "infill_patchmatch"
 
     # Inputs
-    image: Optional[ImageField] = InputField(default=None, description="The image to infill")
+    image: ImageField = InputField(description="The image to infill")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)

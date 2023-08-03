@@ -19,8 +19,8 @@ class CvInpaintInvocation(BaseInvocation):
     type: Literal["cv_inpaint"] = "cv_inpaint"
 
     # Inputs
-    image: ImageField = InputField(default=None, description="The image to inpaint")
-    mask: ImageField = InputField(default=None, description="The mask to use when inpainting")
+    image: ImageField = InputField(description="The image to inpaint")
+    mask: ImageField = InputField(description="The mask to use when inpainting")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)

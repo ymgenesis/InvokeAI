@@ -13,4 +13,6 @@ export const NON_REFINER_BASE_MODELS: BaseModelType[] = [
   'sdxl',
 ];
 
+export const SDXL_MAIN_MODELS: BaseModelType[] = ['sdxl'];
+
 export const REFINER_BASE_MODELS: BaseModelType[] = ['sdxl-refiner'];
