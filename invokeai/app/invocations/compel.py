@@ -18,9 +18,9 @@ from .baseinvocation import (
     InputField,
     InputKind,
     InvocationContext,
-    Tags,
-    Title,
     UIComponent,
+    node_tags,
+    node_title,
 )
 from .model import ClipField
 
@@ -73,12 +73,12 @@ class CompelOutput(BaseInvocationOutput):
     # fmt: on
 
 
+@node_title("Prompt (Compel)")
+@node_tags("prompt", "compel")
 class CompelInvocation(BaseInvocation):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["compel"] = "compel"
-    title = Title("Prompt (Compel)")
-    tags = Tags(["prompt", "compel"])
 
     prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
     clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
@@ -341,12 +341,12 @@ class SDXLPromptInvocationBase:
         return c, c_pooled, ec
 
 
+@node_title("SDXL Prompt (Compel)")
+@node_tags("sdxl", "compel", "prompt")
 class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_compel_prompt"] = "sdxl_compel_prompt"
-    title = Title("SDXL Prompt (Compel)")
-    tags = Tags(["sdxl", "compel", "prompt"])
 
     prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
     style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)
@@ -394,12 +394,12 @@ class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
         )
 
 
+@node_title("SDXL Refiner Prompt (Compel)")
+@node_tags("sdxl", "compel", "prompt")
 class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_refiner_compel_prompt"] = "sdxl_refiner_compel_prompt"
-    title = Title("SDXL Refiner Prompt (Compel)")
-    tags = Tags(["sdxl", "compel", "prompt"])
 
     style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)  # TODO: ?
     original_width: int = InputField(default=1024, description="")
@@ -440,12 +440,12 @@ class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase
         )
 
 
+@node_title("SDXL Prompt (Raw)")
+@node_tags("sdxl", "prompt")
 class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Pass unmodified prompt to conditioning without compel processing."""
 
     type: Literal["sdxl_raw_prompt"] = "sdxl_raw_prompt"
-    title = Title("SDXL Prompt (Raw)")
-    tags = Tags(["sdxl", "prompt"])
 
     prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
     style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)
@@ -493,12 +493,12 @@ class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
         )
 
 
+@node_title("SDXL Refiner Prompt (Raw)")
+@node_tags("sdxl", "prompt")
 class SDXLRefinerRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_refiner_raw_prompt"] = "sdxl_refiner_raw_prompt"
-    title = Title("SDXL Refiner Prompt (Raw)")
-    tags = Tags(["sdxl", "prompt"])
 
     style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)  # TODO: ?
     original_width: int = InputField(default=1024, description="")
@@ -546,12 +546,12 @@ class ClipSkipInvocationOutput(BaseInvocationOutput):
     clip: ClipField = Field(None, description="Clip with skipped layers")
 
 
+@node_title("CLIP Skip")
+@node_tags("clipskip", "clip", "skip")
 class ClipSkipInvocation(BaseInvocation):
     """Skip layers in clip text_encoder model."""
 
     type: Literal["clip_skip"] = "clip_skip"
-    title = Title("CLIP Skip")
-    tags = Tags(["clipskip", "clip", "skip"])
 
     clip: ClipField = InputField(default=None, description="Clip to use", input_kind=InputKind.Connection)
     skipped_layers: int = InputField(default=0, description="Number of layers to skip in text_encoder")

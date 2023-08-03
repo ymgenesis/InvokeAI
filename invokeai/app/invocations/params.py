@@ -10,20 +10,20 @@ from .baseinvocation import (
     InputField,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
+    node_tags,
+    node_title,
 )
 from .math import FloatOutput, IntOutput
 
 # Pass-through parameter nodes - used by subgraphs
 
 
+@node_title("Integer Parameter")
+@node_tags("integer")
 class ParamIntInvocation(BaseInvocation):
     """An integer parameter"""
 
     type: Literal["param_int"] = "param_int"
-    title = Title("Integer Parameter")
-    tags = Tags(["integer"])
 
     # Inputs
     a: int = InputField(default=0, description="The integer value")
@@ -32,12 +32,12 @@ class ParamIntInvocation(BaseInvocation):
         return IntOutput(a=self.a)
 
 
+@node_title("Float Parameter")
+@node_tags("float")
 class ParamFloatInvocation(BaseInvocation):
     """A float parameter"""
 
     type: Literal["param_float"] = "param_float"
-    title = Title("Float Parameter")
-    tags = Tags(["float"])
 
     # Inputs
     param: float = InputField(default=0.0, description="The float value")
@@ -53,12 +53,12 @@ class StringOutput(BaseInvocationOutput):
     text: str = OutputField(default=None, description="The output string")
 
 
+@node_title("String Parameter")
+@node_tags("string")
 class ParamStringInvocation(BaseInvocation):
     """A string parameter"""
 
     type: Literal["param_string"] = "param_string"
-    title = Title("String Parameter")
-    tags = Tags(["string"])
 
     # Inputs
     text: str = InputField(default="", description="The string value")
@@ -67,12 +67,12 @@ class ParamStringInvocation(BaseInvocation):
         return StringOutput(text=self.text)
 
 
+@node_title("Prompt Parameter")
+@node_tags("prompt")
 class ParamPromptInvocation(BaseInvocation):
     """A prompt input parameter"""
 
     type: Literal["param_prompt"] = "param_prompt"
-    title = Title("Prompt Parameter")
-    tags = Tags(["prompt"])
 
     # Inputs
     prompt: str = InputField(default="", description="The prompt value")

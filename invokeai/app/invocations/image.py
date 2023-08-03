@@ -19,20 +19,20 @@ from .baseinvocation import (
     InputField,
     InputRequirement,
     InvocationContext,
-    Tags,
-    Title,
+    node_tags,
+    node_title,
 )
 from invokeai.backend.image_util.safety_checker import SafetyChecker
 from invokeai.backend.image_util.invisible_watermark import InvisibleWatermark
 
 
+@node_title("Load Image")
+@node_tags("image")
 class LoadImageInvocation(BaseInvocation):
     """Load an image and provide it as output."""
 
     # Metadata
     type: Literal["load_image"] = "load_image"
-    title = Title("Load Image")
-    tags = Tags(["image"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to load")
@@ -47,13 +47,13 @@ class LoadImageInvocation(BaseInvocation):
         )
 
 
+@node_title("Show Image")
+@node_tags("image")
 class ShowImageInvocation(BaseInvocation):
     """Displays a provided image, and passes it forward in the pipeline."""
 
     # Metadata
     type: Literal["show_image"] = "show_image"
-    title = Title("Show Image")
-    tags = Tags(["image"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to show")
@@ -72,13 +72,13 @@ class ShowImageInvocation(BaseInvocation):
         )
 
 
+@node_title("Crop Image")
+@node_tags("image", "crop")
 class ImageCropInvocation(BaseInvocation):
     """Crops an image to a specified box. The box can be outside of the image."""
 
     # Metadata
     type: Literal["img_crop"] = "img_crop"
-    title = Title("Crop Image")
-    tags = Tags(["image", "crop"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to crop")
@@ -109,13 +109,13 @@ class ImageCropInvocation(BaseInvocation):
         )
 
 
+@node_title("Paste Image")
+@node_tags("image", "paste")
 class ImagePasteInvocation(BaseInvocation):
     """Pastes an image into another image."""
 
     # Metadata
     type: Literal["img_paste"] = "img_paste"
-    title = Title("Paste Image")
-    tags = Tags(["image", "paste"])
 
     # Inputs
     base_image: Optional[ImageField] = InputField(default=None, description="The base image")
@@ -159,13 +159,13 @@ class ImagePasteInvocation(BaseInvocation):
         )
 
 
+@node_title("Mask from Alpha")
+@node_tags("image", "mask")
 class MaskFromAlphaInvocation(BaseInvocation):
     """Extracts the alpha channel of an image as a mask."""
 
     # Metadata
     type: Literal["tomask"] = "tomask"
-    title = Title("Mask from Alpha")
-    tags = Tags(["image", "mask"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to create the mask from")
@@ -194,13 +194,13 @@ class MaskFromAlphaInvocation(BaseInvocation):
         )
 
 
+@node_title("Multiply Images")
+@node_tags("image", "multiply")
 class ImageMultiplyInvocation(BaseInvocation):
     """Multiplies two images together using `PIL.ImageChops.multiply()`."""
 
     # Metadata
     type: Literal["img_mul"] = "img_mul"
-    title = Title("Multiply Images")
-    tags = Tags(["image", "multiply"])
 
     # Inputs
     image1: Optional[ImageField] = InputField(default=None, description="The first image to multiply")
@@ -231,13 +231,13 @@ class ImageMultiplyInvocation(BaseInvocation):
 IMAGE_CHANNELS = Literal["A", "R", "G", "B"]
 
 
+@node_title("Extract Image Channel")
+@node_tags("image", "channel")
 class ImageChannelInvocation(BaseInvocation):
     """Gets a channel from an image."""
 
     # Metadata
     type: Literal["img_chan"] = "img_chan"
-    title = Title("Extract Image Channel")
-    tags = Tags(["image", "channel"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to get the channel from")
@@ -267,13 +267,13 @@ class ImageChannelInvocation(BaseInvocation):
 IMAGE_MODES = Literal["L", "RGB", "RGBA", "CMYK", "YCbCr", "LAB", "HSV", "I", "F"]
 
 
+@node_title("Convert Image Mode")
+@node_tags("image", "convert")
 class ImageConvertInvocation(BaseInvocation):
     """Converts an image to a different mode."""
 
     # Metadata
     type: Literal["img_conv"] = "img_conv"
-    title = Title("Convert Image Mode")
-    tags = Tags(["image", "convert"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to convert")
@@ -300,13 +300,13 @@ class ImageConvertInvocation(BaseInvocation):
         )
 
 
+@node_title("Blur Image")
+@node_tags("image", "blur")
 class ImageBlurInvocation(BaseInvocation):
     """Blurs an image"""
 
     # Metadata
     type: Literal["img_blur"] = "img_blur"
-    title = Title("Blur Image")
-    tags = Tags(["image", "blur"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to blur")
@@ -358,13 +358,13 @@ PIL_RESAMPLING_MAP = {
 }
 
 
+@node_title("Resize Image")
+@node_tags("image", "resize")
 class ImageResizeInvocation(BaseInvocation):
     """Resizes an image to specific dimensions"""
 
     # Metadata
     type: Literal["img_resize"] = "img_resize"
-    title = Title("Resize Image")
-    tags = Tags(["image", "resize"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to resize")
@@ -398,13 +398,13 @@ class ImageResizeInvocation(BaseInvocation):
         )
 
 
+@node_title("Scale Image")
+@node_tags("image", "scale")
 class ImageScaleInvocation(BaseInvocation):
     """Scales an image by a factor"""
 
     # Metadata
     type: Literal["img_scale"] = "img_scale"
-    title = Title("Scale Image")
-    tags = Tags(["image", "scale"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to scale")
@@ -444,13 +444,13 @@ class ImageScaleInvocation(BaseInvocation):
         )
 
 
+@node_title("Lerp Image")
+@node_tags("image", "lerp")
 class ImageLerpInvocation(BaseInvocation):
     """Linear interpolation of all pixels of an image"""
 
     # Metadata
     type: Literal["img_lerp"] = "img_lerp"
-    title = Title("Lerp Image")
-    tags = Tags(["image", "lerp"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to lerp")
@@ -481,13 +481,13 @@ class ImageLerpInvocation(BaseInvocation):
         )
 
 
+@node_title("Inverse Lerp Image")
+@node_tags("image", "ilerp")
 class ImageInverseLerpInvocation(BaseInvocation):
     """Inverse linear interpolation of all pixels of an image"""
 
     # Metadata
     type: Literal["img_ilerp"] = "img_ilerp"
-    title = Title("Inverse Lerp Image")
-    tags = Tags(["image", "ilerp"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to lerp")
@@ -518,13 +518,13 @@ class ImageInverseLerpInvocation(BaseInvocation):
         )
 
 
+@node_title("Blur NSFW Image")
+@node_tags("image", "nsfw")
 class ImageNSFWBlurInvocation(BaseInvocation):
     """Add blur to NSFW-flagged images"""
 
     # Metadata
     type: Literal["img_nsfw"] = "img_nsfw"
-    title = Title("Blur NSFW Image")
-    tags = Tags(["image", "nsfw"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to check")
@@ -567,13 +567,13 @@ class ImageNSFWBlurInvocation(BaseInvocation):
         return caution.resize((caution.width // 2, caution.height // 2))
 
 
+@node_title("Add Invisible Watermark")
+@node_tags("image", "watermark")
 class ImageWatermarkInvocation(BaseInvocation):
     """Add an invisible watermark to an image"""
 
     # Metadata
     type: Literal["img_watermark"] = "img_watermark"
-    title = Title("Add Invisible Watermark")
-    tags = Tags(["image", "watermark"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to check")

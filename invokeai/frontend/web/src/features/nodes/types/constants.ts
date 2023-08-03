@@ -2,35 +2,6 @@ import { FieldType, FieldUIConfig } from './types';
 
 export const HANDLE_TOOLTIP_OPEN_DELAY = 500;
 
-export const FIELD_TYPE_MAP: Record<string, FieldType> = {
-  integer: 'integer',
-  float: 'float',
-  number: 'float',
-  string: 'string',
-  boolean: 'boolean',
-  enum: 'enum',
-  ImageField: 'image',
-  image_collection: 'image_collection',
-  LatentsField: 'latents',
-  ConditioningField: 'conditioning',
-  UNetField: 'unet',
-  ClipField: 'clip',
-  VaeField: 'vae',
-  model: 'model',
-  refiner_model: 'refiner_model',
-  vae_model: 'vae_model',
-  lora_model: 'lora_model',
-  controlnet_model: 'controlnet_model',
-  ControlNetModelField: 'controlnet_model',
-  array: 'array',
-  item: 'item',
-  ColorField: 'color',
-  ControlField: 'control',
-  control: 'control',
-  cfg_scale: 'float',
-  control_weight: 'float',
-};
-
 const COLOR_TOKEN_VALUE = 500;
 
 const getColorTokenCssVariable = (color: string) =>
@@ -67,101 +38,155 @@ export const FIELDS: Record<FieldType, FieldUIConfig> = {
     title: 'Enum',
     description: 'Enums are values that may be one of a number of options.',
   },
-  image: {
+  ImageField: {
     color: 'purple',
     colorCssVar: getColorTokenCssVariable('purple'),
     title: 'Image',
     description: 'Images may be passed between nodes.',
   },
-  image_collection: {
+  ImageCollection: {
     color: 'purple',
     colorCssVar: getColorTokenCssVariable('purple'),
     title: 'Image Collection',
     description: 'A collection of images.',
   },
-  latents: {
+  LatentsField: {
     color: 'pink',
     colorCssVar: getColorTokenCssVariable('pink'),
     title: 'Latents',
     description: 'Latents may be passed between nodes.',
   },
-  conditioning: {
+  ConditioningField: {
     color: 'cyan',
     colorCssVar: getColorTokenCssVariable('cyan'),
     title: 'Conditioning',
     description: 'Conditioning may be passed between nodes.',
   },
-  unet: {
+  UNetField: {
     color: 'red',
     colorCssVar: getColorTokenCssVariable('red'),
     title: 'UNet',
     description: 'UNet submodel.',
   },
-  clip: {
+  ClipField: {
     color: 'green',
     colorCssVar: getColorTokenCssVariable('green'),
     title: 'Clip',
     description: 'Tokenizer and text_encoder submodels.',
   },
-  vae: {
+  VaeField: {
     color: 'blue',
     colorCssVar: getColorTokenCssVariable('blue'),
     title: 'Vae',
     description: 'Vae submodel.',
   },
-  control: {
+  ControlField: {
     color: 'cyan',
     colorCssVar: getColorTokenCssVariable('cyan'), // TODO: no free color left
     title: 'Control',
     description: 'Control info passed between nodes.',
   },
-  model: {
+  MainModelField: {
     color: 'teal',
     colorCssVar: getColorTokenCssVariable('teal'),
     title: 'Model',
-    description: 'Models are models.',
+    description: 'TODO',
   },
-  refiner_model: {
+  SDXLRefinerModelField: {
     color: 'teal',
     colorCssVar: getColorTokenCssVariable('teal'),
     title: 'Refiner Model',
-    description: 'Models are models.',
+    description: 'TODO',
   },
-  vae_model: {
+  VaeModelField: {
     color: 'teal',
     colorCssVar: getColorTokenCssVariable('teal'),
     title: 'VAE',
-    description: 'Models are models.',
+    description: 'TODO',
   },
-  lora_model: {
+  LoRAModelField: {
     color: 'teal',
     colorCssVar: getColorTokenCssVariable('teal'),
     title: 'LoRA',
-    description: 'Models are models.',
+    description: 'TODO',
   },
-  controlnet_model: {
+  ControlNetModelField: {
     color: 'teal',
     colorCssVar: getColorTokenCssVariable('teal'),
     title: 'ControlNet',
-    description: 'Models are models.',
+    description: 'TODO',
   },
-  array: {
+  Collection: {
     color: 'gray',
     colorCssVar: getColorTokenCssVariable('gray'),
-    title: 'Array',
-    description: 'TODO: Array type description.',
+    title: 'Collection',
+    description: 'TODO',
   },
-  item: {
+  CollectionItem: {
     color: 'gray',
     colorCssVar: getColorTokenCssVariable('gray'),
     title: 'Collection Item',
-    description: 'TODO: Collection Item type description.',
+    description: 'TODO',
   },
-  color: {
+  ColorField: {
     color: 'gray',
     colorCssVar: getColorTokenCssVariable('gray'),
     title: 'Color',
     description: 'A RGBA color.',
+  },
+  BooleanCollection: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'Boolean Collection',
+    description: 'A collection of booleans.',
+  },
+  IntegerCollection: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'Integer Collection',
+    description: 'A collection of integers.',
+  },
+  FloatCollection: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'Float Collection',
+    description: 'A collection of floats.',
+  },
+  FilePath: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'File Path',
+    description: 'A path to a file.',
+  },
+  LoRAField: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'LoRA',
+    description: 'LoRA field.',
+  },
+  ONNXModelField: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'ONNX Model',
+    description: 'ONNX model field.',
+  },
+  SDXLMainModelField: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'SDXL Model',
+    description: 'SDXL model field.',
+  },
+  Seed: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'Seed',
+    description: 'A seed for random number generation.',
+  },
+  StringCollection: {
+    color: 'gray',
+    colorCssVar: getColorTokenCssVariable('gray'),
+    title: 'String Collection',
+    description: 'A collection of strings.',
   },
 };
 

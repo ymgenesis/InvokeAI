@@ -10,10 +10,10 @@ from .baseinvocation import (
     InputField,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
     UIComponent,
     UITypeHint,
+    node_title,
+    node_tags,
 )
 from dynamicprompts.generators import RandomPromptGenerator, CombinatorialPromptGenerator
 
@@ -37,12 +37,12 @@ class PromptCollectionOutput(BaseInvocationOutput):
     count: int = OutputField(description="The size of the prompt collection")
 
 
+@node_title("Dynamic Prompt")
+@node_tags("prompt", "collection")
 class DynamicPromptInvocation(BaseInvocation):
     """Parses a prompt using adieyal/dynamicprompts' random or combinatorial generator"""
 
     type: Literal["dynamic_prompt"] = "dynamic_prompt"
-    title = Title("Dynamic Prompt")
-    tags = Tags(["prompt", "collection"])
 
     # Inputs
     prompt: str = InputField(description="The prompt to parse with dynamicprompts", ui_component=UIComponent.TextArea)
@@ -60,12 +60,12 @@ class DynamicPromptInvocation(BaseInvocation):
         return PromptCollectionOutput(prompt_collection=prompts, count=len(prompts))
 
 
+@node_title("Prompts from File")
+@node_tags("prompt", "file")
 class PromptsFromFileInvocation(BaseInvocation):
     """Loads prompts from a text file"""
 
     type: Literal["prompt_from_file"] = "prompt_from_file"
-    title = Title("Prompts from File")
-    tags = Tags(["prompt", "file"])
 
     # Inputs
     file_path: str = InputField(description="Path to prompt text file", ui_type_hint=UITypeHint.FilePath)

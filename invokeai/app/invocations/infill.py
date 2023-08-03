@@ -11,14 +11,7 @@ from invokeai.app.util.misc import SEED_MAX, get_random_seed
 from invokeai.backend.image_util.patchmatch import PatchMatch
 
 from ..models.image import ColorField, ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import (
-    BaseInvocation,
-    InputField,
-    InvocationContext,
-    Tags,
-    Title,
-    UITypeHint,
-)
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, UITypeHint, node_title, node_tags
 
 
 def infill_methods() -> list[str]:
@@ -116,12 +109,12 @@ def tile_fill_missing(im: Image.Image, tile_size: int = 16, seed: Optional[int] 
     return si
 
 
+@node_title("Solid Color Infill")
+@node_tags("image", "inpaint")
 class InfillColorInvocation(BaseInvocation):
     """Infills transparent areas of an image with a solid color"""
 
     type: Literal["infill_rgba"] = "infill_rgba"
-    title = Title("Solid Color Infill")
-    tags = Tags(["image", "inpaint"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to infill")
@@ -154,12 +147,12 @@ class InfillColorInvocation(BaseInvocation):
         )
 
 
+@node_title("Tile Infill")
+@node_tags("image", "inpaint")
 class InfillTileInvocation(BaseInvocation):
     """Infills transparent areas of an image with tiles of the image"""
 
     type: Literal["infill_tile"] = "infill_tile"
-    title = Title("Tile Infill")
-    tags = Tags(["image", "inpaint"])
 
     # Input
     image: Optional[ImageField] = InputField(default=None, description="The image to infill")
@@ -194,12 +187,12 @@ class InfillTileInvocation(BaseInvocation):
         )
 
 
+@node_title("PatchMatch Infill")
+@node_tags("image", "inpaint")
 class InfillPatchMatchInvocation(BaseInvocation):
     """Infills transparent areas of an image using the PatchMatch algorithm"""
 
     type: Literal["infill_patchmatch"] = "infill_patchmatch"
-    title = Title("PatchMatch Infill")
-    tags = Tags(["image", "inpaint"])
 
     # Inputs
     image: Optional[ImageField] = InputField(default=None, description="The image to infill")

@@ -1,5 +1,6 @@
-import { Input, Textarea } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
+import IAIInput from 'common/components/IAIInput';
+import IAITextarea from 'common/components/IAITextarea';
 import { fieldValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   StringInputFieldTemplate,
@@ -11,7 +12,7 @@ import { FieldComponentProps } from './types';
 const StringInputFieldComponent = (
   props: FieldComponentProps<StringInputFieldValue, StringInputFieldTemplate>
 ) => {
-  const { nodeId, field } = props;
+  const { nodeId, field, template } = props;
   const dispatch = useAppDispatch();
 
   const handleValueChanged = (
@@ -26,11 +27,13 @@ const StringInputFieldComponent = (
     );
   };
 
-  return ['prompt', 'style'].includes(field.name.toLowerCase()) ? (
-    <Textarea onChange={handleValueChanged} value={field.value} rows={2} />
-  ) : (
-    <Input onChange={handleValueChanged} value={field.value} />
-  );
+  if (template.ui_component === 'textarea') {
+    return (
+      <IAITextarea onChange={handleValueChanged} value={field.value} rows={2} />
+    );
+  }
+
+  return <IAIInput onChange={handleValueChanged} value={field.value} />;
 };
 
 export default memo(StringInputFieldComponent);

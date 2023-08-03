@@ -14,9 +14,9 @@ from .baseinvocation import (
     InputKind,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
     UITypeHint,
+    node_tags,
+    node_title,
 )
 
 from .model import UNetField, ClipField, VaeField, MainModelField, ModelInfo
@@ -45,15 +45,17 @@ class SDXLRefinerModelLoaderOutput(BaseInvocationOutput):
     vae: VaeField = OutputField(default=None, description="Vae submodel", title="VAE")
 
 
+@node_title("SDXL Main Model Loader")
+@node_tags("model", "sdxl")
 class SDXLModelLoaderInvocation(BaseInvocation):
     """Loads an sdxl base model, outputting its submodels."""
 
     type: Literal["sdxl_model_loader"] = "sdxl_model_loader"
-    title = Title("SDXL Main Model Loader")
-    tags = Tags(["model", "sdxl"])
 
     # Inputs
-    model: MainModelField = InputField(description="The model to load", input_kind=InputKind.Direct)
+    model: MainModelField = InputField(
+        description="The model to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.SDXLMainModelField
+    )
     # TODO: precision?
 
     def invoke(self, context: InvocationContext) -> SDXLModelLoaderOutput:
@@ -128,15 +130,17 @@ class SDXLModelLoaderInvocation(BaseInvocation):
         )
 
 
+@node_title("SDXL Refiner Model Loader")
+@node_tags("model", "sdxl", "refiner")
 class SDXLRefinerModelLoaderInvocation(BaseInvocation):
     """Loads an sdxl refiner model, outputting its submodels."""
 
     type: Literal["sdxl_refiner_model_loader"] = "sdxl_refiner_model_loader"
-    title = Title("SDXL Refiner Model Loader")
-    tags = Tags(["model", "sdxl", "refiner"])
 
     # Inputs
-    model: MainModelField = InputField(description="The model to load", input_kind=InputKind.Direct)
+    model: MainModelField = InputField(
+        description="The model to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.SDXLRefinerModelField
+    )
     # TODO: precision?
 
     def invoke(self, context: InvocationContext) -> SDXLRefinerModelLoaderOutput:
@@ -196,12 +200,12 @@ class SDXLRefinerModelLoaderInvocation(BaseInvocation):
 
 
 # Text to image
+@node_title("SDXL Text to Latents")
+@node_tags("latents", "inference", "txt2img", "sdxl")
 class SDXLTextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
     type: Literal["t2l_sdxl"] = "t2l_sdxl"
-    title = Title("SDXL Text to Latents")
-    tags = Tags(["latents", "inference", "txt2img", "sdxl"])
 
     # Inputs
     positive_conditioning: Optional[ConditioningField] = InputField(

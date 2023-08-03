@@ -29,10 +29,10 @@ from .baseinvocation import (
     InputRequirement,
     InvocationContext,
     OutputField,
-    Tags,
-    Title,
     UIComponent,
     UITypeHint,
+    node_tags,
+    node_title,
 )
 from .compel import CompelOutput, ConditioningField
 from .controlnet_image_processors import ControlField
@@ -58,10 +58,10 @@ ORT_TO_NP_TYPE = {
 PRECISION_VALUES = Literal[tuple(list(ORT_TO_NP_TYPE.keys()))]
 
 
+@node_title("ONNX Prompt (Raw)")
+@node_tags("onnx", "prompt")
 class ONNXPromptInvocation(BaseInvocation):
     type: Literal["prompt_onnx"] = "prompt_onnx"
-    title = Title("ONNX Prompt (Raw)")
-    tags = Tags(["onnx", "prompt"])
 
     prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
     clip: ClipField = InputField(default=None, description="Clip to use")
@@ -143,12 +143,12 @@ class ONNXPromptInvocation(BaseInvocation):
 
 
 # Text to image
+@node_title("ONNX Text to Latents")
+@node_tags("latents", "inference", "txt2img", "onnx")
 class ONNXTextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
     type: Literal["t2l_onnx"] = "t2l_onnx"
-    title = Title("ONNX Text to Latents")
-    tags = Tags(["latents", "inference", "txt2img", "onnx"])
 
     # Inputs
     positive_conditioning: Optional[ConditioningField] = InputField(
@@ -180,7 +180,7 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
         input_kind=InputKind.Connection,
     )
     control: Union[ControlField, list[ControlField]] = InputField(
-        default=None, description="The control to use", ui_type_hint=UITypeHint.Control
+        default=None, description="The control to use", ui_type_hint=UITypeHint.ControlField
     )
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
@@ -316,12 +316,12 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
 
 
 # Latent to image
+@node_title("ONNX Latents to Image")
+@node_tags("latents", "image", "vae", "onnx")
 class ONNXLatentsToImageInvocation(BaseInvocation):
     """Generates an image from latents."""
 
     type: Literal["l2i_onnx"] = "l2i_onnx"
-    title = Title("ONNX Latents to Image")
-    tags = Tags(["latents", "image", "vae", "onnx"])
 
     # Inputs
     latents: Optional[LatentsField] = InputField(
@@ -408,15 +408,17 @@ class OnnxModelField(BaseModel):
     model_type: ModelType = Field(description="Model Type")
 
 
+@node_title("ONNX Model Loader")
+@node_tags("onnx", "model")
 class OnnxModelLoaderInvocation(BaseInvocation):
     """Loads a main model, outputting its submodels."""
 
     type: Literal["onnx_model_loader"] = "onnx_model_loader"
-    title = Title("ONNX Model Loader")
-    tags = Tags(["onnx", "model"])
 
     # Inputs
-    model: OnnxModelField = InputField(description="The model to load", input_kind=InputKind.Direct)
+    model: OnnxModelField = InputField(
+        description="The model to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.ONNXModelField
+    )
 
     def invoke(self, context: InvocationContext) -> ONNXModelLoaderOutput:
         base_model = self.model.base_model

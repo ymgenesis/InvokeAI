@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 from inspect import signature
-from typing import TYPE_CHECKING, AbstractSet, Any, Literal, Mapping, Optional, Union, get_args, get_type_hints
+from typing import TYPE_CHECKING, AbstractSet, Any, Mapping, Optional, Union, get_args, get_type_hints
 
 from pydantic import BaseModel, Field
 from pydantic.fields import Undefined
@@ -40,6 +40,13 @@ class BaseInvocationOutput(BaseModel):
             subclasses.extend(next_subclasses)
             toprocess.extend(next_subclasses)
         return tuple(subclasses)
+
+
+# class RequiredConnectionException(Exception):
+#     """Raised when an field which requires a connection did not receive a value."""
+
+#     def __init__(self, node_id: str, field_name: str):
+#         super().__init__(f"Field {field_name} of node {node_id} must set input from connection!")
 
 
 class BaseInvocation(ABC, BaseModel):
@@ -106,33 +113,32 @@ class UITypeHint(str, Enum):
     Boolean = "boolean"
     String = "string"
     Enum = "enum"
-    Image = "image"
-    Latents = "latents"
-    Conditioning = "conditioning"
-    Control = "control"
-    MainModel = "main_model"
-    SDXLMainModel = "sdxl_main_model"
-    SDXLRefinerModel = "sdxl_refiner_model"
-    ONNXModel = "onnx_model"
-    VAEModel = "vae_model"
-    LoRAModel = "lora_model"
-    ControlNetModel = "controlnet_model"
-    UNetField = "unet_field"
-    VAEField = "vae_field"
-    LoRAField = "lora_field"
-    CLIPField = "clip_field"
     Array = "array"
-    Color = "color"
-    ImageCollection = "image_collection"
-    IntegerCollection = "integer_collection"
-    FloatCollection = "float_collection"
-    StringCollection = "string_collection"
-    BoolCollection = "bool_collection"
-    Item = "item"
-    AnyCollection = "any_collection"
-    CollectionItem = "collection_item"
-    Seed = "seed"
-    FilePath = "file_path"
+    ImageField = "ImageField"
+    LatentsField = "LatentsField"
+    ConditioningField = "ConditioningField"
+    ControlField = "ControlField"
+    MainModelField = "MainModelField"
+    SDXLMainModelField = "SDXLMainModelField"
+    SDXLRefinerModelField = "SDXLRefinerModelField"
+    ONNXModelField = "ONNXModelField"
+    VaeModelField = "VaeModelField"
+    LoRAModelField = "LoRAModelField"
+    ControlNetModelField = "ControlNetModelField"
+    UNetField = "UNetField"
+    VaeField = "VaeField"
+    LoRAField = "LoRAField"
+    ClipField = "ClipField"
+    ColorField = "ColorField"
+    ImageCollection = "ImageCollection"
+    IntegerCollection = "IntegerCollection"
+    FloatCollection = "FloatCollection"
+    StringCollection = "StringCollection"
+    BooleanCollection = "BooleanCollection"
+    Collection = "Collection"
+    CollectionItem = "CollectionItem"
+    Seed = "Seed"
+    FilePath = "FilePath"
 
 
 class UIComponent(str, Enum):
@@ -311,13 +317,35 @@ def OutputField(
     )
 
 
-def Type(node_type: str) -> Literal:
-    return node_type  # type: ignore
+def node_title(title):
+    def wrapper(cls):
+        if cls.Config is BaseInvocation.Config:
+            cls.Config = type(cls.__qualname__ + ".Config", (BaseInvocation.Config,), dict())
+        if cls.Config.schema_extra is BaseInvocation.Config.schema_extra:
+            cls.Config.schema_extra = dict(BaseInvocation.Config.schema_extra)
+        if "ui" not in cls.Config.schema_extra:
+            cls.Config.schema_extra["ui"] = dict()
+        cls.Config.schema_extra["ui"]["title"] = title
+        return cls
+
+    return wrapper
 
 
-def Title(label: str) -> Any:
-    return Field(default=label, const=True, exclude=True)
+# def node_title(title: str):
+#     def wrapper(cls):
+#         if "ui" not in cls.Config.schema_extra:
+#             cls.Config.schema_extra["ui"] = dict()
+#         cls.Config.schema_extra["ui"]["title"] = title
+#         return cls
+
+#     return wrapper
 
 
-def Tags(tags: list[str]) -> Any:
-    return Field(default=tags, const=True, exclude=True)
+def node_tags(*args: str):
+    def wrapper(cls):
+        if "ui" not in cls.Config.schema_extra:
+            cls.Config.schema_extra["ui"] = dict()
+        cls.Config.schema_extra["ui"]["tags"] = list(args)
+        return cls
+
+    return wrapper

@@ -1,11 +1,11 @@
 import { filter, reduce } from 'lodash-es';
 import { OpenAPIV3 } from 'openapi-types';
-import { isSchemaObject } from '../types/typeGuards';
 import {
   InputFieldTemplate,
   InvocationSchemaObject,
   InvocationTemplate,
   OutputFieldTemplate,
+  isInvocationFieldSchema,
   isInvocationSchemaObject,
 } from '../types/types';
 import {
@@ -13,12 +13,7 @@ import {
   buildOutputFieldTemplates,
 } from './fieldTemplateBuilders';
 
-const getReservedFieldNames = (type: string): string[] => {
-  if (type === 'l2i') {
-    return ['id', 'type', 'metadata'];
-  }
-  return ['id', 'type', 'is_intermediate', 'metadata'];
-};
+const RESERVED_FIELD_NAMES = ['id', 'type', 'metadata'];
 
 const invocationDenylist = [
   'Graph',
@@ -42,35 +37,36 @@ export const parseSchema = (
   >((acc, schema) => {
     if (isInvocationSchemaObject(schema)) {
       const type = schema.properties.type.default;
-      const RESERVED_FIELD_NAMES = getReservedFieldNames(type);
-
       const title = schema.ui?.title ?? schema.title.replace('Invocation', '');
-      const typeHints = schema.ui?.type_hints;
+      console.log(schema);
+      const tags = schema.ui?.tags ?? [];
 
       const inputs: Record<string, InputFieldTemplate> = {};
 
       if (type === 'collect') {
         const itemProperty = schema.properties.item as InvocationSchemaObject;
         inputs.item = {
-          type: 'item',
+          type: 'CollectionItem',
           name: 'item',
           description: itemProperty.description ?? '',
           title: 'Collection Item',
-          inputKind: 'connection',
-          inputRequirement: 'always',
+          input_kind: 'connection',
+          input_requirement: 'required',
           default: undefined,
+          ui_hidden: false,
         };
       } else if (type === 'iterate') {
         const itemProperty = schema.properties
           .collection as InvocationSchemaObject;
         inputs.collection = {
-          type: 'array',
+          type: 'Collection',
           name: 'collection',
           title: itemProperty.title ?? '',
           default: [],
           description: itemProperty.description ?? '',
-          inputRequirement: 'always',
-          inputKind: 'connection',
+          input_requirement: 'required',
+          input_kind: 'connection',
+          ui_hidden: false,
         };
       } else {
         reduce(
@@ -78,16 +74,15 @@ export const parseSchema = (
           (inputsAccumulator, property, propertyName) => {
             if (
               !RESERVED_FIELD_NAMES.includes(propertyName) &&
-              isSchemaObject(property)
+              isInvocationFieldSchema(property)
             ) {
-              const field = buildInputFieldTemplate(
-                property,
-                propertyName,
-                typeHints
-              );
+              const field = buildInputFieldTemplate(property, propertyName);
+
               if (field) {
                 inputsAccumulator[propertyName] = field;
               }
+            } else {
+              // console.warn('Unhandled INPUT property', property);
             }
             return inputsAccumulator;
           },
@@ -99,6 +94,7 @@ export const parseSchema = (
       let outputs: Record<string, OutputFieldTemplate>;
 
       if (type === 'iterate') {
+        // Special handling for iterate
         const iterationOutput = openAPI.components?.schemas?.[
           'IterateInvocationOutput'
         ] as OpenAPIV3.SchemaObject;
@@ -107,17 +103,30 @@ export const parseSchema = (
             name: 'item',
             title: iterationOutput?.title ?? '',
             description: iterationOutput?.description ?? '',
-            type: 'array',
+            type: 'CollectionItem',
+          },
+        };
+      } else if (type === 'collect') {
+        // Special handling for collect
+        const collectionOutput = openAPI.components?.schemas?.[
+          'CollectInvocationOutput'
+        ] as OpenAPIV3.SchemaObject;
+        outputs = {
+          item: {
+            name: 'collection',
+            title: collectionOutput?.title ?? '',
+            description: collectionOutput?.description ?? '',
+            type: 'Collection',
           },
         };
       } else {
-        outputs = buildOutputFieldTemplates(rawOutput, openAPI, typeHints);
+        outputs = buildOutputFieldTemplates(rawOutput, openAPI);
       }
 
       const invocation: InvocationTemplate = {
         title,
         type,
-        tags: schema.ui?.tags ?? [],
+        tags,
         description: schema.description ?? '',
         inputs,
         outputs,

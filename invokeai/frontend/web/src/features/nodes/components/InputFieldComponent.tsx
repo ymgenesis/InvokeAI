@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import { memo } from 'react';
 import { InputFieldTemplate, InputFieldValue } from '../types/types';
-import ArrayInputFieldComponent from './fields/ArrayInputFieldComponent';
+import CollectionInputFieldComponent from './fields/CollectionInputFieldComponent';
 import BooleanInputFieldComponent from './fields/BooleanInputFieldComponent';
 import ClipInputFieldComponent from './fields/ClipInputFieldComponent';
 import ColorInputFieldComponent from './fields/ColorInputFieldComponent';
@@ -11,7 +11,7 @@ import ControlNetModelInputFieldComponent from './fields/ControlNetModelInputFie
 import EnumInputFieldComponent from './fields/EnumInputFieldComponent';
 import ImageCollectionInputFieldComponent from './fields/ImageCollectionInputFieldComponent';
 import ImageInputFieldComponent from './fields/ImageInputFieldComponent';
-import ItemInputFieldComponent from './fields/ItemInputFieldComponent';
+import CollectionItemInputFieldComponent from './fields/CollectionItemInputFieldComponent';
 import LatentsInputFieldComponent from './fields/LatentsInputFieldComponent';
 import LoRAModelInputFieldComponent from './fields/LoRAModelInputFieldComponent';
 import ModelInputFieldComponent from './fields/ModelInputFieldComponent';
@@ -76,7 +76,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'image' && template.type === 'image') {
+  if (type === 'ImageField' && template.type === 'ImageField') {
     return (
       <ImageInputFieldComponent
         nodeId={nodeId}
@@ -86,7 +86,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'latents' && template.type === 'latents') {
+  if (type === 'LatentsField' && template.type === 'LatentsField') {
     return (
       <LatentsInputFieldComponent
         nodeId={nodeId}
@@ -96,7 +96,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'conditioning' && template.type === 'conditioning') {
+  if (type === 'ConditioningField' && template.type === 'ConditioningField') {
     return (
       <ConditioningInputFieldComponent
         nodeId={nodeId}
@@ -106,7 +106,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'unet' && template.type === 'unet') {
+  if (type === 'UNetField' && template.type === 'UNetField') {
     return (
       <UnetInputFieldComponent
         nodeId={nodeId}
@@ -116,7 +116,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'clip' && template.type === 'clip') {
+  if (type === 'ClipField' && template.type === 'ClipField') {
     return (
       <ClipInputFieldComponent
         nodeId={nodeId}
@@ -126,7 +126,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'vae' && template.type === 'vae') {
+  if (type === 'VaeField' && template.type === 'VaeField') {
     return (
       <VaeInputFieldComponent
         nodeId={nodeId}
@@ -136,7 +136,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'control' && template.type === 'control') {
+  if (type === 'ControlField' && template.type === 'ControlField') {
     return (
       <ControlInputFieldComponent
         nodeId={nodeId}
@@ -146,7 +146,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'model' && template.type === 'model') {
+  if (type === 'MainModelField' && template.type === 'MainModelField') {
     return (
       <ModelInputFieldComponent
         nodeId={nodeId}
@@ -156,7 +156,10 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'refiner_model' && template.type === 'refiner_model') {
+  if (
+    type === 'SDXLRefinerModelField' &&
+    template.type === 'SDXLRefinerModelField'
+  ) {
     return (
       <RefinerModelInputFieldComponent
         nodeId={nodeId}
@@ -166,7 +169,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'vae_model' && template.type === 'vae_model') {
+  if (type === 'VaeModelField' && template.type === 'VaeModelField') {
     return (
       <VaeModelInputFieldComponent
         nodeId={nodeId}
@@ -176,7 +179,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'lora_model' && template.type === 'lora_model') {
+  if (type === 'LoRAModelField' && template.type === 'LoRAModelField') {
     return (
       <LoRAModelInputFieldComponent
         nodeId={nodeId}
@@ -186,7 +189,10 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'controlnet_model' && template.type === 'controlnet_model') {
+  if (
+    type === 'ControlNetModelField' &&
+    template.type === 'ControlNetModelField'
+  ) {
     return (
       <ControlNetModelInputFieldComponent
         nodeId={nodeId}
@@ -196,9 +202,9 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'array' && template.type === 'array') {
+  if (type === 'Collection' && template.type === 'Collection') {
     return (
-      <ArrayInputFieldComponent
+      <CollectionInputFieldComponent
         nodeId={nodeId}
         field={field}
         template={template}
@@ -206,9 +212,9 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'item' && template.type === 'item') {
+  if (type === 'CollectionItem' && template.type === 'CollectionItem') {
     return (
-      <ItemInputFieldComponent
+      <CollectionItemInputFieldComponent
         nodeId={nodeId}
         field={field}
         template={template}
@@ -216,7 +222,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'color' && template.type === 'color') {
+  if (type === 'ColorField' && template.type === 'ColorField') {
     return (
       <ColorInputFieldComponent
         nodeId={nodeId}
@@ -226,17 +232,7 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
     );
   }
 
-  if (type === 'item' && template.type === 'item') {
-    return (
-      <ItemInputFieldComponent
-        nodeId={nodeId}
-        field={field}
-        template={template}
-      />
-    );
-  }
-
-  if (type === 'image_collection' && template.type === 'image_collection') {
+  if (type === 'ImageCollection' && template.type === 'ImageCollection') {
     return (
       <ImageCollectionInputFieldComponent
         nodeId={nodeId}

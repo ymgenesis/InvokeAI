@@ -13,7 +13,7 @@ from invokeai.backend.generator.inpaint import infill_methods
 from ...backend.generator import Inpaint, InvokeAIGenerator
 from ...backend.stable_diffusion import PipelineIntermediateState
 from ..util.step_callback import stable_diffusion_step_callback
-from .baseinvocation import BaseInvocation, InputField, InvocationContext, Tags, Title
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, node_title, node_tags
 from .image import ImageOutput
 
 from ...backend.model_management.lora import ModelPatcher
@@ -56,12 +56,12 @@ class OldModelInfo:
         )
 
 
+@node_title("Inpaint")
+@node_tags("image", "inpaint")
 class InpaintInvocation(BaseInvocation):
     """Generates an image using inpaint."""
 
     type: Literal["inpaint"] = "inpaint"
-    title = Title("Inpaint")
-    tags = Tags(["image", "inpaint"])
 
     positive_conditioning: Optional[ConditioningField] = InputField(description="Positive conditioning for generation")
     negative_conditioning: Optional[ConditioningField] = InputField(description="Negative conditioning for generation")
