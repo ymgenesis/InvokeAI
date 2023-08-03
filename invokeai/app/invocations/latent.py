@@ -124,15 +124,15 @@ class TextToLatentsInvocation(BaseInvocation):
     type: Literal["t2l"] = "t2l"
 
     # Inputs
-    positive_conditioning: Optional[ConditioningField] = InputField(
+    positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
         input_kind=InputKind.Connection,
     )
-    negative_conditioning: Optional[ConditioningField] = InputField(
+    negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
         input_kind=InputKind.Connection,
     )
-    noise: Optional[LatentsField] = InputField(
+    noise: LatentsField = InputField(
         description="The noise to use",
         input_kind=InputKind.Connection,
     )
@@ -144,12 +144,15 @@ class TextToLatentsInvocation(BaseInvocation):
         ui_type_hint=UITypeHint.Float,
     )
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    unet: Optional[UNetField] = InputField(
+    unet: UNetField = InputField(
         description="UNet submodel",
         input_kind=InputKind.Connection,
     )
-    control: Union[ControlField, list[ControlField]] = InputField(
-        default=None, description="The control to use", ui_type_hint=UITypeHint.ControlField
+    control: Optional[Union[ControlField, list[ControlField]]] = InputField(
+        default=None,
+        description="The control to use",
+        ui_type_hint=UITypeHint.ControlField,
+        input_requirement=InputRequirement.Optional,
     )
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")

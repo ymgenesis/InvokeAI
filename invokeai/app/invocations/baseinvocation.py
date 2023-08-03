@@ -17,6 +17,7 @@ from typing import (
     Union,
     cast,
     get_args,
+    get_origin,
     get_type_hints,
 )
 
@@ -55,11 +56,11 @@ class BaseInvocationOutput(BaseModel):
         return tuple(subclasses)
 
 
-# class RequiredConnectionException(Exception):
-#     """Raised when an field which requires a connection did not receive a value."""
+class RequiredConnectionException(Exception):
+    """Raised when an field which requires a connection did not receive a value."""
 
-#     def __init__(self, node_id: str, field_name: str):
-#         super().__init__(f"Field {field_name} of node {node_id} must set input from connection!")
+    def __init__(self, node_id: str, field_name: str):
+        super().__init__(f"Field {field_name} of node {node_id} must set input from connection!")
 
 
 class BaseInvocation(ABC, BaseModel):
@@ -112,6 +113,37 @@ class BaseInvocation(ABC, BaseModel):
     def invoke(self, context: InvocationContext) -> BaseInvocationOutput:
         """Invoke with provided context and return outputs."""
         pass
+
+    def __invoke__(self, context: InvocationContext) -> BaseInvocationOutput:
+        """Invoke with provided context and return outputs."""
+
+        print(f"================{self.__fields__['type'].default}================\n")
+        for field_name, field in self.__fields__.items():
+            print(f". . . . . . . . . {field_name}. . . . . . . . . ")
+            print("field", field)
+            print("field_name", field_name)
+
+            # input_requirement = field.field_info.extra.get("input_requirement", None)
+            # print("input_requirement", input_requirement)
+            input_kind = field.field_info.extra.get("input_kind", None)
+            print("input_kind", input_kind)
+
+            field_value = getattr(self, field_name)
+
+            # if input_requirement == InputRequirement.Required and field_value is None:
+            if (input_kind == InputKind.Connection or input_kind == InputKind.Any) and field_value is None:
+                conn_default = self.__fields__[field_name].field_info.extra["conn_default"]
+                if conn_default == Undefined:
+                    if get_origin(self.__fields__[field_name].annotation) is Optional:
+                        conn_default = None
+                else:
+                    conn_default = ...
+                if conn_default == ...:
+                    raise RequiredConnectionException(field_name=field_name, node_id=self.id)
+                setattr(self, field_name, conn_default)
+
+            print("================END================\n")
+        return self.invoke(context)
 
     id: str = Field(description="The id of this node. Must be unique among all nodes.")
     is_intermediate: bool = Field(default=False, description="Whether or not this node is an intermediate node.")
@@ -216,6 +248,11 @@ def InputField(
     ui_hidden: bool = False,
     **kwargs: Any,
 ) -> Any:
+    if input_kind == InputKind.Connection or input_kind == InputKind.Any:
+        kwargs["conn_default"] = default
+        if default == ...:
+            default = None
+
     return Field(
         *args,
         default=default,

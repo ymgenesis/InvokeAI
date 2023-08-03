@@ -179,8 +179,10 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
         description="UNet submodel",
         input_kind=InputKind.Connection,
     )
-    control: Union[ControlField, list[ControlField]] = InputField(
-        default=None, description="The control to use", ui_type_hint=UITypeHint.ControlField
+    control: Optional[Union[ControlField, list[ControlField]]] = InputField(
+        description="The control to use",
+        ui_type_hint=UITypeHint.ControlField,
+        input_requirement=InputRequirement.Optional,
     )
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")

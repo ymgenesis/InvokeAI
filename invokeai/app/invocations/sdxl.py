@@ -230,7 +230,7 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
     unet: UNetField = InputField(default=None, description="UNet submodel", input_kind=InputKind.Connection)
     denoising_end: float = InputField(default=1.0, gt=0, le=1, description="")
-    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
+    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use", input_requirement=InputRequirement.Optional)
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
 
@@ -490,7 +490,7 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
     )
     denoising_start: float = InputField(default=0.0, ge=0, le=1, description="")
     denoising_end: float = InputField(default=1.0, ge=0, le=1, description="")
-    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
+    # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use", input_requirement=InputRequirement.Optional)
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
 
