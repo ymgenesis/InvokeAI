@@ -170,32 +170,16 @@ class UIComponent(str, Enum):
 
 
 class InputFieldExtra(BaseModel):
-    input_kind: InputKind = Field(default=InputKind.Any)
-    input_requirement: InputRequirement = Field(default=InputRequirement.Required)
-    ui_hidden: bool = Field(default=False)
-    ui_type_hint: Optional[UITypeHint] = Field(default=None)  # infer from type
-    ui_component: Optional[UIComponent] = Field(default=None)  # infer from type
-
-    class Config:
-        schema_extra = {
-            "required": [
-                "input_kind",
-                "input_requirement",
-                "ui_hidden",
-            ]
-        }
+    input_kind: InputKind
+    input_requirement: InputRequirement
+    ui_hidden: bool
+    ui_type_hint: Optional[UITypeHint]
+    ui_component: Optional[UIComponent]
 
 
 class OutputFieldExtra(BaseModel):
-    ui_hidden: bool = Field(default=False)
-    ui_type_hint: Optional[UITypeHint] = Field(default=None)  # infer from type
-
-    class Config:
-        schema_extra = {
-            "required": [
-                "ui_hidden",
-            ]
-        }
+    ui_hidden: bool
+    ui_type_hint: Optional[UITypeHint]
 
 
 def InputField(
