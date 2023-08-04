@@ -25,13 +25,13 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
-    InputKind,
+    Input,
     InvocationContext,
     OutputField,
     UIComponent,
     UITypeHint,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 from .compel import CompelOutput, ConditioningField
 from .controlnet_image_processors import ControlField
@@ -57,13 +57,13 @@ ORT_TO_NP_TYPE = {
 PRECISION_VALUES = Literal[tuple(list(ORT_TO_NP_TYPE.keys()))]
 
 
-@node_title("ONNX Prompt (Raw)")
-@node_tags("onnx", "prompt")
+@title("ONNX Prompt (Raw)")
+@tags("onnx", "prompt")
 class ONNXPromptInvocation(BaseInvocation):
     type: Literal["prompt_onnx"] = "prompt_onnx"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
-    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
+    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
+    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
 
     def invoke(self, context: InvocationContext) -> CompelOutput:
         tokenizer_info = context.services.model_manager.get_model(
@@ -142,8 +142,8 @@ class ONNXPromptInvocation(BaseInvocation):
 
 
 # Text to image
-@node_title("ONNX Text to Latents")
-@node_tags("latents", "inference", "txt2img", "onnx")
+@title("ONNX Text to Latents")
+@tags("latents", "inference", "txt2img", "onnx")
 class ONNXTextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
@@ -152,15 +152,15 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
     # Inputs
     positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     noise: LatentsField = InputField(
         description="The noise to use",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
     cfg_scale: Union[float, List[float]] = InputField(
@@ -175,7 +175,7 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
     )
     unet: UNetField = InputField(
         description="UNet submodel",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     control: Optional[Union[ControlField, list[ControlField]]] = InputField(
         default=None,
@@ -316,8 +316,8 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
 
 
 # Latent to image
-@node_title("ONNX Latents to Image")
-@node_tags("latents", "image", "vae", "onnx")
+@title("ONNX Latents to Image")
+@tags("latents", "image", "vae", "onnx")
 class ONNXLatentsToImageInvocation(BaseInvocation):
     """Generates an image from latents."""
 
@@ -326,11 +326,11 @@ class ONNXLatentsToImageInvocation(BaseInvocation):
     # Inputs
     latents: LatentsField = InputField(
         description="The latents to generate an image from",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     vae: VaeField = InputField(
         description="Vae submodel",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     metadata: Optional[CoreMetadata] = InputField(
         default=None,
@@ -406,8 +406,8 @@ class OnnxModelField(BaseModel):
     model_type: ModelType = Field(description="Model Type")
 
 
-@node_title("ONNX Model Loader")
-@node_tags("onnx", "model")
+@title("ONNX Model Loader")
+@tags("onnx", "model")
 class OnnxModelLoaderInvocation(BaseInvocation):
     """Loads a main model, outputting its submodels."""
 
@@ -415,7 +415,7 @@ class OnnxModelLoaderInvocation(BaseInvocation):
 
     # Inputs
     model: OnnxModelField = InputField(
-        description="The model to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.ONNXModelField
+        description="The model to load", input=Input.Direct, ui_type_hint=UITypeHint.ONNXModelField
     )
 
     def invoke(self, context: InvocationContext) -> ONNXModelLoaderOutput:

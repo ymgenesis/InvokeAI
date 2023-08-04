@@ -12,8 +12,8 @@ from .baseinvocation import (
     OutputField,
     UIComponent,
     UITypeHint,
-    node_title,
-    node_tags,
+    title,
+    tags,
 )
 from dynamicprompts.generators import RandomPromptGenerator, CombinatorialPromptGenerator
 
@@ -37,15 +37,15 @@ class PromptCollectionOutput(BaseInvocationOutput):
     count: int = OutputField(description="The size of the prompt collection")
 
 
-@node_title("Dynamic Prompt")
-@node_tags("prompt", "collection")
+@title("Dynamic Prompt")
+@tags("prompt", "collection")
 class DynamicPromptInvocation(BaseInvocation):
     """Parses a prompt using adieyal/dynamicprompts' random or combinatorial generator"""
 
     type: Literal["dynamic_prompt"] = "dynamic_prompt"
 
     # Inputs
-    prompt: str = InputField(description="The prompt to parse with dynamicprompts", ui_component=UIComponent.TextArea)
+    prompt: str = InputField(description="The prompt to parse with dynamicprompts", ui_component=UIComponent.Textarea)
     max_prompts: int = InputField(default=1, description="The number of prompts to generate")
     combinatorial: bool = InputField(default=False, description="Whether to use the combinatorial generator")
 
@@ -60,8 +60,8 @@ class DynamicPromptInvocation(BaseInvocation):
         return PromptCollectionOutput(prompt_collection=prompts, count=len(prompts))
 
 
-@node_title("Prompts from File")
-@node_tags("prompt", "file")
+@title("Prompts from File")
+@tags("prompt", "file")
 class PromptsFromFileInvocation(BaseInvocation):
     """Loads prompts from a text file"""
 
@@ -70,10 +70,10 @@ class PromptsFromFileInvocation(BaseInvocation):
     # Inputs
     file_path: str = InputField(description="Path to prompt text file", ui_type_hint=UITypeHint.FilePath)
     pre_prompt: Optional[str] = InputField(
-        description="String to prepend to each prompt", ui_component=UIComponent.TextArea
+        description="String to prepend to each prompt", ui_component=UIComponent.Textarea
     )
     post_prompt: Optional[str] = InputField(
-        description="String to append to each prompt", ui_component=UIComponent.TextArea
+        description="String to append to each prompt", ui_component=UIComponent.Textarea
     )
     start_line: int = InputField(default=1, ge=1, description="Line in the file to start start from")
     max_prompts: int = InputField(default=1, ge=0, description="Max lines to read from file (0=all)")

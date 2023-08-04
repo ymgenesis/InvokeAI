@@ -7,8 +7,8 @@ from invokeai.app.invocations.baseinvocation import (
     BaseInvocationOutput,
     InputField,
     InvocationContext,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 from invokeai.app.invocations.controlnet_image_processors import ControlField
 from invokeai.app.invocations.model import LoRAModelField, MainModelField, VAEModelField
@@ -91,8 +91,8 @@ class MetadataAccumulatorOutput(BaseInvocationOutput):
     metadata: CoreMetadata = Field(description="The core metadata for the image")
 
 
-@node_title("Metadata Accumulator")
-@node_tags("metadata")
+@title("Metadata Accumulator")
+@tags("metadata")
 class MetadataAccumulatorInvocation(BaseInvocation):
     """Outputs a Core Metadata Object"""
 

@@ -9,7 +9,6 @@ import {
 } from 'services/api/types';
 import { NonNullableGraph } from '../../types/types';
 import { CONTROL_NET_COLLECT, METADATA_ACCUMULATOR } from './constants';
-import { O } from 'ts-toolbelt';
 
 export const addControlNetToLinearGraph = (
   state: RootState,
@@ -55,7 +54,7 @@ export const addControlNetToLinearGraph = (
           weight,
         } = controlNet;
 
-        const controlNetNode: O.Optional<ControlNetInvocation, 'image'> = {
+        const controlNetNode: ControlNetInvocation = {
           id: `control_net_${controlNetId}`,
           type: 'controlnet',
           is_intermediate: true,
@@ -84,7 +83,7 @@ export const addControlNetToLinearGraph = (
 
         graph.nodes[controlNetNode.id] = controlNetNode as ControlNetInvocation;
 
-        if (metadataAccumulator) {
+        if (metadataAccumulator?.controlnets) {
           // metadata accumulator only needs a control field - not the whole node
           // extract what we need and add to the accumulator
           const controlField = omit(controlNetNode, [

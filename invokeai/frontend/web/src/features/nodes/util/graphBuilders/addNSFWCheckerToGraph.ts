@@ -11,7 +11,6 @@ import {
   METADATA_ACCUMULATOR,
   NSFW_CHECKER,
 } from './constants';
-import { O } from 'ts-toolbelt';
 
 export const addNSFWCheckerToGraph = (
   state: RootState,
@@ -38,7 +37,7 @@ export const addNSFWCheckerToGraph = (
 
   nodeToAddTo.is_intermediate = true;
 
-  const nsfwCheckerNode: O.Optional<ImageNSFWBlurInvocation, 'image'> = {
+  const nsfwCheckerNode: ImageNSFWBlurInvocation = {
     id: NSFW_CHECKER,
     type: 'img_nsfw',
     is_intermediate,

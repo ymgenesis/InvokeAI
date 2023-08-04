@@ -11,7 +11,7 @@ from invokeai.app.util.misc import SEED_MAX, get_random_seed
 from invokeai.backend.image_util.patchmatch import PatchMatch
 
 from ..models.image import ColorField, ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import BaseInvocation, InputField, InvocationContext, UITypeHint, node_title, node_tags
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, UITypeHint, title, tags
 
 
 def infill_methods() -> list[str]:
@@ -109,8 +109,8 @@ def tile_fill_missing(im: Image.Image, tile_size: int = 16, seed: Optional[int] 
     return si
 
 
-@node_title("Solid Color Infill")
-@node_tags("image", "inpaint")
+@title("Solid Color Infill")
+@tags("image", "inpaint")
 class InfillColorInvocation(BaseInvocation):
     """Infills transparent areas of an image with a solid color"""
 
@@ -147,8 +147,8 @@ class InfillColorInvocation(BaseInvocation):
         )
 
 
-@node_title("Tile Infill")
-@node_tags("image", "inpaint")
+@title("Tile Infill")
+@tags("image", "inpaint")
 class InfillTileInvocation(BaseInvocation):
     """Infills transparent areas of an image with tiles of the image"""
 
@@ -187,8 +187,8 @@ class InfillTileInvocation(BaseInvocation):
         )
 
 
-@node_title("PatchMatch Infill")
-@node_tags("image", "inpaint")
+@title("PatchMatch Infill")
+@tags("image", "inpaint")
 class InfillPatchMatchInvocation(BaseInvocation):
     """Infills transparent areas of an image using the PatchMatch algorithm"""
 

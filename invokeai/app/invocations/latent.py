@@ -36,12 +36,12 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
-    InputKind,
+    Input,
     InvocationContext,
     OutputField,
     UITypeHint,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 from .compel import ConditioningField
 from .controlnet_image_processors import ControlField
@@ -114,9 +114,8 @@ def get_scheduler(
     return scheduler
 
 
-# Text to image
-@node_title("Text to Latents")
-@node_tags("latents", "inference", "txt2img")
+@title("Text to Latents")
+@tags("latents", "inference", "txt2img")
 class TextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
@@ -125,15 +124,15 @@ class TextToLatentsInvocation(BaseInvocation):
     # Inputs
     positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     noise: LatentsField = InputField(
         description="The noise to use",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
     cfg_scale: Union[float, List[float]] = InputField(
@@ -145,7 +144,7 @@ class TextToLatentsInvocation(BaseInvocation):
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
     unet: UNetField = InputField(
         description="UNet submodel",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     control: Union[ControlField, list[ControlField]] = InputField(
         default=None,
@@ -393,8 +392,8 @@ class TextToLatentsInvocation(BaseInvocation):
             return build_latents_output(latents_name=name, latents=result_latents)
 
 
-@node_title("Latents to Latents")
-@node_tags("latents", "inference", "img2img")
+@title("Latents to Latents")
+@tags("latents", "inference", "img2img")
 class LatentsToLatentsInvocation(TextToLatentsInvocation):
     """Generates latents using latents as base image."""
 
@@ -403,7 +402,7 @@ class LatentsToLatentsInvocation(TextToLatentsInvocation):
     # Inputs
     latents: LatentsField = InputField(
         description="The latents to use as a base image",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     strength: float = InputField(default=0.7, ge=0, le=1, description="The strength of the latents to use")
 
@@ -489,8 +488,8 @@ class LatentsToLatentsInvocation(TextToLatentsInvocation):
         return build_latents_output(latents_name=name, latents=result_latents)
 
 
-@node_title("Latents to Image")
-@node_tags("latents", "image", "vae")
+@title("Latents to Image")
+@tags("latents", "image", "vae")
 class LatentsToImageInvocation(BaseInvocation):
     """Generates an image from latents."""
 
@@ -499,11 +498,11 @@ class LatentsToImageInvocation(BaseInvocation):
     # Inputs
     latents: LatentsField = InputField(
         description="The latents to generate an image from",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     vae: VaeField = InputField(
         description="Vae submodel",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     tiled: bool = InputField(default=False, description="Decode latents by overlaping tiles (less memory consumption)")
     fp32: bool = InputField(default=DEFAULT_PRECISION == "float32", description="Decode in full precision")
@@ -589,8 +588,8 @@ class LatentsToImageInvocation(BaseInvocation):
 LATENTS_INTERPOLATION_MODE = Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area", "nearest-exact"]
 
 
-@node_title("Resize Latents")
-@node_tags("latents", "resize")
+@title("Resize Latents")
+@tags("latents", "resize")
 class ResizeLatentsInvocation(BaseInvocation):
     """Resizes latents to explicit width/height (in pixels). Provided dimensions are floor-divided by 8."""
 
@@ -599,7 +598,7 @@ class ResizeLatentsInvocation(BaseInvocation):
     # Inputs
     latents: LatentsField = InputField(
         description="The latents to resize",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     width: int = InputField(
         ge=64,
@@ -639,8 +638,8 @@ class ResizeLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=resized_latents)
 
 
-@node_title("Scale Latents")
-@node_tags("latents", "resize")
+@title("Scale Latents")
+@tags("latents", "resize")
 class ScaleLatentsInvocation(BaseInvocation):
     """Scales latents by a given factor."""
 
@@ -649,7 +648,7 @@ class ScaleLatentsInvocation(BaseInvocation):
     # Inputs
     latents: LatentsField = InputField(
         description="The latents to scale",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     scale_factor: float = InputField(gt=0, description="The factor by which to scale the latents")
     mode: LATENTS_INTERPOLATION_MODE = InputField(default="bilinear", description="The interpolation mode")
@@ -681,8 +680,8 @@ class ScaleLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=resized_latents)
 
 
-@node_title("Image to Latents")
-@node_tags("latents", "image", "vae")
+@title("Image to Latents")
+@tags("latents", "image", "vae")
 class ImageToLatentsInvocation(BaseInvocation):
     """Encodes an image into latents."""
 
@@ -694,7 +693,7 @@ class ImageToLatentsInvocation(BaseInvocation):
     )
     vae: VaeField = InputField(
         description="Vae submodel",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     tiled: bool = InputField(default=False, description="Encode latents by overlaping tiles(less memory consumption)")
     fp32: bool = InputField(default=DEFAULT_PRECISION == "float32", description="Decode in full precision")

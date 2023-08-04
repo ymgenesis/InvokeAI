@@ -3,23 +3,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-import copy
 from enum import Enum
 from inspect import signature
-from typing import (
-    TYPE_CHECKING,
-    AbstractSet,
-    Any,
-    Mapping,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-    get_args,
-    get_origin,
-    get_type_hints,
-)
+from typing import TYPE_CHECKING, AbstractSet, Any, Mapping, Optional, Type, Union, get_args, get_type_hints
 
 from pydantic import BaseModel, Field
 from pydantic.fields import Undefined
@@ -130,8 +116,8 @@ class BaseInvocation(ABC, BaseModel):
             for field_name in field_names:
                 # if the field is required and may get its value from a connection, exclude it from validation
                 field = self.__fields__[field_name]
-                input_kind = field.field_info.extra.get("input_kind", None)
-                if input_kind in [InputKind.Connection, InputKind.Any] and field.required:
+                _input = field.field_info.extra.get("input", None)
+                if _input in [Input.Connection, Input.Any] and field.required:
                     if field_name not in data:
                         restore[field_name] = self.__fields__.pop(field_name)
             # instantiate the node, which will validate the data
@@ -143,11 +129,11 @@ class BaseInvocation(ABC, BaseModel):
 
     def __invoke__(self, context: InvocationContext) -> BaseInvocationOutput:
         for field_name, field in self.__fields__.items():
-            input_kind = field.field_info.extra.get("input_kind", None)
+            _input = field.field_info.extra.get("input", None)
             if field.required and not hasattr(self, field_name):
-                if input_kind == InputKind.Connection:
+                if _input == Input.Connection:
                     raise RequiredConnectionException(self.__fields__["type"].default, field_name)
-                elif input_kind == InputKind.Any:
+                elif _input == Input.Any:
                     raise MissingInputException(self.__fields__["type"].default, field_name)
         return self.invoke(context)
 
@@ -155,13 +141,27 @@ class BaseInvocation(ABC, BaseModel):
     is_intermediate: bool = Field(default=False, description="Whether or not this node is an intermediate node.")
 
 
-class InputKind(str, Enum):
+class Input(str, Enum):
+    """
+    The type of input a field accepts.
+    - `Input.Direct`: The field must have its value provided directly, when the invocation and field \
+      are instantiated.
+    - `Input.Connection`: The field must have its value provided by a connection.
+    - `Input.Any`: The field may have its value provided either directly or by a connection.
+    """
+
     Connection = "connection"
     Direct = "direct"
     Any = "any"
 
 
 class UITypeHint(str, Enum):
+    """
+    Type hints for the UI.
+    If a field should be provided a data type that does not exactly match the python type of the field, \
+    use this to provide the type that should be used instead.
+    """
+
     Integer = "integer"
     Float = "float"
     Boolean = "boolean"
@@ -196,19 +196,34 @@ class UITypeHint(str, Enum):
 
 
 class UIComponent(str, Enum):
+    """
+    The type of UI component to use for a field, used to override the default components, which are \
+    inferred from the field type.
+    """
+
     None_ = "none"
-    TextArea = "textarea"
+    Textarea = "textarea"
     Slider = "slider"
 
 
-class InputFieldExtra(BaseModel):
-    input_kind: InputKind
+class _InputField(BaseModel):
+    """
+    *DO NOT USE*
+    Helper class to generate Typescript types for the client.
+    """
+
+    input: Input
     ui_hidden: bool
     ui_type_hint: Optional[UITypeHint]
     ui_component: Optional[UIComponent]
 
 
-class OutputFieldExtra(BaseModel):
+class _OutputField(BaseModel):
+    """
+    *DO NOT USE*
+    Helper class to generate Typescript types for the client.
+    """
+
     ui_hidden: bool
     ui_type_hint: Optional[UITypeHint]
 
@@ -240,12 +255,36 @@ def InputField(
     regex: Optional[str] = None,
     discriminator: Optional[str] = None,
     repr: bool = True,
-    input_kind: InputKind = InputKind.Any,
-    ui_type_hint: Optional[UITypeHint] = None,  # if not provided, infer from type
-    ui_component: Optional[UIComponent] = None,  # if not provided, infer from type
+    input: Input = Input.Any,
+    ui_type_hint: Optional[UITypeHint] = None,
+    ui_component: Optional[UIComponent] = None,
     ui_hidden: bool = False,
     **kwargs: Any,
 ) -> Any:
+    """
+    Creates an input field for an invocation.
+
+    This is a wrapper for Pydantic's [Field](https://docs.pydantic.dev/1.10/usage/schema/#field-customization) \
+    that adds a few extra parameters to support graph execution and the node editor UI.
+
+    :param Input input: [Input.Any] The kind of input this field requires. \
+      `Input.Direct` means a value must be provided on instantiation. \
+      `Input.Connection` means the value must be provided by a connection. \
+      `Input.Any` means either will do.
+
+    :param UITypeHint ui_type_hint: [None] Optionally provides an extra type hint for the UI. \
+      In some situations, the field's type is not enough to infer the correct UI type. \
+      For example, an `integer` field may be a seed, which is a constrained version integer, \
+      which does not accept *any* integer. For this case, you could use `UITypeHint.Seed` to \
+      indicate that the field is a seed.
+      
+    :param UIComponent ui_component: [None] Optionally specifies a specific component to use in the UI. \
+      The UI will always render a suitable component, but sometimes you want something different than the default. \
+      For example, a `string` field will default to a single-line input, but you may want a multi-line textarea instead. \
+      For this case, you could provide `UIComponent.Textarea`.
+
+    : param bool ui_hidden: [False] Specifies whether or not this field should be hidden in the UI.
+    """
     return Field(
         *args,
         default=default,
@@ -273,7 +312,7 @@ def InputField(
         regex=regex,
         discriminator=discriminator,
         repr=repr,
-        input_kind=input_kind,
+        input=input,
         ui_type_hint=ui_type_hint,
         ui_component=ui_component,
         ui_hidden=ui_hidden,
@@ -308,10 +347,23 @@ def OutputField(
     regex: Optional[str] = None,
     discriminator: Optional[str] = None,
     repr: bool = True,
-    ui_type_hint: Optional[UITypeHint] = None,  # infer from type
+    ui_type_hint: Optional[UITypeHint] = None,
     ui_hidden: bool = False,
     **kwargs: Any,
 ) -> Any:
+    """
+    Creates an output field for an invocation output.
+
+    This is a wrapper for Pydantic's [Field](https://docs.pydantic.dev/1.10/usage/schema/#field-customization) \
+    that adds a few extra parameters to support graph execution and the node editor UI.
+
+    :param UITypeHint ui_type_hint: [None] Optionally provides an extra type hint for the UI. \
+      In some situations, the field's type is not enough to infer the correct UI type. \
+      For example, an `integer` field may be "any" integer, or a seed, which has built-in constraints. \
+      For this case, you could use `UITypeHint.Seed` to indicate that the field is a seed. \
+
+    : param bool ui_hidden: [False] Specifies whether or not this field should be hidden in the UI. \
+    """
     return Field(
         *args,
         default=default,
@@ -345,31 +397,34 @@ def OutputField(
     )
 
 
-class UIConfig(BaseModel):
+InputField.__doc__ = str(InputField.__doc__) + str(Field.__doc__)
+
+
+class UIConfigBase(BaseModel):
     """Provides additional node configuration to the UI."""
 
     tags: Optional[list[str]] = Field(default_factory=None, description="The tags to display in the UI")
     title: Optional[str] = Field(default=None, description="The display name of the node")
 
 
-def node_title(title):
-    """Adds a title to the node."""
+def title(title):
+    """Adds a title to the invocation. Use this to override the default title generation, which is based on the class name."""
 
     def wrapper(cls):
         if not hasattr(cls, "UIConfig"):
-            cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfig,), dict())
+            cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfigBase,), dict())
         cls.UIConfig.title = title
         return cls
 
     return wrapper
 
 
-def node_tags(*tags: str):
-    """Adds tags to the node."""
+def tags(*tags: str):
+    """Adds tags to the invocation. Use this to improve the streamline finding the invocation in the UI."""
 
     def wrapper(cls):
         if not hasattr(cls, "UIConfig"):
-            cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfig,), dict())
+            cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfigBase,), dict())
         cls.UIConfig.tags = list(tags)
         return cls
 

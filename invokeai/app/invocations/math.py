@@ -10,8 +10,8 @@ from .baseinvocation import (
     InputField,
     InvocationContext,
     OutputField,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 
 
@@ -29,8 +29,8 @@ class FloatOutput(BaseInvocationOutput):
     a: float = OutputField(default=None, description="The output float")
 
 
-@node_title("Add Integers")
-@node_tags("math")
+@title("Add Integers")
+@tags("math")
 class AddInvocation(BaseInvocation):
     """Adds two numbers"""
 
@@ -44,8 +44,8 @@ class AddInvocation(BaseInvocation):
         return IntOutput(a=self.a + self.b)
 
 
-@node_title("Subtract Integers")
-@node_tags("math")
+@title("Subtract Integers")
+@tags("math")
 class SubtractInvocation(BaseInvocation):
     """Subtracts two numbers"""
 
@@ -59,8 +59,8 @@ class SubtractInvocation(BaseInvocation):
         return IntOutput(a=self.a - self.b)
 
 
-@node_title("Multiply Integers")
-@node_tags("math")
+@title("Multiply Integers")
+@tags("math")
 class MultiplyInvocation(BaseInvocation):
     """Multiplies two numbers"""
 
@@ -74,8 +74,8 @@ class MultiplyInvocation(BaseInvocation):
         return IntOutput(a=self.a * self.b)
 
 
-@node_title("Divide Integers")
-@node_tags("math")
+@title("Divide Integers")
+@tags("math")
 class DivideInvocation(BaseInvocation):
     """Divides two numbers"""
 
@@ -89,8 +89,8 @@ class DivideInvocation(BaseInvocation):
         return IntOutput(a=int(self.a / self.b))
 
 
-@node_title("Random Integer")
-@node_tags("math")
+@title("Random Integer")
+@tags("math")
 class RandomIntInvocation(BaseInvocation):
     """Outputs a single random integer."""
 

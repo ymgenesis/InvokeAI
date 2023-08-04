@@ -569,7 +569,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Low Threshold 
        * @description The low threshold of the Canny pixel gradient (0-255) 
@@ -632,7 +632,7 @@ export type components = {
        * Clip 
        * @description Clip to use
        */
-      clip: components["schemas"]["ClipField"];
+      clip?: components["schemas"]["ClipField"];
       /**
        * Skipped Layers 
        * @description Number of layers to skip in text_encoder 
@@ -762,7 +762,7 @@ export type components = {
        * Clip 
        * @description Clip to use
        */
-      clip: components["schemas"]["ClipField"];
+      clip?: components["schemas"]["ClipField"];
     };
     /**
      * CompelOutput 
@@ -815,7 +815,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Detect Resolution 
        * @description The pixel resolution for detection 
@@ -918,7 +918,7 @@ export type components = {
        * Image 
        * @description The control image
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Control Model 
        * @description control model used 
@@ -1189,12 +1189,12 @@ export type components = {
        * Image 
        * @description The image to inpaint
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Mask 
        * @description The mask to use when inpainting
        */
-      mask: components["schemas"]["ImageField"];
+      mask?: components["schemas"]["ImageField"];
     };
     /** DeleteBoardResult */
     DeleteBoardResult: {
@@ -1280,7 +1280,7 @@ export type components = {
        * Prompt 
        * @description The prompt to parse with dynamicprompts
        */
-      prompt: string;
+      prompt?: string;
       /**
        * Max Prompts 
        * @description The number of prompts to generate 
@@ -1320,7 +1320,7 @@ export type components = {
        * Image 
        * @description The input image
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Model Name 
        * @description The Real-ESRGAN model to use 
@@ -1581,7 +1581,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Detect Resolution 
        * @description The pixel resolution for detection 
@@ -1627,7 +1627,7 @@ export type components = {
        * Image 
        * @description The image to blur
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Radius 
        * @description The blur radius 
@@ -1680,7 +1680,7 @@ export type components = {
        * Image 
        * @description The image to get the channel from
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Channel 
        * @description The channel to get 
@@ -1762,7 +1762,7 @@ export type components = {
        * Image 
        * @description The image to convert
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Mode 
        * @description The mode to convert to 
@@ -1797,7 +1797,7 @@ export type components = {
        * Image 
        * @description The image to crop
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * X 
        * @description The left x coordinate of the crop rectangle 
@@ -1930,7 +1930,7 @@ export type components = {
        * Image 
        * @description The image to lerp
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Min 
        * @description The minimum input value 
@@ -1970,7 +1970,7 @@ export type components = {
        * Image 
        * @description The image to lerp
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Min 
        * @description The minimum output value 
@@ -2026,12 +2026,12 @@ export type components = {
        * Image1 
        * @description The first image to multiply
        */
-      image1: components["schemas"]["ImageField"];
+      image1?: components["schemas"]["ImageField"];
       /**
        * Image2 
        * @description The second image to multiply
        */
-      image2: components["schemas"]["ImageField"];
+      image2?: components["schemas"]["ImageField"];
     };
     /**
      * Blur NSFW Image 
@@ -2064,7 +2064,7 @@ export type components = {
        * Image 
        * @description The image to check
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
     };
     /**
      * ImageOutput 
@@ -2119,12 +2119,12 @@ export type components = {
        * Base Image 
        * @description The base image
        */
-      base_image: components["schemas"]["ImageField"];
+      base_image?: components["schemas"]["ImageField"];
       /**
        * Image 
        * @description The image to paste
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Mask 
        * @description The mask to use when pasting
@@ -2169,7 +2169,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
     };
     /**
      * ImageRecordChanges 
@@ -2220,7 +2220,7 @@ export type components = {
        * Image 
        * @description The image to resize
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Width 
        * @description The width to resize to (px) 
@@ -2267,7 +2267,7 @@ export type components = {
        * Image 
        * @description The image to scale
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Scale Factor 
        * @description The factor by which to scale the image 
@@ -2308,12 +2308,12 @@ export type components = {
        * Image 
        * @description The image to encode
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Vae 
        * @description Vae submodel
        */
-      vae: components["schemas"]["VaeField"];
+      vae?: components["schemas"]["VaeField"];
       /**
        * Tiled 
        * @description Encode latents by overlaping tiles(less memory consumption) 
@@ -2374,7 +2374,7 @@ export type components = {
        * Image 
        * @description The image to check
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Text 
        * @description Watermark text 
@@ -2413,7 +2413,7 @@ export type components = {
        * Image 
        * @description The image to infill
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Color 
        * @description The color to use to infill 
@@ -2452,7 +2452,7 @@ export type components = {
        * Image 
        * @description The image to infill
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
     };
     /**
      * Tile Infill 
@@ -2480,7 +2480,7 @@ export type components = {
        * Image 
        * @description The image to infill
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Tile Size 
        * @description The tile size (px) 
@@ -2519,12 +2519,12 @@ export type components = {
        * Positive Conditioning 
        * @description Positive conditioning for generation
        */
-      positive_conditioning: components["schemas"]["ConditioningField"];
+      positive_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Negative Conditioning 
        * @description Negative conditioning for generation
        */
-      negative_conditioning: components["schemas"]["ConditioningField"];
+      negative_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Seed 
        * @description The seed to use (omit for random)
@@ -2565,17 +2565,17 @@ export type components = {
        * Unet 
        * @description UNet model
        */
-      unet: components["schemas"]["UNetField"];
+      unet?: components["schemas"]["UNetField"];
       /**
        * Vae 
        * @description Vae model
        */
-      vae: components["schemas"]["VaeField"];
+      vae?: components["schemas"]["VaeField"];
       /**
        * Image 
        * @description The input image
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Strength 
        * @description The strength of the original image 
@@ -2592,7 +2592,7 @@ export type components = {
        * Mask 
        * @description The mask
        */
-      mask: components["schemas"]["ImageField"];
+      mask?: components["schemas"]["ImageField"];
       /**
        * Seam Size 
        * @description The seam inpaint size (px) 
@@ -2825,12 +2825,12 @@ export type components = {
        * Latents 
        * @description The latents to generate an image from
        */
-      latents: components["schemas"]["LatentsField"];
+      latents?: components["schemas"]["LatentsField"];
       /**
        * Vae 
        * @description Vae submodel
        */
-      vae: components["schemas"]["VaeField"];
+      vae?: components["schemas"]["VaeField"];
     };
     /**
      * Latents to Latents 
@@ -2858,17 +2858,17 @@ export type components = {
        * Positive Conditioning 
        * @description Positive conditioning for generation
        */
-      positive_conditioning: components["schemas"]["ConditioningField"];
+      positive_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Negative Conditioning 
        * @description Negative conditioning for generation
        */
-      negative_conditioning: components["schemas"]["ConditioningField"];
+      negative_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Noise 
        * @description The noise to use
        */
-      noise: components["schemas"]["LatentsField"];
+      noise?: components["schemas"]["LatentsField"];
       /**
        * Steps 
        * @description The number of steps to use to generate the image 
@@ -2892,7 +2892,7 @@ export type components = {
        * Unet 
        * @description UNet submodel
        */
-      unet: components["schemas"]["UNetField"];
+      unet?: components["schemas"]["UNetField"];
       /**
        * Control 
        * @description The control to use
@@ -2902,7 +2902,7 @@ export type components = {
        * Latents 
        * @description The latents to use as a base image
        */
-      latents: components["schemas"]["LatentsField"];
+      latents?: components["schemas"]["LatentsField"];
       /**
        * Strength 
        * @description The strength of the latents to use 
@@ -2936,7 +2936,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Thr A 
        * @description Leres parameter `thr_a` 
@@ -2994,7 +2994,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Detect Resolution 
        * @description The pixel resolution for detection 
@@ -3034,7 +3034,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Detect Resolution 
        * @description The pixel resolution for detection 
@@ -3132,7 +3132,7 @@ export type components = {
        * Image 
        * @description The image to load
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
     };
     /**
      * LogLevel 
@@ -3294,7 +3294,7 @@ export type components = {
        * Image 
        * @description The image to create the mask from
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Invert 
        * @description Whether or not to invert the mask 
@@ -3355,7 +3355,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Max Faces 
        * @description Maximum number of faces to detect 
@@ -3401,72 +3401,72 @@ export type components = {
        * Generation Mode 
        * @description The generation mode that output this image
        */
-      generation_mode: string;
+      generation_mode?: string;
       /**
        * Positive Prompt 
        * @description The positive prompt parameter
        */
-      positive_prompt: string;
+      positive_prompt?: string;
       /**
        * Negative Prompt 
        * @description The negative prompt parameter
        */
-      negative_prompt: string;
+      negative_prompt?: string;
       /**
        * Width 
        * @description The width parameter
        */
-      width: number;
+      width?: number;
       /**
        * Height 
        * @description The height parameter
        */
-      height: number;
+      height?: number;
       /**
        * Seed 
        * @description The seed used for noise generation
        */
-      seed: number;
+      seed?: number;
       /**
        * Rand Device 
        * @description The device used for random number generation
        */
-      rand_device: string;
+      rand_device?: string;
       /**
        * Cfg Scale 
        * @description The classifier-free guidance scale parameter
        */
-      cfg_scale: number;
+      cfg_scale?: number;
       /**
        * Steps 
        * @description The number of steps used for inference
        */
-      steps: number;
+      steps?: number;
       /**
        * Scheduler 
        * @description The scheduler used for inference
        */
-      scheduler: string;
+      scheduler?: string;
       /**
        * Clip Skip 
        * @description The number of skipped CLIP layers
        */
-      clip_skip: number;
+      clip_skip?: number;
       /**
        * Model 
        * @description The main model used for inference
        */
-      model: components["schemas"]["MainModelField"];
+      model?: components["schemas"]["MainModelField"];
       /**
        * Controlnets 
        * @description The ControlNets used for inference
        */
-      controlnets: (components["schemas"]["ControlField"])[];
+      controlnets?: (components["schemas"]["ControlField"])[];
       /**
        * Loras 
        * @description The LoRAs used for inference
        */
-      loras: (components["schemas"]["LoRAMetadataField"])[];
+      loras?: (components["schemas"]["LoRAMetadataField"])[];
       /**
        * Strength 
        * @description The strength used for latents-to-latents
@@ -3566,7 +3566,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * A Mult 
        * @description Midas parameter `a_mult` (a = a_mult * PI) 
@@ -3606,7 +3606,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Detect Resolution 
        * @description The pixel resolution for detection 
@@ -3830,7 +3830,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Detect Resolution 
        * @description The pixel resolution for detection 
@@ -3870,12 +3870,12 @@ export type components = {
        * Latents 
        * @description The latents to generate an image from
        */
-      latents: components["schemas"]["LatentsField"];
+      latents?: components["schemas"]["LatentsField"];
       /**
        * Vae 
        * @description Vae submodel
        */
-      vae: components["schemas"]["VaeField"];
+      vae?: components["schemas"]["VaeField"];
       /**
        * Metadata 
        * @description Optional core metadata to be written to the image
@@ -3947,7 +3947,7 @@ export type components = {
        * Clip 
        * @description Clip to use
        */
-      clip: components["schemas"]["ClipField"];
+      clip?: components["schemas"]["ClipField"];
     };
     /** ONNXStableDiffusion1ModelConfig */
     ONNXStableDiffusion1ModelConfig: {
@@ -4022,17 +4022,17 @@ export type components = {
        * Positive Conditioning 
        * @description Positive conditioning for generation
        */
-      positive_conditioning: components["schemas"]["ConditioningField"];
+      positive_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Negative Conditioning 
        * @description Negative conditioning for generation
        */
-      negative_conditioning: components["schemas"]["ConditioningField"];
+      negative_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Noise 
        * @description The noise to use
        */
-      noise: components["schemas"]["LatentsField"];
+      noise?: components["schemas"]["LatentsField"];
       /**
        * Steps 
        * @description The number of steps to use to generate the image 
@@ -4063,7 +4063,7 @@ export type components = {
        * Unet 
        * @description UNet submodel
        */
-      unet: components["schemas"]["UNetField"];
+      unet?: components["schemas"]["UNetField"];
       /**
        * Control 
        * @description The control to use
@@ -4191,7 +4191,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Hand And Face 
        * @description Whether to use hands and face mode 
@@ -4384,7 +4384,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Detect Resolution 
        * @description The pixel resolution for detection 
@@ -4475,7 +4475,7 @@ export type components = {
        * File Path 
        * @description Path to prompt text file
        */
-      file_path: string;
+      file_path?: string;
       /**
        * Pre Prompt 
        * @description String to prepend to each prompt
@@ -4696,17 +4696,17 @@ export type components = {
        * Latents 
        * @description The latents to resize
        */
-      latents: components["schemas"]["LatentsField"];
+      latents?: components["schemas"]["LatentsField"];
       /**
        * Width 
        * @description The width to resize to (px)
        */
-      width: number;
+      width?: number;
       /**
        * Height 
        * @description The height to resize to (px)
        */
-      height: number;
+      height?: number;
       /**
        * Mode 
        * @description The interpolation mode 
@@ -4799,12 +4799,12 @@ export type components = {
        * Clip 
        * @description Clip to use
        */
-      clip: components["schemas"]["ClipField"];
+      clip?: components["schemas"]["ClipField"];
       /**
        * Clip2 
        * @description Clip2 to use
        */
-      clip2: components["schemas"]["ClipField"];
+      clip2?: components["schemas"]["ClipField"];
     };
     /**
      * SDXLLatentsToLatentsInvocation 
@@ -4832,12 +4832,12 @@ export type components = {
        * Positive Conditioning 
        * @description Positive conditioning for generation
        */
-      positive_conditioning: components["schemas"]["ConditioningField"];
+      positive_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Negative Conditioning 
        * @description Negative conditioning for generation
        */
-      negative_conditioning: components["schemas"]["ConditioningField"];
+      negative_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Noise 
        * @description The noise to use
@@ -4866,12 +4866,12 @@ export type components = {
        * Unet 
        * @description UNet submodel
        */
-      unet: components["schemas"]["UNetField"];
+      unet?: components["schemas"]["UNetField"];
       /**
        * Latents 
        * @description Initial latents
        */
-      latents: components["schemas"]["LatentsField"];
+      latents?: components["schemas"]["LatentsField"];
       /**
        * Denoising Start 
        * @default 0
@@ -5011,12 +5011,12 @@ export type components = {
        * Clip 
        * @description Clip to use
        */
-      clip: components["schemas"]["ClipField"];
+      clip?: components["schemas"]["ClipField"];
       /**
        * Clip2 
        * @description Clip2 to use
        */
-      clip2: components["schemas"]["ClipField"];
+      clip2?: components["schemas"]["ClipField"];
     };
     /**
      * SDXL Refiner Prompt (Compel) 
@@ -5075,7 +5075,7 @@ export type components = {
        * Clip2 
        * @description Clip to use
        */
-      clip2: components["schemas"]["ClipField"];
+      clip2?: components["schemas"]["ClipField"];
     };
     /**
      * SDXL Refiner Model Loader 
@@ -5189,7 +5189,7 @@ export type components = {
        * Clip2 
        * @description Clip to use
        */
-      clip2: components["schemas"]["ClipField"];
+      clip2?: components["schemas"]["ClipField"];
     };
     /**
      * SDXL Text to Latents 
@@ -5217,17 +5217,17 @@ export type components = {
        * Positive Conditioning 
        * @description Positive conditioning for generation
        */
-      positive_conditioning: components["schemas"]["ConditioningField"];
+      positive_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Negative Conditioning 
        * @description Negative conditioning for generation
        */
-      negative_conditioning: components["schemas"]["ConditioningField"];
+      negative_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Noise 
        * @description The noise to use
        */
-      noise: components["schemas"]["LatentsField"];
+      noise?: components["schemas"]["LatentsField"];
       /**
        * Steps 
        * @description The number of steps to use to generate the image 
@@ -5251,7 +5251,7 @@ export type components = {
        * Unet 
        * @description UNet submodel
        */
-      unet: components["schemas"]["UNetField"];
+      unet?: components["schemas"]["UNetField"];
       /**
        * Denoising End 
        * @default 1
@@ -5284,12 +5284,12 @@ export type components = {
        * Latents 
        * @description The latents to scale
        */
-      latents: components["schemas"]["LatentsField"];
+      latents?: components["schemas"]["LatentsField"];
       /**
        * Scale Factor 
        * @description The factor by which to scale the latents
        */
-      scale_factor: number;
+      scale_factor?: number;
       /**
        * Mode 
        * @description The interpolation mode 
@@ -5336,7 +5336,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
     };
     /**
      * Show Image 
@@ -5364,7 +5364,7 @@ export type components = {
        * Image 
        * @description The image to show
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
     };
     /** StableDiffusion1ModelCheckpointConfig */
     StableDiffusion1ModelCheckpointConfig: {
@@ -5724,22 +5724,22 @@ export type components = {
        * Positive Conditioning 
        * @description Positive conditioning for generation
        */
-      positive_conditioning: components["schemas"]["ConditioningField"];
+      positive_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Negative Conditioning 
        * @description Negative conditioning for generation
        */
-      negative_conditioning: components["schemas"]["ConditioningField"];
+      negative_conditioning?: components["schemas"]["ConditioningField"];
       /**
        * Noise 
        * @description The noise to use
        */
-      noise: components["schemas"]["LatentsField"];
+      noise?: components["schemas"]["LatentsField"];
       /**
        * Unet 
        * @description UNet submodel
        */
-      unet: components["schemas"]["UNetField"];
+      unet?: components["schemas"]["UNetField"];
     };
     /** TextualInversionModelConfig */
     TextualInversionModelConfig: {
@@ -5785,7 +5785,7 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
       /**
        * Down Sampling Rate 
        * @description Down sampling rate 
@@ -5948,13 +5948,13 @@ export type components = {
        * Image 
        * @description The image to process
        */
-      image: components["schemas"]["ImageField"];
+      image?: components["schemas"]["ImageField"];
     };
     /**
-     * UIConfig 
+     * UIConfigBase 
      * @description Provides additional node configuration to the UI.
      */
-    UIConfig: {
+    UIConfigBase: {
       /**
        * Tags 
        * @description The tags to display in the UI
@@ -5967,33 +5967,45 @@ export type components = {
       title?: string;
     };
     /**
-     * InputKind 
-     * @description An enumeration. 
+     * Input 
+     * @description The type of input a field accepts.
+     * - `Input.Direct`: The field must have its value provided directly, when the invocation and field       are instantiated.
+     * - `Input.Connection`: The field must have its value provided by a connection.
+     * - `Input.Any`: The field may have its value provided either directly or by a connection. 
      * @enum {string}
      */
-    InputKind: "connection" | "direct" | "any";
+    Input: "connection" | "direct" | "any";
     /**
      * UITypeHint 
-     * @description An enumeration. 
+     * @description Type hints for the UI.
+     * If a field should be provided a data type that does not exactly match the python type of the field,     use this to provide the type that should be used instead. 
      * @enum {string}
      */
     UITypeHint: "integer" | "float" | "boolean" | "string" | "enum" | "array" | "ImageField" | "LatentsField" | "ConditioningField" | "ControlField" | "MainModelField" | "SDXLMainModelField" | "SDXLRefinerModelField" | "ONNXModelField" | "VaeModelField" | "LoRAModelField" | "ControlNetModelField" | "UNetField" | "VaeField" | "LoRAField" | "ClipField" | "ColorField" | "ImageCollection" | "IntegerCollection" | "FloatCollection" | "StringCollection" | "BooleanCollection" | "Collection" | "CollectionItem" | "Seed" | "FilePath";
     /**
      * UIComponent 
-     * @description An enumeration. 
+     * @description The type of UI component to use for a field, used to override the default components, which are     inferred from the field type. 
      * @enum {string}
      */
     UIComponent: "none" | "textarea" | "slider";
-    /** InputFieldExtra */
-    InputFieldExtra: {
-      input_kind: components["schemas"]["InputKind"];
+    /**
+     * _InputField 
+     * @description *DO NOT USE*
+     * Helper class to generate Typescript types for the client.
+     */
+    _InputField: {
+      input: components["schemas"]["Input"];
       /** Ui Hidden */
       ui_hidden: boolean;
       ui_type_hint?: components["schemas"]["UITypeHint"];
       ui_component?: components["schemas"]["UIComponent"];
     };
-    /** OutputFieldExtra */
-    OutputFieldExtra: {
+    /**
+     * _OutputField 
+     * @description *DO NOT USE*
+     * Helper class to generate Typescript types for the client.
+     */
+    _OutputField: {
       /** Ui Hidden */
       ui_hidden: boolean;
       ui_type_hint?: components["schemas"]["UITypeHint"];

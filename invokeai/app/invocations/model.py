@@ -8,12 +8,12 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
-    InputKind,
+    Input,
     InvocationContext,
     OutputField,
     UITypeHint,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 
 
@@ -71,15 +71,15 @@ class LoRAModelField(BaseModel):
     base_model: BaseModelType = Field(description="Base model")
 
 
-@node_title("Main Model Loader")
-@node_tags("model")
+@title("Main Model Loader")
+@tags("model")
 class MainModelLoaderInvocation(BaseInvocation):
     """Loads a main model, outputting its submodels."""
 
     type: Literal["main_model_loader"] = "main_model_loader"
 
     # Inputs
-    model: MainModelField = InputField(description="The model to load", input_kind=InputKind.Direct)
+    model: MainModelField = InputField(description="The model to load", input=Input.Direct)
     # TODO: precision?
 
     def invoke(self, context: InvocationContext) -> ModelLoaderOutput:
@@ -194,25 +194,25 @@ class LoraLoaderOutput(BaseInvocationOutput):
     # fmt: on
 
 
-@node_title("LoRA Loader")
-@node_tags("lora", "model")
+@title("LoRA Loader")
+@tags("lora", "model")
 class LoraLoaderInvocation(BaseInvocation):
     """Apply selected lora to unet and text_encoder."""
 
     type: Literal["lora_loader"] = "lora_loader"
 
     # Inputs
-    lora: LoRAModelField = InputField(description="Lora model name", input_kind=InputKind.Direct)
+    lora: LoRAModelField = InputField(description="Lora model name", input=Input.Direct)
     weight: float = InputField(default=0.75, description="With what weight to apply lora")
     unet: Optional[UNetField] = InputField(
         default=None,
         description="UNet model for applying lora",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     clip: Optional[ClipField] = InputField(
         default=None,
         description="Clip model for applying lora",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
 
     def invoke(self, context: InvocationContext) -> LoraLoaderOutput:
@@ -377,8 +377,8 @@ class VaeLoaderOutput(BaseInvocationOutput):
     vae: VaeField = OutputField(default=None, description="Vae model", title="VAE")
 
 
-@node_title("VAE Loader")
-@node_tags("vae", "model")
+@title("VAE Loader")
+@tags("vae", "model")
 class VaeLoaderInvocation(BaseInvocation):
     """Loads a VAE model, outputting a VaeLoaderOutput"""
 
@@ -386,7 +386,7 @@ class VaeLoaderInvocation(BaseInvocation):
 
     # Inputs
     vae_model: VAEModelField = InputField(
-        description="The VAE to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.VaeModelField, title="VAE"
+        description="The VAE to load", input=Input.Direct, ui_type_hint=UITypeHint.VaeModelField, title="VAE"
     )
 
     def invoke(self, context: InvocationContext) -> VaeLoaderOutput:

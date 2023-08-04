@@ -7,12 +7,12 @@ import numpy
 from PIL import Image, ImageOps
 
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
-from .baseinvocation import BaseInvocation, InputField, InvocationContext, node_tags, node_title
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, tags, title
 from .image import ImageOutput
 
 
-@node_title("OpenCV Inpaint")
-@node_tags("opencv", "inpaint")
+@title("OpenCV Inpaint")
+@tags("opencv", "inpaint")
 class CvInpaintInvocation(BaseInvocation):
     """Simple inpaint using opencv."""
 

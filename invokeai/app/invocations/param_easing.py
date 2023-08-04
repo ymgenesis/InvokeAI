@@ -43,12 +43,12 @@ from matplotlib.ticker import MaxNLocator
 from pydantic import BaseModel, Field
 
 from ...backend.util.logging import InvokeAILogger
-from .baseinvocation import BaseInvocation, InputField, InvocationContext, node_tags, node_title
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, tags, title
 from .collections import FloatCollectionOutput
 
 
-@node_title("Float Range")
-@node_tags("math", "range")
+@title("Float Range")
+@tags("math", "range")
 class FloatLinearRangeInvocation(BaseInvocation):
     """Creates a range"""
 
@@ -102,8 +102,8 @@ EASING_FUNCTION_KEYS = Literal[tuple(list(EASING_FUNCTIONS_MAP.keys()))]
 
 
 # actually I think for now could just use CollectionOutput (which is list[Any]
-@node_title("Step Param Easing")
-@node_tags("step", "easing")
+@title("Step Param Easing")
+@tags("step", "easing")
 class StepParamEasingInvocation(BaseInvocation):
     """Experimental per-step parameter easing for denoising steps"""
 
