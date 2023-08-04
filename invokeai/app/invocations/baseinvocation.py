@@ -285,10 +285,17 @@ def title(title):
     """Adds a title to the invocation. Use this to override the default title generation, which is based on the class name."""
 
     def wrapper(cls):
-        if not hasattr(cls, "UIConfig"):
-            cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfigBase,), dict())
+        uiconf_name = cls.__qualname__ + ".UIConfig"
+        if not hasattr(cls, "UIConfig") or cls.UIConfig.__qualname__ != uiconf_name:
+            cls.UIConfig = type(uiconf_name, (UIConfigBase,), dict())
         cls.UIConfig.title = title
         return cls
+
+    # def wrapper(cls):
+    #     if not hasattr(cls, "UIConfig"):
+    #         cls.UIConfig = type(cls.__qualname__ + ".UIConfig", (UIConfigBase,), dict())
+    #     cls.UIConfig.title = title
+    #     return cls
 
     return wrapper
 
