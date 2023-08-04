@@ -40,6 +40,7 @@ const IAINodeSettings = (props: IAINodeSettingsProps) => {
           aria-label="Node Settings"
           variant="link"
           sx={{
+            minW: 8,
             w: 8,
             h: 8,
             color: 'base.500',

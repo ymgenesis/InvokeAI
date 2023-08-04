@@ -37,6 +37,7 @@ const IAINodeCollapsedHandles = (props: IAINodeCollapsedHandlesProps) => {
       />
       {map(data.inputs, (input) => (
         <Handle
+          key={`${data.id}-${input.name}-collapsed-input-handle`}
           type="target"
           id={input.name}
           isValidConnection={() => false}
@@ -54,6 +55,7 @@ const IAINodeCollapsedHandles = (props: IAINodeCollapsedHandlesProps) => {
       />
       {map(data.outputs, (output) => (
         <Handle
+          key={`${data.id}-${output.name}-collapsed-output-handle`}
           type="source"
           id={output.name}
           isValidConnection={() => false}

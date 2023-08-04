@@ -1,5 +1,4 @@
-import { Flex, useColorModeValue } from '@chakra-ui/react';
-import { useChakraThemeTokens } from 'common/hooks/useChakraThemeTokens';
+import { Flex } from '@chakra-ui/react';
 import { InvocationValue } from 'features/nodes/types/types';
 import { memo } from 'react';
 import IAINodeCollapseButton from './IAINodeCollapseButton';
@@ -16,8 +15,6 @@ interface IAINodeHeaderProps {
 const IAINodeHeader = (props: IAINodeHeaderProps) => {
   const { data, title, description } = props;
   const { isOpen } = data;
-  const { base400, base600 } = useChakraThemeTokens();
-  const backgroundColor = useColorModeValue(base400, base600);
 
   return (
     <Flex

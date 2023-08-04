@@ -18,7 +18,7 @@ import {
   InvocationTemplate,
 } from 'features/nodes/types/types';
 import { map } from 'lodash-es';
-import { memo, useMemo } from 'react';
+import { Fragment, memo, useMemo } from 'react';
 import FieldHandle from '../FieldHandle';
 import InputFieldComponent from '../InputFieldComponent';
 
@@ -35,17 +35,10 @@ const IAINodeInputs = (props: IAINodeInputsProps) => {
   return (
     <Flex className="nopan" flexDir="column" gap={2} p={2}>
       {inputsArray.map((input, i) => (
-        <>
-          {i > 0 && i < inputsArray.length && (
-            <Divider key={`${input.id}.divider`} />
-          )}
-          <IAINodeInput
-            key={input.id}
-            nodeId={nodeId}
-            input={input}
-            template={template}
-          />
-        </>
+        <Fragment key={`${nodeId}.${input.id}.input`}>
+          {i > 0 && i < inputsArray.length && <Divider />}
+          <IAINodeInput nodeId={nodeId} input={input} template={template} />
+        </Fragment>
       ))}
     </Flex>
   );

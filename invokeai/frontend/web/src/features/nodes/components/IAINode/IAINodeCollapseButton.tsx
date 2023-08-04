@@ -27,6 +27,7 @@ const IAINodeCollapseButton = (props: IAINodeCollapseButtonProps) => {
       onClick={handleClick}
       aria-label="Minimize"
       sx={{
+        minW: 8,
         w: 8,
         h: 8,
         color: 'base.500',
