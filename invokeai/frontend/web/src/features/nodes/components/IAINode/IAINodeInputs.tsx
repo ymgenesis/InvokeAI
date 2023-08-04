@@ -42,7 +42,7 @@ function IAINodeInput(props: IAINodeInputProps) {
           ? 'error.400'
           : !connected &&
             template.required &&
-            ['any', 'connection'].includes(template.input_kind) &&
+            ['any', 'connection'].includes(template.input) &&
             input.value === undefined
           ? 'warning.400'
           : undefined
@@ -74,7 +74,7 @@ function IAINodeInput(props: IAINodeInputProps) {
               />
             </HStack>
 
-            {template.input_kind !== 'direct' && (
+            {template.input !== 'direct' && (
               <FieldHandle
                 nodeId={nodeId}
                 field={template}

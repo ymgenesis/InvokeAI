@@ -32,12 +32,12 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
-    InputKind,
+    Input,
     InvocationContext,
     OutputField,
     UITypeHint,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 from ..models.image import ImageOutput
 
@@ -106,8 +106,8 @@ class ControlOutput(BaseInvocationOutput):
     control: ControlField = OutputField(description="The control info")
 
 
-@node_title("ControlNet")
-@node_tags("controlnet")
+@title("ControlNet")
+@tags("controlnet")
 class ControlNetInvocation(BaseInvocation):
     """Collects ControlNet info to pass to other nodes"""
 
@@ -116,7 +116,7 @@ class ControlNetInvocation(BaseInvocation):
     # Inputs
     image: ImageField = InputField(description="The control image")
     control_model: ControlNetModelField = InputField(
-        default="lllyasviel/sd-controlnet-canny", description="control model used", input_kind=InputKind.Direct
+        default="lllyasviel/sd-controlnet-canny", description="control model used", input=Input.Direct
     )
     control_weight: Union[float, List[float]] = InputField(
         default=1.0, description="The weight given to the ControlNet", ui_type_hint=UITypeHint.Float
@@ -189,8 +189,8 @@ class ImageProcessorInvocation(BaseInvocation):
         )
 
 
-@node_title("Canny Processor")
-@node_tags("controlnet", "canny")
+@title("Canny Processor")
+@tags("controlnet", "canny")
 class CannyImageProcessorInvocation(ImageProcessorInvocation):
     """Canny edge detection for ControlNet"""
 
@@ -210,8 +210,8 @@ class CannyImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("HED (softedge) Processor")
-@node_tags("controlnet", "hed", "softedge")
+@title("HED (softedge) Processor")
+@tags("controlnet", "hed", "softedge")
 class HedImageProcessorInvocation(ImageProcessorInvocation):
     """Applies HED edge detection to image"""
 
@@ -237,8 +237,8 @@ class HedImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Lineart Processor")
-@node_tags("controlnet", "lineart")
+@title("Lineart Processor")
+@tags("controlnet", "lineart")
 class LineartImageProcessorInvocation(ImageProcessorInvocation):
     """Applies line art processing to image"""
 
@@ -257,8 +257,8 @@ class LineartImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Lineart Anime Processor")
-@node_tags("controlnet", "lineart", "anime")
+@title("Lineart Anime Processor")
+@tags("controlnet", "lineart", "anime")
 class LineartAnimeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies line art anime processing to image"""
 
@@ -278,8 +278,8 @@ class LineartAnimeImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Openpose Processor")
-@node_tags("controlnet", "openpose", "pose")
+@title("Openpose Processor")
+@tags("controlnet", "openpose", "pose")
 class OpenposeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Openpose processing to image"""
 
@@ -301,8 +301,8 @@ class OpenposeImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Midas (Depth) Processor")
-@node_tags("controlnet", "midas", "depth")
+@title("Midas (Depth) Processor")
+@tags("controlnet", "midas", "depth")
 class MidasDepthImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Midas depth processing to image"""
 
@@ -326,8 +326,8 @@ class MidasDepthImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Normal BAE Processor")
-@node_tags("controlnet", "normal", "bae")
+@title("Normal BAE Processor")
+@tags("controlnet", "normal", "bae")
 class NormalbaeImageProcessorInvocation(ImageProcessorInvocation):
     """Applies NormalBae processing to image"""
 
@@ -345,8 +345,8 @@ class NormalbaeImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("MLSD Processor")
-@node_tags("controlnet", "mlsd")
+@title("MLSD Processor")
+@tags("controlnet", "mlsd")
 class MlsdImageProcessorInvocation(ImageProcessorInvocation):
     """Applies MLSD processing to image"""
 
@@ -370,8 +370,8 @@ class MlsdImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("PIDI Processor")
-@node_tags("controlnet", "pidi")
+@title("PIDI Processor")
+@tags("controlnet", "pidi")
 class PidiImageProcessorInvocation(ImageProcessorInvocation):
     """Applies PIDI processing to image"""
 
@@ -395,8 +395,8 @@ class PidiImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Content Shuffle Processor")
-@node_tags("controlnet", "contentshuffle")
+@title("Content Shuffle Processor")
+@tags("controlnet", "contentshuffle")
 class ContentShuffleImageProcessorInvocation(ImageProcessorInvocation):
     """Applies content shuffle processing to image"""
 
@@ -423,8 +423,8 @@ class ContentShuffleImageProcessorInvocation(ImageProcessorInvocation):
 
 
 # should work with controlnet_aux >= 0.0.4 and timm <= 0.6.13
-@node_title("Zoe (Depth) Processor")
-@node_tags("controlnet", "zoe", "depth")
+@title("Zoe (Depth) Processor")
+@tags("controlnet", "zoe", "depth")
 class ZoeDepthImageProcessorInvocation(ImageProcessorInvocation):
     """Applies Zoe depth processing to image"""
 
@@ -436,8 +436,8 @@ class ZoeDepthImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Mediapipe Face Processor")
-@node_tags("controlnet", "mediapipe", "face")
+@title("Mediapipe Face Processor")
+@tags("controlnet", "mediapipe", "face")
 class MediapipeFaceProcessorInvocation(ImageProcessorInvocation):
     """Applies mediapipe face processing to image"""
 
@@ -457,8 +457,8 @@ class MediapipeFaceProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Leres (Depth) Processor")
-@node_tags("controlnet", "leres", "depth")
+@title("Leres (Depth) Processor")
+@tags("controlnet", "leres", "depth")
 class LeresImageProcessorInvocation(ImageProcessorInvocation):
     """Applies leres processing to image"""
 
@@ -484,8 +484,8 @@ class LeresImageProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Tile Resample Processor")
-@node_tags("controlnet", "tile")
+@title("Tile Resample Processor")
+@tags("controlnet", "tile")
 class TileResamplerProcessorInvocation(ImageProcessorInvocation):
     """Tile resampler processor"""
 
@@ -522,8 +522,8 @@ class TileResamplerProcessorInvocation(ImageProcessorInvocation):
         return processed_image
 
 
-@node_title("Segment Anything Processor")
-@node_tags("controlnet", "segmentanything")
+@title("Segment Anything Processor")
+@tags("controlnet", "segmentanything")
 class SegmentAnythingProcessorInvocation(ImageProcessorInvocation):
     """Applies segment anything processing to image"""
 

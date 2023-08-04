@@ -50,7 +50,7 @@ export const parseSchema = (
           name: 'item',
           description: itemProperty.description ?? '',
           title: 'Collection Item',
-          input_kind: 'connection',
+          input: 'connection',
           default: undefined,
           ui_hidden: false,
           required: true,
@@ -64,7 +64,7 @@ export const parseSchema = (
           title: itemProperty.title ?? '',
           default: [],
           description: itemProperty.description ?? '',
-          input_kind: 'connection',
+          input: 'connection',
           ui_hidden: false,
           required: true,
         };

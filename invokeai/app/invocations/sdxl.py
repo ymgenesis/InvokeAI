@@ -11,12 +11,12 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
-    InputKind,
+    Input,
     InvocationContext,
     OutputField,
     UITypeHint,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 
 from .model import UNetField, ClipField, VaeField, MainModelField, ModelInfo
@@ -45,8 +45,8 @@ class SDXLRefinerModelLoaderOutput(BaseInvocationOutput):
     vae: VaeField = OutputField(default=None, description="Vae submodel", title="VAE")
 
 
-@node_title("SDXL Main Model Loader")
-@node_tags("model", "sdxl")
+@title("SDXL Main Model Loader")
+@tags("model", "sdxl")
 class SDXLModelLoaderInvocation(BaseInvocation):
     """Loads an sdxl base model, outputting its submodels."""
 
@@ -54,7 +54,7 @@ class SDXLModelLoaderInvocation(BaseInvocation):
 
     # Inputs
     model: MainModelField = InputField(
-        description="The model to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.SDXLMainModelField
+        description="The model to load", input=Input.Direct, ui_type_hint=UITypeHint.SDXLMainModelField
     )
     # TODO: precision?
 
@@ -130,8 +130,8 @@ class SDXLModelLoaderInvocation(BaseInvocation):
         )
 
 
-@node_title("SDXL Refiner Model Loader")
-@node_tags("model", "sdxl", "refiner")
+@title("SDXL Refiner Model Loader")
+@tags("model", "sdxl", "refiner")
 class SDXLRefinerModelLoaderInvocation(BaseInvocation):
     """Loads an sdxl refiner model, outputting its submodels."""
 
@@ -139,7 +139,7 @@ class SDXLRefinerModelLoaderInvocation(BaseInvocation):
 
     # Inputs
     model: MainModelField = InputField(
-        description="The model to load", input_kind=InputKind.Direct, ui_type_hint=UITypeHint.SDXLRefinerModelField
+        description="The model to load", input=Input.Direct, ui_type_hint=UITypeHint.SDXLRefinerModelField
     )
     # TODO: precision?
 
@@ -200,8 +200,8 @@ class SDXLRefinerModelLoaderInvocation(BaseInvocation):
 
 
 # Text to image
-@node_title("SDXL Text to Latents")
-@node_tags("latents", "inference", "txt2img", "sdxl")
+@title("SDXL Text to Latents")
+@tags("latents", "inference", "txt2img", "sdxl")
 class SDXLTextToLatentsInvocation(BaseInvocation):
     """Generates latents from conditionings."""
 
@@ -210,15 +210,15 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
     # Inputs
     positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     noise: LatentsField = InputField(
         description="The noise to use",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
     cfg_scale: Union[float, List[float]] = InputField(
@@ -228,7 +228,7 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
         ui_type_hint=UITypeHint.Float,
     )
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    unet: UNetField = InputField(description="UNet submodel", input_kind=InputKind.Connection)
+    unet: UNetField = InputField(description="UNet submodel", input=Input.Connection)
     denoising_end: float = InputField(default=1.0, gt=0, le=1, description="")
     # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
@@ -461,16 +461,16 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
     # Inputs
     positive_conditioning: ConditioningField = InputField(
         description="Positive conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     negative_conditioning: ConditioningField = InputField(
         description="Negative conditioning for generation",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     noise: Optional[LatentsField] = InputField(
         default=None,
         description="The noise to use",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
     cfg_scale: Union[float, List[float]] = InputField(
@@ -482,11 +482,11 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
     unet: UNetField = InputField(
         description="UNet submodel",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     latents: LatentsField = InputField(
         description="Initial latents",
-        input_kind=InputKind.Connection,
+        input=Input.Connection,
     )
     denoising_start: float = InputField(default=0.0, ge=0, le=1, description="")
     denoising_end: float = InputField(default=1.0, ge=0, le=1, description="")

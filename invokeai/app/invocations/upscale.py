@@ -10,7 +10,7 @@ from realesrgan import RealESRGANer
 
 from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
 
-from .baseinvocation import BaseInvocation, InputField, InvocationContext, node_title, node_tags
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, title, tags
 from .image import ImageOutput
 
 # TODO: Populate this from disk?
@@ -23,8 +23,8 @@ ESRGAN_MODELS = Literal[
 ]
 
 
-@node_title("Upscale (RealESRGAN)")
-@node_tags("esrgan", "upscale")
+@title("Upscale (RealESRGAN)")
+@tags("esrgan", "upscale")
 class ESRGANInvocation(BaseInvocation):
     """Upscales an image using RealESRGAN."""
 

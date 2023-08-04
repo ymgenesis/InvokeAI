@@ -13,7 +13,7 @@ from invokeai.backend.generator.inpaint import infill_methods
 from ...backend.generator import Inpaint, InvokeAIGenerator
 from ...backend.stable_diffusion import PipelineIntermediateState
 from ..util.step_callback import stable_diffusion_step_callback
-from .baseinvocation import BaseInvocation, InputField, InvocationContext, node_title, node_tags
+from .baseinvocation import BaseInvocation, InputField, InvocationContext, title, tags
 from .image import ImageOutput
 
 from ...backend.model_management.lora import ModelPatcher
@@ -56,8 +56,8 @@ class OldModelInfo:
         )
 
 
-@node_title("Inpaint")
-@node_tags("image", "inpaint")
+@title("Inpaint")
+@tags("image", "inpaint")
 class InpaintInvocation(BaseInvocation):
     """Generates an image using inpaint."""
 

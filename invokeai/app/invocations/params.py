@@ -10,16 +10,16 @@ from .baseinvocation import (
     InputField,
     InvocationContext,
     OutputField,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 from .math import FloatOutput, IntOutput
 
 # Pass-through parameter nodes - used by subgraphs
 
 
-@node_title("Integer Parameter")
-@node_tags("integer")
+@title("Integer Parameter")
+@tags("integer")
 class ParamIntInvocation(BaseInvocation):
     """An integer parameter"""
 
@@ -32,8 +32,8 @@ class ParamIntInvocation(BaseInvocation):
         return IntOutput(a=self.a)
 
 
-@node_title("Float Parameter")
-@node_tags("float")
+@title("Float Parameter")
+@tags("float")
 class ParamFloatInvocation(BaseInvocation):
     """A float parameter"""
 
@@ -53,8 +53,8 @@ class StringOutput(BaseInvocationOutput):
     text: str = OutputField(default=None, description="The output string")
 
 
-@node_title("String Parameter")
-@node_tags("string")
+@title("String Parameter")
+@tags("string")
 class ParamStringInvocation(BaseInvocation):
     """A string parameter"""
 
@@ -67,8 +67,8 @@ class ParamStringInvocation(BaseInvocation):
         return StringOutput(text=self.text)
 
 
-@node_title("Prompt Parameter")
-@node_tags("prompt")
+@title("Prompt Parameter")
+@tags("prompt")
 class ParamPromptInvocation(BaseInvocation):
     """A prompt input parameter"""
 

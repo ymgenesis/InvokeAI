@@ -16,11 +16,11 @@ from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
-    InputKind,
+    Input,
     InvocationContext,
     UIComponent,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 from .model import ClipField
 
@@ -73,15 +73,15 @@ class CompelOutput(BaseInvocationOutput):
     # fmt: on
 
 
-@node_title("Prompt (Compel)")
-@node_tags("prompt", "compel")
+@title("Prompt (Compel)")
+@tags("prompt", "compel")
 class CompelInvocation(BaseInvocation):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["compel"] = "compel"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
-    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
+    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
+    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -341,23 +341,23 @@ class SDXLPromptInvocationBase:
         return c, c_pooled, ec
 
 
-@node_title("SDXL Prompt (Compel)")
-@node_tags("sdxl", "compel", "prompt")
+@title("SDXL Prompt (Compel)")
+@tags("sdxl", "compel", "prompt")
 class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_compel_prompt"] = "sdxl_compel_prompt"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)
+    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     target_width: int = InputField(default=1024, description="")
     target_height: int = InputField(default=1024, description="")
-    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
-    clip2: ClipField = InputField(description="Clip2 to use", input_kind=InputKind.Connection)
+    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
+    clip2: ClipField = InputField(description="Clip2 to use", input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -394,20 +394,20 @@ class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
         )
 
 
-@node_title("SDXL Refiner Prompt (Compel)")
-@node_tags("sdxl", "compel", "prompt")
+@title("SDXL Refiner Prompt (Compel)")
+@tags("sdxl", "compel", "prompt")
 class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_refiner_compel_prompt"] = "sdxl_refiner_compel_prompt"
 
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)  # TODO: ?
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)  # TODO: ?
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     aesthetic_score: float = InputField(default=6.0, description="")
-    clip2: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(description="Clip to use", input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -440,23 +440,23 @@ class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase
         )
 
 
-@node_title("SDXL Prompt (Raw)")
-@node_tags("sdxl", "prompt")
+@title("SDXL Prompt (Raw)")
+@tags("sdxl", "prompt")
 class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Pass unmodified prompt to conditioning without compel processing."""
 
     type: Literal["sdxl_raw_prompt"] = "sdxl_raw_prompt"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.TextArea)
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)
+    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     target_width: int = InputField(default=1024, description="")
     target_height: int = InputField(default=1024, description="")
-    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
-    clip2: ClipField = InputField(description="Clip2 to use", input_kind=InputKind.Connection)
+    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
+    clip2: ClipField = InputField(description="Clip2 to use", input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -493,20 +493,20 @@ class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
         )
 
 
-@node_title("SDXL Refiner Prompt (Raw)")
-@node_tags("sdxl", "prompt")
+@title("SDXL Refiner Prompt (Raw)")
+@tags("sdxl", "prompt")
 class SDXLRefinerRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
 
     type: Literal["sdxl_refiner_raw_prompt"] = "sdxl_refiner_raw_prompt"
 
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.TextArea)  # TODO: ?
+    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)  # TODO: ?
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     aesthetic_score: float = InputField(default=6.0, description="")
-    clip2: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
+    clip2: ClipField = InputField(description="Clip to use", input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -546,14 +546,14 @@ class ClipSkipInvocationOutput(BaseInvocationOutput):
     clip: ClipField = Field(None, description="Clip with skipped layers")
 
 
-@node_title("CLIP Skip")
-@node_tags("clipskip", "clip", "skip")
+@title("CLIP Skip")
+@tags("clipskip", "clip", "skip")
 class ClipSkipInvocation(BaseInvocation):
     """Skip layers in clip text_encoder model."""
 
     type: Literal["clip_skip"] = "clip_skip"
 
-    clip: ClipField = InputField(description="Clip to use", input_kind=InputKind.Connection)
+    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
     skipped_layers: int = InputField(default=0, description="Number of layers to skip in text_encoder")
 
     def invoke(self, context: InvocationContext) -> ClipSkipInvocationOutput:

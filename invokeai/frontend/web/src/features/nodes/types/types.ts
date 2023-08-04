@@ -10,8 +10,8 @@ import {
   Graph,
   ImageDTO,
   ImageField,
-  InputFieldExtra,
-  OutputFieldExtra,
+  _InputField,
+  _OutputField,
 } from 'services/api/types';
 import { AnyInvocationType } from 'services/events/types';
 import { O } from 'ts-toolbelt';
@@ -309,7 +309,7 @@ export type InputFieldTemplateBase = {
   description: string;
   type: FieldType;
   required: boolean;
-} & InputFieldExtra;
+} & _InputField;
 
 export type IntegerInputFieldTemplate = InputFieldTemplateBase & {
   type: 'integer';
@@ -453,7 +453,7 @@ export type InvocationSchemaExtra = {
   title: string;
   properties: Omit<
     NonNullable<OpenAPIV3.SchemaObject['properties']> &
-      (InputFieldExtra | OutputFieldExtra),
+      (_InputField | _OutputField),
     'type'
   > & {
     type: Omit<OpenAPIV3.SchemaObject, 'default'> & {
@@ -472,7 +472,7 @@ export type InvocationBaseSchemaObject = Omit<
 > &
   InvocationSchemaExtra;
 
-export type InvocationFieldSchema = OpenAPIV3.SchemaObject & InputFieldExtra;
+export type InvocationFieldSchema = OpenAPIV3.SchemaObject & _InputField;
 
 export interface ArraySchemaObject extends InvocationBaseSchemaObject {
   type: OpenAPIV3.ArraySchemaObjectType;

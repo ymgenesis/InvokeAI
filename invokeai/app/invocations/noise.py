@@ -15,8 +15,8 @@ from .baseinvocation import (
     InvocationContext,
     OutputField,
     UITypeHint,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 
 """
@@ -80,8 +80,8 @@ def build_noise_output(latents_name: str, latents: torch.Tensor):
     )
 
 
-@node_title("Noise")
-@node_tags("latents", "noise")
+@title("Noise")
+@tags("latents", "noise")
 class NoiseInvocation(BaseInvocation):
     """Generates latent noise."""
 

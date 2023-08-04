@@ -36,8 +36,8 @@ export type UnsafeImageMetadata = {
  */
 type TypeReq<T extends object> = O.Required<T, 'type'>;
 
-export type InputFieldExtra = s['InputFieldExtra'];
-export type OutputFieldExtra = s['OutputFieldExtra'];
+export type _InputField = s['_InputField'];
+export type _OutputField = s['_OutputField'];
 
 // App Info
 export type AppVersion = s['AppVersion'];

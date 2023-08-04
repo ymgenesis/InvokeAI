@@ -445,10 +445,10 @@ export const buildInputFieldTemplate = (
   const fieldType = getFieldType(fieldSchema);
   // console.log('input fieldType', fieldType);
 
-  const { input_kind, ui_hidden, ui_component, ui_type_hint } = fieldSchema;
+  const { input, ui_hidden, ui_component, ui_type_hint } = fieldSchema;
 
   const extra = {
-    input_kind,
+    input,
     ui_hidden,
     ui_component,
     ui_type_hint,

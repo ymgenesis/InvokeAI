@@ -19,15 +19,15 @@ from .baseinvocation import (
     BaseInvocation,
     InputField,
     InvocationContext,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 from invokeai.backend.image_util.safety_checker import SafetyChecker
 from invokeai.backend.image_util.invisible_watermark import InvisibleWatermark
 
 
-@node_title("Load Image")
-@node_tags("image")
+@title("Load Image")
+@tags("image")
 class LoadImageInvocation(BaseInvocation):
     """Load an image and provide it as output."""
 
@@ -47,8 +47,8 @@ class LoadImageInvocation(BaseInvocation):
         )
 
 
-@node_title("Show Image")
-@node_tags("image")
+@title("Show Image")
+@tags("image")
 class ShowImageInvocation(BaseInvocation):
     """Displays a provided image, and passes it forward in the pipeline."""
 
@@ -72,8 +72,8 @@ class ShowImageInvocation(BaseInvocation):
         )
 
 
-@node_title("Crop Image")
-@node_tags("image", "crop")
+@title("Crop Image")
+@tags("image", "crop")
 class ImageCropInvocation(BaseInvocation):
     """Crops an image to a specified box. The box can be outside of the image."""
 
@@ -109,8 +109,8 @@ class ImageCropInvocation(BaseInvocation):
         )
 
 
-@node_title("Paste Image")
-@node_tags("image", "paste")
+@title("Paste Image")
+@tags("image", "paste")
 class ImagePasteInvocation(BaseInvocation):
     """Pastes an image into another image."""
 
@@ -160,8 +160,8 @@ class ImagePasteInvocation(BaseInvocation):
         )
 
 
-@node_title("Mask from Alpha")
-@node_tags("image", "mask")
+@title("Mask from Alpha")
+@tags("image", "mask")
 class MaskFromAlphaInvocation(BaseInvocation):
     """Extracts the alpha channel of an image as a mask."""
 
@@ -195,8 +195,8 @@ class MaskFromAlphaInvocation(BaseInvocation):
         )
 
 
-@node_title("Multiply Images")
-@node_tags("image", "multiply")
+@title("Multiply Images")
+@tags("image", "multiply")
 class ImageMultiplyInvocation(BaseInvocation):
     """Multiplies two images together using `PIL.ImageChops.multiply()`."""
 
@@ -232,8 +232,8 @@ class ImageMultiplyInvocation(BaseInvocation):
 IMAGE_CHANNELS = Literal["A", "R", "G", "B"]
 
 
-@node_title("Extract Image Channel")
-@node_tags("image", "channel")
+@title("Extract Image Channel")
+@tags("image", "channel")
 class ImageChannelInvocation(BaseInvocation):
     """Gets a channel from an image."""
 
@@ -268,8 +268,8 @@ class ImageChannelInvocation(BaseInvocation):
 IMAGE_MODES = Literal["L", "RGB", "RGBA", "CMYK", "YCbCr", "LAB", "HSV", "I", "F"]
 
 
-@node_title("Convert Image Mode")
-@node_tags("image", "convert")
+@title("Convert Image Mode")
+@tags("image", "convert")
 class ImageConvertInvocation(BaseInvocation):
     """Converts an image to a different mode."""
 
@@ -301,8 +301,8 @@ class ImageConvertInvocation(BaseInvocation):
         )
 
 
-@node_title("Blur Image")
-@node_tags("image", "blur")
+@title("Blur Image")
+@tags("image", "blur")
 class ImageBlurInvocation(BaseInvocation):
     """Blurs an image"""
 
@@ -359,8 +359,8 @@ PIL_RESAMPLING_MAP = {
 }
 
 
-@node_title("Resize Image")
-@node_tags("image", "resize")
+@title("Resize Image")
+@tags("image", "resize")
 class ImageResizeInvocation(BaseInvocation):
     """Resizes an image to specific dimensions"""
 
@@ -399,8 +399,8 @@ class ImageResizeInvocation(BaseInvocation):
         )
 
 
-@node_title("Scale Image")
-@node_tags("image", "scale")
+@title("Scale Image")
+@tags("image", "scale")
 class ImageScaleInvocation(BaseInvocation):
     """Scales an image by a factor"""
 
@@ -444,8 +444,8 @@ class ImageScaleInvocation(BaseInvocation):
         )
 
 
-@node_title("Lerp Image")
-@node_tags("image", "lerp")
+@title("Lerp Image")
+@tags("image", "lerp")
 class ImageLerpInvocation(BaseInvocation):
     """Linear interpolation of all pixels of an image"""
 
@@ -481,8 +481,8 @@ class ImageLerpInvocation(BaseInvocation):
         )
 
 
-@node_title("Inverse Lerp Image")
-@node_tags("image", "ilerp")
+@title("Inverse Lerp Image")
+@tags("image", "ilerp")
 class ImageInverseLerpInvocation(BaseInvocation):
     """Inverse linear interpolation of all pixels of an image"""
 
@@ -518,8 +518,8 @@ class ImageInverseLerpInvocation(BaseInvocation):
         )
 
 
-@node_title("Blur NSFW Image")
-@node_tags("image", "nsfw")
+@title("Blur NSFW Image")
+@tags("image", "nsfw")
 class ImageNSFWBlurInvocation(BaseInvocation):
     """Add blur to NSFW-flagged images"""
 
@@ -567,8 +567,8 @@ class ImageNSFWBlurInvocation(BaseInvocation):
         return caution.resize((caution.width // 2, caution.height // 2))
 
 
-@node_title("Add Invisible Watermark")
-@node_tags("image", "watermark")
+@title("Add Invisible Watermark")
+@tags("image", "watermark")
 class ImageWatermarkInvocation(BaseInvocation):
     """Add an invisible watermark to an image"""
 

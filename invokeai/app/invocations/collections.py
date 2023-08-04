@@ -15,8 +15,8 @@ from .baseinvocation import (
     InvocationContext,
     OutputField,
     UITypeHint,
-    node_tags,
-    node_title,
+    tags,
+    title,
 )
 
 
@@ -64,8 +64,8 @@ class ImageCollectionOutput(BaseInvocationOutput):
     )
 
 
-@node_title("Integer Range")
-@node_tags("collection", "integer", "range")
+@title("Integer Range")
+@tags("collection", "integer", "range")
 class RangeInvocation(BaseInvocation):
     """Creates a range of numbers from start to stop with step"""
 
@@ -89,8 +89,8 @@ class RangeInvocation(BaseInvocation):
 t = "range_of_size"
 
 
-@node_title("Integer Range of Size")
-@node_tags("range", "integer", "size", "collection")
+@title("Integer Range of Size")
+@tags("range", "integer", "size", "collection")
 class RangeOfSizeInvocation(BaseInvocation):
     """Creates a range from start to start + size with step"""
 
@@ -105,8 +105,8 @@ class RangeOfSizeInvocation(BaseInvocation):
         return IntCollectionOutput(collection=list(range(self.start, self.start + self.size, self.step)))
 
 
-@node_title("Random Range")
-@node_tags("range", "integer", "random", "collection")
+@title("Random Range")
+@tags("range", "integer", "random", "collection")
 class RandomRangeInvocation(BaseInvocation):
     """Creates a collection of random numbers"""
 
@@ -129,8 +129,8 @@ class RandomRangeInvocation(BaseInvocation):
         return IntCollectionOutput(collection=list(rng.integers(low=self.low, high=self.high, size=self.size)))
 
 
-@node_title("Image Collection")
-@node_tags("image", "collection")
+@title("Image Collection")
+@tags("image", "collection")
 class ImageCollectionInvocation(BaseInvocation):
     """Load a collection of images and provide it as output."""
 
