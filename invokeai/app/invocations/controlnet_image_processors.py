@@ -116,7 +116,7 @@ class ControlNetInvocation(BaseInvocation):
     # Inputs
     image: ImageField = InputField(description="The control image")
     control_model: ControlNetModelField = InputField(
-        default="lllyasviel/sd-controlnet-canny", description="control model used", input_kind=InputKind.Connection
+        default="lllyasviel/sd-controlnet-canny", description="control model used", input_kind=InputKind.Direct
     )
     control_weight: Union[float, List[float]] = InputField(
         default=1.0, description="The weight given to the ControlNet", ui_type_hint=UITypeHint.Float
