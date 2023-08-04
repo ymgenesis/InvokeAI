@@ -15,132 +15,6 @@ if TYPE_CHECKING:
     from ..services.invocation_services import InvocationServices
 
 
-class InvocationContext:
-    services: InvocationServices
-    graph_execution_state_id: str
-
-    def __init__(self, services: InvocationServices, graph_execution_state_id: str):
-        self.services = services
-        self.graph_execution_state_id = graph_execution_state_id
-
-
-class BaseInvocationOutput(BaseModel):
-    """Base class for all invocation outputs"""
-
-    # All outputs must include a type name like this:
-    # type: Literal['your_output_name']
-
-    @classmethod
-    def get_all_subclasses_tuple(cls):
-        subclasses = []
-        toprocess = [cls]
-        while len(toprocess) > 0:
-            next = toprocess.pop(0)
-            next_subclasses = next.__subclasses__()
-            subclasses.extend(next_subclasses)
-            toprocess.extend(next_subclasses)
-        return tuple(subclasses)
-
-
-class RequiredConnectionException(Exception):
-    """Raised when an field which requires a connection did not receive a value."""
-
-    def __init__(self, node_id: str, field_name: str):
-        super().__init__(f"Node {node_id} missing connections for field {field_name}")
-
-
-class MissingInputException(Exception):
-    """Raised when an field which requires some input, but did not receive a value."""
-
-    def __init__(self, node_id: str, field_name: str):
-        super().__init__(f"Node {node_id} missing value or connection for field {field_name}")
-
-
-class BaseInvocation(ABC, BaseModel):
-    """A node to process inputs and produce outputs.
-    May use dependency injection in __init__ to receive providers.
-    """
-
-    # All invocations must include a type name like this:
-    # type: Literal['your_output_name']
-
-    @classmethod
-    def get_all_subclasses(cls):
-        subclasses = []
-        toprocess = [cls]
-        while len(toprocess) > 0:
-            next = toprocess.pop(0)
-            next_subclasses = next.__subclasses__()
-            subclasses.extend(next_subclasses)
-            toprocess.extend(next_subclasses)
-        return subclasses
-
-    @classmethod
-    def get_invocations(cls):
-        return tuple(BaseInvocation.get_all_subclasses())
-
-    @classmethod
-    def get_invocations_map(cls):
-        # Get the type strings out of the literals and into a dictionary
-        return dict(
-            map(
-                lambda t: (get_args(get_type_hints(t)["type"])[0], t),
-                BaseInvocation.get_all_subclasses(),
-            )
-        )
-
-    @classmethod
-    def get_output_type(cls):
-        return signature(cls.invoke).return_annotation
-
-    class Config:
-        @staticmethod
-        def schema_extra(schema: dict[str, Any], model_class: Type[BaseModel]):
-            uiconfig = getattr(model_class, "UIConfig", None)
-            if uiconfig and hasattr(uiconfig, "title"):
-                schema["title"] = uiconfig.title
-            if uiconfig and hasattr(uiconfig, "tags"):
-                schema["tags"] = uiconfig.tags
-
-    @abstractmethod
-    def invoke(self, context: InvocationContext) -> BaseInvocationOutput:
-        """Invoke with provided context and return outputs."""
-        pass
-
-    def __init__(self, **data):
-        # nodes may have required fields, that can accept input from connections
-        # on instantiation of the model, we need to exclude these from validation
-        restore = dict()
-        try:
-            field_names = list(self.__fields__.keys())
-            for field_name in field_names:
-                # if the field is required and may get its value from a connection, exclude it from validation
-                field = self.__fields__[field_name]
-                _input = field.field_info.extra.get("input", None)
-                if _input in [Input.Connection, Input.Any] and field.required:
-                    if field_name not in data:
-                        restore[field_name] = self.__fields__.pop(field_name)
-            # instantiate the node, which will validate the data
-            super().__init__(**data)
-        finally:
-            # restore the removed fields
-            for field_name, field in restore.items():
-                self.__fields__[field_name] = field
-
-    def __invoke__(self, context: InvocationContext) -> BaseInvocationOutput:
-        for field_name, field in self.__fields__.items():
-            _input = field.field_info.extra.get("input", None)
-            if field.required and not hasattr(self, field_name):
-                if _input == Input.Connection:
-                    raise RequiredConnectionException(self.__fields__["type"].default, field_name)
-                elif _input == Input.Any:
-                    raise MissingInputException(self.__fields__["type"].default, field_name)
-        return self.invoke(context)
-
-    id: str = Field(description="The id of this node. Must be unique among all nodes.")
-    is_intermediate: bool = Field(default=False, description="Whether or not this node is an intermediate node.")
-
-
 class Input(str, Enum):
     """
     The type of input a field accepts.
@@ -429,3 +303,131 @@ def tags(*tags: str):
         return cls
 
     return wrapper
+
+
+class InvocationContext:
+    services: InvocationServices
+    graph_execution_state_id: str
+
+    def __init__(self, services: InvocationServices, graph_execution_state_id: str):
+        self.services = services
+        self.graph_execution_state_id = graph_execution_state_id
+
+
+class BaseInvocationOutput(BaseModel):
+    """Base class for all invocation outputs"""
+
+    # All outputs must include a type name like this:
+    # type: Literal['your_output_name']
+
+    @classmethod
+    def get_all_subclasses_tuple(cls):
+        subclasses = []
+        toprocess = [cls]
+        while len(toprocess) > 0:
+            next = toprocess.pop(0)
+            next_subclasses = next.__subclasses__()
+            subclasses.extend(next_subclasses)
+            toprocess.extend(next_subclasses)
+        return tuple(subclasses)
+
+
+class RequiredConnectionException(Exception):
+    """Raised when an field which requires a connection did not receive a value."""
+
+    def __init__(self, node_id: str, field_name: str):
+        super().__init__(f"Node {node_id} missing connections for field {field_name}")
+
+
+class MissingInputException(Exception):
+    """Raised when an field which requires some input, but did not receive a value."""
+
+    def __init__(self, node_id: str, field_name: str):
+        super().__init__(f"Node {node_id} missing value or connection for field {field_name}")
+
+
+class BaseInvocation(ABC, BaseModel):
+    """A node to process inputs and produce outputs.
+    May use dependency injection in __init__ to receive providers.
+    """
+
+    # All invocations must include a type name like this:
+    # type: Literal['your_output_name']
+
+    @classmethod
+    def get_all_subclasses(cls):
+        subclasses = []
+        toprocess = [cls]
+        while len(toprocess) > 0:
+            next = toprocess.pop(0)
+            next_subclasses = next.__subclasses__()
+            subclasses.extend(next_subclasses)
+            toprocess.extend(next_subclasses)
+        return subclasses
+
+    @classmethod
+    def get_invocations(cls):
+        return tuple(BaseInvocation.get_all_subclasses())
+
+    @classmethod
+    def get_invocations_map(cls):
+        # Get the type strings out of the literals and into a dictionary
+        return dict(
+            map(
+                lambda t: (get_args(get_type_hints(t)["type"])[0], t),
+                BaseInvocation.get_all_subclasses(),
+            )
+        )
+
+    @classmethod
+    def get_output_type(cls):
+        return signature(cls.invoke).return_annotation
+
+    class Config:
+        @staticmethod
+        def schema_extra(schema: dict[str, Any], model_class: Type[BaseModel]):
+            uiconfig = getattr(model_class, "UIConfig", None)
+            if uiconfig and hasattr(uiconfig, "title"):
+                schema["title"] = uiconfig.title
+            if uiconfig and hasattr(uiconfig, "tags"):
+                schema["tags"] = uiconfig.tags
+
+    @abstractmethod
+    def invoke(self, context: InvocationContext) -> BaseInvocationOutput:
+        """Invoke with provided context and return outputs."""
+        pass
+
+    def __init__(self, **data):
+        # nodes may have required fields, that can accept input from connections
+        # on instantiation of the model, we need to exclude these from validation
+        restore = dict()
+        try:
+            field_names = list(self.__fields__.keys())
+            for field_name in field_names:
+                # if the field is required and may get its value from a connection, exclude it from validation
+                field = self.__fields__[field_name]
+                _input = field.field_info.extra.get("input", None)
+                if _input in [Input.Connection, Input.Any] and field.required:
+                    if field_name not in data:
+                        restore[field_name] = self.__fields__.pop(field_name)
+            # instantiate the node, which will validate the data
+            super().__init__(**data)
+        finally:
+            # restore the removed fields
+            for field_name, field in restore.items():
+                self.__fields__[field_name] = field
+
+    def __invoke__(self, context: InvocationContext) -> BaseInvocationOutput:
+        for field_name, field in self.__fields__.items():
+            _input = field.field_info.extra.get("input", None)
+            if field.required and not hasattr(self, field_name):
+                if _input == Input.Connection:
+                    raise RequiredConnectionException(self.__fields__["type"].default, field_name)
+                elif _input == Input.Any:
+                    raise MissingInputException(self.__fields__["type"].default, field_name)
+        return self.invoke(context)
+
+    id: str = InputField(description="The id of this node. Must be unique among all nodes.")
+    is_intermediate: bool = InputField(
+        default=False, description="Whether or not this node is an intermediate node.", input=Input.Direct
+    )

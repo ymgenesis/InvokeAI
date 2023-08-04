@@ -22,6 +22,8 @@ export type NonNullableGraph = O.Required<Graph, 'nodes' | 'edges'>;
 export type InvocationValue = {
   id: string;
   type: AnyInvocationType;
+  userLabel: string;
+  isOpen: boolean;
   inputs: Record<string, InputFieldValue>;
   outputs: Record<string, OutputFieldValue>;
 };

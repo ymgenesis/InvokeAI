@@ -190,4 +190,6 @@ export const FIELDS: Record<FieldType, FieldUIConfig> = {
   },
 };
 
+export const NODE_WIDTH = 256;
+
 export const NODE_MIN_WIDTH = 250;

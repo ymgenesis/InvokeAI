@@ -13,7 +13,7 @@ import {
   buildOutputFieldTemplates,
 } from './fieldTemplateBuilders';
 
-const RESERVED_FIELD_NAMES = ['id', 'type', 'metadata'];
+const RESERVED_FIELD_NAMES = ['id', 'type', 'metadata', 'is_intermediate'];
 
 const invocationDenylist = [
   'Graph',

@@ -1,11 +1,11 @@
 import { useAppDispatch } from 'app/store/storeHooks';
 import { fieldMainModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
-  MainModelInputFieldValue,
   MainModelInputFieldTemplate,
+  MainModelInputFieldValue,
 } from 'features/nodes/types/types';
 
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { SelectItem } from '@mantine/core';
 import IAIMantineSearchableSelect from 'common/components/IAIMantineSearchableSelect';
 import { MODEL_TYPE_MAP } from 'features/parameters/types/constants';
@@ -14,7 +14,7 @@ import SyncModelsButton from 'features/ui/components/tabs/ModelManager/subpanels
 import { forEach } from 'lodash-es';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NON_REFINER_BASE_MODELS } from 'services/api/constants';
+import { NON_SDXL_MAIN_MODELS } from 'services/api/constants';
 import {
   useGetMainModelsQuery,
   useGetOnnxModelsQuery,
@@ -34,9 +34,14 @@ const MainModelInputFieldComponent = (
   const { t } = useTranslation();
   const isSyncModelEnabled = useFeatureStatus('syncModels').isFeatureEnabled;
 
-  const { data: onnxModels } = useGetOnnxModelsQuery(NON_REFINER_BASE_MODELS);
-  const { data: mainModels, isLoading } = useGetMainModelsQuery(
-    NON_REFINER_BASE_MODELS
+  const { data: onnxModels, isLoading: isLoadingOnnxModels } =
+    useGetOnnxModelsQuery(NON_SDXL_MAIN_MODELS);
+  const { data: mainModels, isLoading: isLoadingMainModels } =
+    useGetMainModelsQuery(NON_SDXL_MAIN_MODELS);
+
+  const isLoadingModels = useMemo(
+    () => isLoadingOnnxModels || isLoadingMainModels,
+    [isLoadingOnnxModels, isLoadingMainModels]
   );
 
   const data = useMemo(() => {
@@ -116,32 +121,24 @@ const MainModelInputFieldComponent = (
     [dispatch, field.name, nodeId]
   );
 
-  return isLoading ? (
-    <IAIMantineSearchableSelect
-      label={t('modelManager.model')}
-      placeholder="Loading..."
-      disabled={true}
-      data={[]}
-    />
-  ) : (
-    <Flex w="100%" alignItems="center" gap={2}>
-      <IAIMantineSearchableSelect
-        tooltip={selectedModel?.description}
-        label={
-          selectedModel?.base_model && MODEL_TYPE_MAP[selectedModel?.base_model]
-        }
-        value={selectedModel?.id}
-        placeholder={data.length > 0 ? 'Select a model' : 'No models available'}
-        data={data}
-        error={data.length === 0}
-        disabled={data.length === 0}
-        onChange={handleChangeModel}
-      />
-      {isSyncModelEnabled && (
-        <Box mt={7}>
-          <SyncModelsButton iconMode />
-        </Box>
+  return (
+    <Flex sx={{ w: 'full', alignItems: 'center', gap: 2 }}>
+      {isLoadingModels ? (
+        <Text variant="subtext">Loading...</Text>
+      ) : (
+        <IAIMantineSearchableSelect
+          tooltip={selectedModel?.description}
+          value={selectedModel?.id}
+          placeholder={
+            data.length > 0 ? 'Select a model' : 'No models available'
+          }
+          data={data}
+          error={data.length === 0}
+          disabled={data.length === 0}
+          onChange={handleChangeModel}
+        />
       )}
+      {isSyncModelEnabled && <SyncModelsButton iconMode />}
     </Flex>
   );
 };

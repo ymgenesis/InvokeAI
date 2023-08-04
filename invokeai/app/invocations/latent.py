@@ -140,12 +140,10 @@ class TextToLatentsInvocation(BaseInvocation):
         ge=1,
         description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
         ui_type_hint=UITypeHint.Float,
+        title="CFG Scale",
     )
     scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    unet: UNetField = InputField(
-        description="UNet submodel",
-        input=Input.Connection,
-    )
+    unet: UNetField = InputField(description="UNet submodel", input=Input.Connection, title="UNet")
     control: Union[ControlField, list[ControlField]] = InputField(
         default=None,
         description="The control to use",

@@ -79,6 +79,9 @@ const ImageInputFieldComponent = (
         droppableData={droppableData}
         draggableData={draggableData}
         onClickReset={handleReset}
+        withResetIcon
+        thumbnail
+        useThumbailFallback
         postUploadAction={postUploadAction}
       />
     </Flex>

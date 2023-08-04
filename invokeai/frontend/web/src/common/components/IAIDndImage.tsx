@@ -157,11 +157,10 @@ const IAIDndImage = (props: IAIDndImageProps) => {
                     <IAILoadingImageFallback image={imageDTO} />
                   )
                 }
-                width={imageDTO.width}
-                height={imageDTO.height}
                 onError={onError}
                 draggable={false}
                 sx={{
+                  w: imageDTO.width,
                   objectFit: 'contain',
                   maxW: 'full',
                   maxH: 'full',
