@@ -5,89 +5,22 @@ import {
   FormControl,
   FormLabel,
   HStack,
+  Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { RootState } from 'app/store/store';
+import { createSelector } from '@reduxjs/toolkit';
+import { stateSelector } from 'app/store/store';
 import { useAppSelector } from 'app/store/storeHooks';
 import { useIsValidConnection } from 'features/nodes/hooks/useIsValidConnection';
 import { HANDLE_TOOLTIP_OPEN_DELAY } from 'features/nodes/types/constants';
 import {
-  InputFieldTemplate,
   InputFieldValue,
   InvocationTemplate,
 } from 'features/nodes/types/types';
 import { map } from 'lodash-es';
-import { ReactNode, memo, useCallback } from 'react';
+import { memo, useMemo } from 'react';
 import FieldHandle from '../FieldHandle';
 import InputFieldComponent from '../InputFieldComponent';
-
-interface IAINodeInputProps {
-  nodeId: string;
-
-  input: InputFieldValue;
-  template?: InputFieldTemplate | undefined;
-  connected: boolean;
-}
-
-function IAINodeInput(props: IAINodeInputProps) {
-  const { nodeId, input, template, connected } = props;
-  const isValidConnection = useIsValidConnection();
-
-  return (
-    <Box
-      className="nopan"
-      position="relative"
-      borderColor={
-        !template
-          ? 'error.400'
-          : !connected &&
-            template.required &&
-            ['any', 'connection'].includes(template.input) &&
-            input.value === undefined
-          ? 'warning.400'
-          : undefined
-      }
-    >
-      <FormControl isDisabled={!template ? true : connected} pl={2}>
-        {!template ? (
-          <HStack justifyContent="space-between" alignItems="center">
-            <FormLabel>Unknown input: {input.name}</FormLabel>
-          </HStack>
-        ) : (
-          <>
-            <HStack justifyContent="space-between" alignItems="center">
-              <HStack>
-                <Tooltip
-                  label={template?.description}
-                  placement="top"
-                  hasArrow
-                  shouldWrapChildren
-                  openDelay={HANDLE_TOOLTIP_OPEN_DELAY}
-                >
-                  <FormLabel>{template?.title}</FormLabel>
-                </Tooltip>
-              </HStack>
-              <InputFieldComponent
-                nodeId={nodeId}
-                field={input}
-                template={template}
-              />
-            </HStack>
-
-            {template.input !== 'direct' && (
-              <FieldHandle
-                nodeId={nodeId}
-                field={template}
-                isValidConnection={isValidConnection}
-                handleType="target"
-              />
-            )}
-          </>
-        )}
-      </FormControl>
-    </Box>
-  );
-}
 
 interface IAINodeInputsProps {
   nodeId: string;
@@ -97,50 +30,120 @@ interface IAINodeInputsProps {
 
 const IAINodeInputs = (props: IAINodeInputsProps) => {
   const { nodeId, template, inputs } = props;
+  const inputsArray = useMemo(() => map(inputs), [inputs]);
 
-  const edges = useAppSelector((state: RootState) => state.nodes.edges);
-
-  const renderIAINodeInputs = useCallback(() => {
-    const IAINodeInputsToRender: ReactNode[] = [];
-    const inputSockets = map(inputs);
-
-    inputSockets.forEach((inputSocket, index) => {
-      const inputTemplate = template.inputs[inputSocket.name];
-
-      const isConnected = Boolean(
-        edges.filter((connectedInput) => {
-          return (
-            connectedInput.target === nodeId &&
-            connectedInput.targetHandle === inputSocket.name
-          );
-        }).length
-      );
-
-      if (index < inputSockets.length) {
-        IAINodeInputsToRender.push(
-          <Divider key={`${inputSocket.id}.divider`} />
-        );
-      }
-
-      IAINodeInputsToRender.push(
-        <IAINodeInput
-          key={inputSocket.id}
-          nodeId={nodeId}
-          input={inputSocket}
-          template={inputTemplate}
-          connected={isConnected}
-        />
-      );
-    });
-
-    return (
-      <Flex className="nopan" flexDir="column" gap={2} p={2}>
-        {IAINodeInputsToRender}
-      </Flex>
-    );
-  }, [edges, inputs, nodeId, template.inputs]);
-
-  return renderIAINodeInputs();
+  return (
+    <Flex className="nopan" flexDir="column" gap={2} p={2}>
+      {inputsArray.map((input, i) => (
+        <>
+          {i > 0 && i < inputsArray.length && (
+            <Divider key={`${input.id}.divider`} />
+          )}
+          <IAINodeInput
+            key={input.id}
+            nodeId={nodeId}
+            input={input}
+            template={template}
+          />
+        </>
+      ))}
+    </Flex>
+  );
 };
 
 export default memo(IAINodeInputs);
+
+interface IAINodeInputProps {
+  nodeId: string;
+  input: InputFieldValue;
+  template: InvocationTemplate;
+}
+
+function IAINodeInput(props: IAINodeInputProps) {
+  const { nodeId, input, template } = props;
+  const isValidConnection = useIsValidConnection();
+
+  const selectIsConnected = useMemo(
+    () =>
+      createSelector(stateSelector, ({ nodes }) =>
+        Boolean(
+          nodes.edges.filter((edge) => {
+            return edge.target === nodeId && edge.targetHandle === input.name;
+          }).length
+        )
+      ),
+    [input.name, nodeId]
+  );
+
+  const isConnected = useAppSelector(selectIsConnected);
+
+  const inputTemplate = useMemo(
+    () => template.inputs[input.name],
+    [input.name, template.inputs]
+  );
+
+  const isMissingInput = useMemo(() => {
+    if (!inputTemplate) {
+      return false;
+    }
+
+    if (!inputTemplate.required) {
+      return false;
+    }
+
+    if (!isConnected && inputTemplate.input === 'connection') {
+      return true;
+    }
+
+    if (!input.value && !isConnected && inputTemplate.input === 'any') {
+      return true;
+    }
+  }, [inputTemplate, isConnected, input.value]);
+
+  if (!inputTemplate) {
+    return <Text variant="subtext">Unknown input: {input.name}</Text>;
+  }
+
+  return (
+    <Box className="nopan" position="relative">
+      <FormControl isDisabled={isConnected} pl={2}>
+        <HStack justifyContent="space-between" alignItems="center">
+          <HStack>
+            <Tooltip
+              label={inputTemplate.description}
+              placement="top"
+              hasArrow
+              shouldWrapChildren
+              openDelay={HANDLE_TOOLTIP_OPEN_DELAY}
+            >
+              <FormLabel
+                sx={{
+                  mb: 0,
+                  fontWeight: 500,
+                  color: isMissingInput ? 'error.500' : 'base.800',
+                  _dark: { color: isMissingInput ? 'error.300' : 'base.200' },
+                }}
+              >
+                {inputTemplate.title}
+              </FormLabel>
+            </Tooltip>
+          </HStack>
+          <InputFieldComponent
+            nodeId={nodeId}
+            field={input}
+            template={inputTemplate}
+          />
+        </HStack>
+
+        {inputTemplate.input !== 'direct' && (
+          <FieldHandle
+            nodeId={nodeId}
+            field={inputTemplate}
+            isValidConnection={isValidConnection}
+            handleType="target"
+          />
+        )}
+      </FormControl>
+    </Box>
+  );
+}

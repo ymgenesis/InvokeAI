@@ -1,53 +1,40 @@
-import { Flex, Heading, Icon, Tooltip } from '@chakra-ui/react';
-import { DRAG_HANDLE_CLASSNAME } from 'features/nodes/hooks/useBuildInvocation';
+import { Flex, useColorModeValue } from '@chakra-ui/react';
+import { useChakraThemeTokens } from 'common/hooks/useChakraThemeTokens';
+import { InvocationValue } from 'features/nodes/types/types';
 import { memo } from 'react';
-import { FaInfoCircle } from 'react-icons/fa';
+import IAINodeCollapseButton from './IAINodeCollapseButton';
+import IAINodeCollapsedHandles from './IAINodeCollapsedHandles';
+import IAINodeSettings from './IAINodeSettings';
+import IAINodeTitle from './IAINodeTitle';
 
 interface IAINodeHeaderProps {
-  nodeId?: string;
-  title?: string;
-  description?: string;
+  data: InvocationValue;
+  title: string;
+  description: string;
 }
 
 const IAINodeHeader = (props: IAINodeHeaderProps) => {
-  const { nodeId, title, description } = props;
+  const { data, title, description } = props;
+  const { isOpen } = data;
+  const { base400, base600 } = useChakraThemeTokens();
+  const backgroundColor = useColorModeValue(base400, base600);
+
   return (
     <Flex
-      className={DRAG_HANDLE_CLASSNAME}
       sx={{
-        borderTopRadius: 'md',
+        borderTopRadius: 'base',
+        borderBottomRadius: isOpen ? 0 : 'base',
         alignItems: 'center',
         justifyContent: 'space-between',
-        px: 2,
-        py: 1,
-        bg: 'base.100',
-        _dark: { bg: 'base.900' },
+        h: 8,
+        bg: 'base.200',
+        _dark: { bg: 'base.750' },
       }}
     >
-      <Tooltip label={nodeId}>
-        <Heading
-          size="xs"
-          sx={{
-            fontWeight: 600,
-            color: 'base.900',
-            _dark: { color: 'base.200' },
-          }}
-        >
-          {title}
-        </Heading>
-      </Tooltip>
-      <Tooltip label={description} placement="top" hasArrow shouldWrapChildren>
-        <Icon
-          sx={{
-            h: 'min-content',
-            color: 'base.700',
-            _dark: {
-              color: 'base.300',
-            },
-          }}
-          as={FaInfoCircle}
-        />
-      </Tooltip>
+      <IAINodeCollapseButton data={data} />
+      <IAINodeTitle data={data} title={title} description={description} />
+      <IAINodeSettings data={data} />
+      {!isOpen && <IAINodeCollapsedHandles data={data} />}
     </Flex>
   );
 };

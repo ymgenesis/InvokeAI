@@ -18,6 +18,7 @@ from .baseinvocation import (
     InputField,
     Input,
     InvocationContext,
+    OutputField,
     UIComponent,
     tags,
     title,
@@ -543,7 +544,7 @@ class ClipSkipInvocationOutput(BaseInvocationOutput):
     """Clip skip node output"""
 
     type: Literal["clip_skip_output"] = "clip_skip_output"
-    clip: ClipField = Field(None, description="Clip with skipped layers")
+    clip: ClipField = OutputField(default=None, description="CLIP with skipped layers", title="CLIP")
 
 
 @title("CLIP Skip")
@@ -553,7 +554,7 @@ class ClipSkipInvocation(BaseInvocation):
 
     type: Literal["clip_skip"] = "clip_skip"
 
-    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
+    clip: ClipField = InputField(description="Clip to use", input=Input.Connection, title="CLIP")
     skipped_layers: int = InputField(default=0, description="Number of layers to skip in text_encoder")
 
     def invoke(self, context: InvocationContext) -> ClipSkipInvocationOutput:

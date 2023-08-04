@@ -1,4 +1,4 @@
-import { Flex, Icon } from '@chakra-ui/react';
+import { Collapse, Divider, Flex, Icon } from '@chakra-ui/react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { NodeProps } from 'reactflow';
 import { InvocationValue } from '../types/types';
@@ -11,10 +11,11 @@ import IAINodeInputs from './IAINode/IAINodeInputs';
 import IAINodeOutputs from './IAINode/IAINodeOutputs';
 import IAINodeResizer from './IAINode/IAINodeResizer';
 import NodeWrapper from './NodeWrapper';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export const InvocationComponent = memo((props: NodeProps<InvocationValue>) => {
   const { id: nodeId, data, selected } = props;
-  const { type, inputs, outputs } = data;
+  const { type, inputs, outputs, isOpen } = data;
 
   const templateSelector = useMemo(() => makeTemplateSelector(type), [type]);
 
@@ -48,25 +49,31 @@ export const InvocationComponent = memo((props: NodeProps<InvocationValue>) => {
   return (
     <NodeWrapper selected={selected}>
       <IAINodeHeader
-        nodeId={nodeId}
+        data={data}
         title={template.title}
         description={template.description}
       />
-      <Flex
-        className={'nopan'}
-        sx={{
-          cursor: 'auto',
-          flexDirection: 'column',
-          borderBottomRadius: 'md',
-          py: 2,
-          bg: 'base.150',
-          _dark: { bg: 'base.800' },
-        }}
-      >
-        <IAINodeOutputs nodeId={nodeId} outputs={outputs} template={template} />
-        <IAINodeInputs nodeId={nodeId} inputs={inputs} template={template} />
-      </Flex>
-      <IAINodeResizer />
+      {isOpen && (
+        <Flex
+          className={'nopan'}
+          sx={{
+            cursor: 'auto',
+            flexDirection: 'column',
+            borderBottomRadius: 'base',
+            py: 2,
+            bg: 'base.100',
+            _dark: { bg: 'base.800' },
+          }}
+        >
+          <IAINodeOutputs
+            nodeId={nodeId}
+            outputs={outputs}
+            template={template}
+          />
+          <Divider />
+          <IAINodeInputs nodeId={nodeId} inputs={inputs} template={template} />
+        </Flex>
+      )}
     </NodeWrapper>
   );
 });

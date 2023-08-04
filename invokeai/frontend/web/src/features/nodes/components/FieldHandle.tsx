@@ -5,18 +5,19 @@ import { FIELDS, HANDLE_TOOLTIP_OPEN_DELAY } from '../types/constants';
 // import { useConnectionEventStyles } from '../hooks/useConnectionEventStyles';
 import { InputFieldTemplate, OutputFieldTemplate } from '../types/types';
 
-const handleBaseStyles: CSSProperties = {
+export const handleBaseStyles: CSSProperties = {
   position: 'absolute',
   width: '1rem',
   height: '1rem',
   borderWidth: 0,
+  zIndex: 1,
 };
 
-const inputHandleStyles: CSSProperties = {
+export const inputHandleStyles: CSSProperties = {
   left: '-1rem',
 };
 
-const outputHandleStyles: CSSProperties = {
+export const outputHandleStyles: CSSProperties = {
   right: '-0.5rem',
 };
 

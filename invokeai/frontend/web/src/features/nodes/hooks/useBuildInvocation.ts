@@ -107,6 +107,8 @@ export const useBuildInvocation = () => {
           type,
           inputs,
           outputs,
+          isOpen: true,
+          userLabel: '',
         },
       };
 

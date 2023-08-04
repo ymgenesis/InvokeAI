@@ -1,12 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  ControlNetModelParam,
-  LoRAModelParam,
-  MainModelParam,
-  VaeModelParam,
-} from 'features/parameters/types/parameterSchemas';
 import { cloneDeep, uniqBy } from 'lodash-es';
-import { RgbaColor } from 'react-colorful';
 import {
   addEdge,
   applyEdgeChanges,
@@ -95,6 +88,30 @@ const nodesSlice = createSlice({
     connectionEnded: (state) => {
       state.connectionStartParams = null;
     },
+    nodeIsOpenChanged: (
+      state,
+      action: PayloadAction<{ nodeId: string; isOpen: boolean }>
+    ) => {
+      const { nodeId, isOpen } = action.payload;
+      const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
+      const node = state.nodes?.[nodeIndex];
+      if (!node) {
+        return;
+      }
+      node.data.isOpen = isOpen;
+    },
+    nodeUserLabelChanged: (
+      state,
+      action: PayloadAction<{ nodeId: string; userLabel: string }>
+    ) => {
+      const { nodeId, userLabel } = action.payload;
+      const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
+      const node = state.nodes?.[nodeIndex];
+      if (!node) {
+        return;
+      }
+      node.data.userLabel = userLabel;
+    },
     fieldStringValueChanged: (
       state,
       action: FieldValueAction<StringInputFieldValue>
@@ -160,35 +177,6 @@ const nodesSlice = createSlice({
       action: FieldValueAction<EnumInputFieldValue>
     ) => {
       fieldValueReducer(state, action);
-    },
-    fieldValueChanged: (
-      state,
-      action: PayloadAction<{
-        nodeId: string;
-        fieldName: string;
-        value:
-          | string
-          | number
-          | boolean
-          | ImageField
-          | RgbaColor
-          | undefined
-          | ImageField[]
-          | MainModelParam
-          | VaeModelParam
-          | LoRAModelParam
-          | ControlNetModelParam;
-      }>
-    ) => {
-      const { nodeId, fieldName, value } = action.payload;
-      const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
-      const input = state.nodes?.[nodeIndex]?.data?.inputs[fieldName];
-      if (!input) {
-        return;
-      }
-      if (nodeIndex > -1) {
-        input.value = value;
-      }
     },
     imageCollectionFieldValueChanged: (
       state,
@@ -271,7 +259,6 @@ export const {
   nodesChanged,
   edgesChanged,
   nodeAdded,
-  fieldValueChanged,
   connectionMade,
   connectionStarted,
   connectionEnded,
@@ -296,6 +283,8 @@ export const {
   fieldEnumModelValueChanged,
   fieldControlNetModelValueChanged,
   fieldRefinerModelValueChanged,
+  nodeIsOpenChanged,
+  nodeUserLabelChanged,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

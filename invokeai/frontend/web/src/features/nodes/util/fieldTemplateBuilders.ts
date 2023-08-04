@@ -26,6 +26,7 @@ import {
   MainModelInputFieldTemplate,
   OutputFieldTemplate,
   RefinerModelInputFieldTemplate,
+  SDXLMainModelInputFieldTemplate,
   StringInputFieldTemplate,
   UNetInputFieldTemplate,
   VaeInputFieldTemplate,
@@ -163,13 +164,26 @@ const buildBooleanInputFieldTemplate = ({
   return template;
 };
 
-const buildModelInputFieldTemplate = ({
+const buildMainModelInputFieldTemplate = ({
   schemaObject,
   baseField,
 }: BuildInputFieldArg): MainModelInputFieldTemplate => {
   const template: MainModelInputFieldTemplate = {
     ...baseField,
     type: 'MainModelField',
+    default: schemaObject.default ?? undefined,
+  };
+
+  return template;
+};
+
+const buildSDXLMainModelInputFieldTemplate = ({
+  schemaObject,
+  baseField,
+}: BuildInputFieldArg): SDXLMainModelInputFieldTemplate => {
+  const template: SDXLMainModelInputFieldTemplate = {
+    ...baseField,
+    type: 'SDXLMainModelField',
     default: schemaObject.default ?? undefined,
   };
 
@@ -508,13 +522,19 @@ export const buildInputFieldTemplate = (
     });
   }
   if (fieldType === 'MainModelField') {
-    return buildModelInputFieldTemplate({
+    return buildMainModelInputFieldTemplate({
       schemaObject: fieldSchema,
       baseField,
     });
   }
   if (fieldType === 'SDXLRefinerModelField') {
     return buildRefinerModelInputFieldTemplate({
+      schemaObject: fieldSchema,
+      baseField,
+    });
+  }
+  if (fieldType === 'SDXLMainModelField') {
+    return buildSDXLMainModelInputFieldTemplate({
       schemaObject: fieldSchema,
       baseField,
     });
