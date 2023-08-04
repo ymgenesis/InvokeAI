@@ -73,16 +73,6 @@ class CompelOutput(BaseInvocationOutput):
     # fmt: on
 
 
-T = TypeVar("T", bound=BaseInvocation)
-
-
-def title(cls: T, title):
-    schema_extra = cast(dict[str, Any], cls.__config__.schema_extra)
-    if "ui" not in schema_extra:
-        schema_extra["ui"] = dict()
-    schema_extra["ui"]["title"] = title
-
-
 @node_title("Prompt (Compel)")
 @node_tags("prompt", "compel")
 class CompelInvocation(BaseInvocation):
