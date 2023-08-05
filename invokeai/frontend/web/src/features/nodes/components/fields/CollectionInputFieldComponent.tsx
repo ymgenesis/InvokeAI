@@ -3,7 +3,6 @@ import {
   CollectionInputFieldValue,
 } from 'features/nodes/types/types';
 import { memo } from 'react';
-import { FaList } from 'react-icons/fa';
 import { FieldComponentProps } from './types';
 
 const CollectionInputFieldComponent = (
@@ -12,7 +11,7 @@ const CollectionInputFieldComponent = (
     CollectionInputFieldTemplate
   >
 ) => {
-  return <FaList />;
+  return null;
 };
 
 export default memo(CollectionInputFieldComponent);
