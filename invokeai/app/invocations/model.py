@@ -265,37 +265,42 @@ class LoraLoaderInvocation(BaseInvocation):
 
 
 class SDXLLoraLoaderOutput(BaseInvocationOutput):
-    """Model loader output"""
+    """SDXL LoRA Loader Output"""
 
     # fmt: off
     type: Literal["sdxl_lora_loader_output"] = "sdxl_lora_loader_output"
 
-    unet: Optional[UNetField] = Field(default=None, description="UNet submodel")
-    clip: Optional[ClipField] = Field(default=None, description="Tokenizer and text_encoder submodels")
-    clip2: Optional[ClipField] = Field(default=None, description="Tokenizer2 and text_encoder2 submodels")
+    unet: Optional[UNetField] = OutputField(default=None, description="UNet submodel")
+    clip: Optional[ClipField] = OutputField(default=None, description="Tokenizer and text_encoder submodels")
+    clip2: Optional[ClipField] = OutputField(default=None, description="Tokenizer2 and text_encoder2 submodels")
     # fmt: on
 
 
+@title("SDXL LoRA Loader")
+@tags("sdxl", "lora", "model")
 class SDXLLoraLoaderInvocation(BaseInvocation):
     """Apply selected lora to unet and text_encoder."""
 
     type: Literal["sdxl_lora_loader"] = "sdxl_lora_loader"
 
-    lora: Union[LoRAModelField, None] = Field(default=None, description="Lora model name")
+    lora: LoRAModelField = InputField(description="Lora model name", input=Input.Direct)
     weight: float = Field(default=0.75, description="With what weight to apply lora")
 
-    unet: Optional[UNetField] = Field(description="UNet model for applying lora")
-    clip: Optional[ClipField] = Field(description="Clip model for applying lora")
-    clip2: Optional[ClipField] = Field(description="Clip2 model for applying lora")
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "SDXL Lora Loader",
-                "tags": ["lora", "loader"],
-                "type_hints": {"lora": "lora_model"},
-            },
-        }
+    unet: Optional[UNetField] = Field(
+        default=None,
+        description="UNet model for applying lora",
+        input=Input.Connection,
+    )
+    clip: Optional[ClipField] = Field(
+        default=None,
+        description="Clip model for applying lora",
+        input=Input.Connection,
+    )
+    clip2: Optional[ClipField] = Field(
+        default=None,
+        description="Clip2 model for applying lora",
+        input=Input.Connection,
+    )
 
     def invoke(self, context: InvocationContext) -> SDXLLoraLoaderOutput:
         if self.lora is None:
