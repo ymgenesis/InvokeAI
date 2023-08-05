@@ -1,4 +1,4 @@
-import { Divider, Flex, Icon } from '@chakra-ui/react';
+import { Flex, Icon } from '@chakra-ui/react';
 import { useAppSelector } from 'app/store/storeHooks';
 import { memo, useMemo } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';

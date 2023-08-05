@@ -1,13 +1,12 @@
+import { Flex } from '@chakra-ui/react';
+import { SelectItem } from '@mantine/core';
 import { useAppDispatch } from 'app/store/storeHooks';
+import IAIMantineSearchableSelect from 'common/components/IAIMantineSearchableSelect';
 import { fieldMainModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   SDXLMainModelInputFieldTemplate,
   SDXLMainModelInputFieldValue,
 } from 'features/nodes/types/types';
-
-import { Box, Flex } from '@chakra-ui/react';
-import { SelectItem } from '@mantine/core';
-import IAIMantineSearchableSelect from 'common/components/IAIMantineSearchableSelect';
 import { MODEL_TYPE_MAP } from 'features/parameters/types/constants';
 import { modelIdToMainModelParam } from 'features/parameters/util/modelIdToMainModelParam';
 import SyncModelsButton from 'features/ui/components/tabs/ModelManager/subpanels/ModelManagerSettingsPanel/SyncModelsButton';

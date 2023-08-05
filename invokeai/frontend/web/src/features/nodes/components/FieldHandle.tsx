@@ -1,10 +1,6 @@
 import { Tooltip } from '@chakra-ui/react';
-import { createSelector } from '@reduxjs/toolkit';
-import { stateSelector } from 'app/store/store';
-import { useAppSelector } from 'app/store/storeHooks';
 import { CSSProperties, memo, useMemo } from 'react';
 import { Handle, HandleType, Position } from 'reactflow';
-import { makeConnectionErrorSelector } from '../store/util/makeIsConnectionValidSelector';
 import { FIELDS, HANDLE_TOOLTIP_OPEN_DELAY } from '../types/constants';
 import { InputFieldTemplate, OutputFieldTemplate } from '../types/types';
 
@@ -28,26 +24,20 @@ type FieldHandleProps = {
   nodeId: string;
   field: InputFieldTemplate | OutputFieldTemplate;
   handleType: HandleType;
+  isConnectionInProgress: boolean;
+  isConnectionSource: boolean;
+  connectionError: string | null;
 };
 
-const selectIsConnectionInProgress = createSelector(
-  stateSelector,
-  ({ nodes }) =>
-    nodes.currentConnectionFieldType !== null &&
-    nodes.connectionStartParams !== null
-);
-
 const FieldHandle = (props: FieldHandleProps) => {
-  const { field, handleType, nodeId } = props;
+  const {
+    field,
+    handleType,
+    isConnectionInProgress,
+    isConnectionSource,
+    connectionError,
+  } = props;
   const { name, type } = field;
-
-  const connectionErrorSelector = useMemo(
-    () => makeConnectionErrorSelector(nodeId, name, handleType, type),
-    [handleType, name, nodeId, type]
-  );
-
-  const isConnectionInProgress = useAppSelector(selectIsConnectionInProgress);
-  const connectionError = useAppSelector(connectionErrorSelector);
 
   const styles: CSSProperties = useMemo(() => {
     const s: CSSProperties = {
@@ -65,22 +55,42 @@ const FieldHandle = (props: FieldHandleProps) => {
       s.right = '-0.5rem';
     }
 
-    if (isConnectionInProgress) {
-      s.opacity = connectionError ? 0.5 : 1;
+    if (isConnectionInProgress && !isConnectionSource && connectionError) {
+      s.filter = 'opacity(0.4) grayscale(0.7)';
     }
 
     if (isConnectionInProgress && connectionError) {
-      s.cursor = 'not-allowed';
+      if (isConnectionSource) {
+        s.cursor = 'grab';
+      } else {
+        s.cursor = 'not-allowed';
+      }
     } else {
       s.cursor = 'crosshair';
     }
 
     return s;
-  }, [connectionError, handleType, isConnectionInProgress, type]);
+  }, [
+    connectionError,
+    handleType,
+    isConnectionInProgress,
+    isConnectionSource,
+    type,
+  ]);
+
+  const tooltip = useMemo(() => {
+    if (isConnectionInProgress && isConnectionSource) {
+      return type;
+    }
+    if (isConnectionInProgress && connectionError) {
+      return connectionError ?? type;
+    }
+    return type;
+  }, [connectionError, isConnectionInProgress, isConnectionSource, type]);
 
   return (
     <Tooltip
-      label={isConnectionInProgress ? connectionError ?? type : type}
+      label={tooltip}
       placement={handleType === 'target' ? 'start' : 'end'}
       hasArrow
       openDelay={HANDLE_TOOLTIP_OPEN_DELAY}

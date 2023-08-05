@@ -9,6 +9,7 @@ import {
 import { createSelector } from '@reduxjs/toolkit';
 import { stateSelector } from 'app/store/store';
 import { useAppSelector } from 'app/store/storeHooks';
+import { makeConnectionErrorSelector } from 'features/nodes/store/util/makeIsConnectionValidSelector';
 import { HANDLE_TOOLTIP_OPEN_DELAY } from 'features/nodes/types/constants';
 import {
   InputFieldValue,
@@ -48,6 +49,13 @@ interface IAINodeInputProps {
   template: InvocationTemplate;
 }
 
+const selectIsConnectionInProgress = createSelector(
+  stateSelector,
+  ({ nodes }) =>
+    nodes.currentConnectionFieldType !== null &&
+    nodes.connectionStartParams !== null
+);
+
 function IAINodeInput(props: IAINodeInputProps) {
   const { nodeId, input, template } = props;
 
@@ -63,7 +71,26 @@ function IAINodeInput(props: IAINodeInputProps) {
     [input.name, nodeId]
   );
 
+  const selectConnectionError = useMemo(
+    () => makeConnectionErrorSelector(nodeId, input.name, 'target', input.type),
+    [input.name, nodeId, input.type]
+  );
+
+  const selectIsSource = useMemo(
+    () =>
+      createSelector(
+        stateSelector,
+        ({ nodes }) =>
+          nodes.connectionStartParams?.nodeId === nodeId &&
+          nodes.connectionStartParams?.handleId === input.name
+      ),
+    [input.name, nodeId]
+  );
+
   const isConnected = useAppSelector(selectIsConnected);
+  const isConnectionInProgress = useAppSelector(selectIsConnectionInProgress);
+  const isConnectionSource = useAppSelector(selectIsSource);
+  const connectionError = useAppSelector(selectConnectionError);
 
   const inputTemplate = useMemo(
     () => template.inputs[input.name],
@@ -95,7 +122,18 @@ function IAINodeInput(props: IAINodeInputProps) {
   return (
     <Flex
       className="nopan"
-      sx={{ position: 'relative', minH: 8, py: 0.5, alignItems: 'center' }}
+      sx={{
+        position: 'relative',
+        minH: 8,
+        py: 0.5,
+        alignItems: 'center',
+        opacity:
+          isConnectionInProgress && connectionError && !isConnectionSource
+            ? 0.5
+            : 1,
+        transitionProperty: 'opacity',
+        transitionDuration: '0.1s',
+      }}
     >
       <FormControl isDisabled={isConnected} ps={2}>
         <HStack justifyContent="space-between" alignItems="center">
@@ -131,6 +169,9 @@ function IAINodeInput(props: IAINodeInputProps) {
             nodeId={nodeId}
             field={inputTemplate}
             handleType="target"
+            isConnectionInProgress={isConnectionInProgress}
+            isConnectionSource={isConnectionSource}
+            connectionError={connectionError}
           />
         )}
       </FormControl>

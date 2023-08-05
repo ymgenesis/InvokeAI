@@ -98,7 +98,14 @@ const nodesSlice = createSlice({
       state.currentConnectionFieldType = field?.type ?? null;
     },
     connectionMade: (state, action: PayloadAction<Connection>) => {
-      state.edges = addEdge(action.payload, state.edges);
+      const fieldType = state.currentConnectionFieldType;
+      if (!fieldType) {
+        return;
+      }
+      state.edges = addEdge(
+        { ...action.payload, type: fieldType },
+        state.edges
+      );
     },
     connectionEnded: (state) => {
       state.connectionStartParams = null;
