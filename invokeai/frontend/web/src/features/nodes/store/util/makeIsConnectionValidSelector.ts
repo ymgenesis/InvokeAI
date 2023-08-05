@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { stateSelector } from 'app/store/store';
 import { getIsGraphAcyclic } from 'features/nodes/hooks/useIsValidConnection';
+import { COLLECTION_TYPES } from 'features/nodes/types/constants';
 import { FieldType } from 'features/nodes/types/types';
 import { HandleType } from 'reactflow';
 
@@ -32,20 +33,33 @@ export const makeConnectionErrorSelector = (
       return 'Cannot connect to self';
     }
 
-    if (
-      fieldType !== currentConnectionFieldType &&
-      fieldType !== 'CollectionItem' &&
-      currentConnectionFieldType !== 'CollectionItem'
-    ) {
-      // except for collection items, field types must match
-      return 'Field types must match';
-    }
-
     if (handleType === connectionHandleType) {
       if (handleType === 'source') {
         return 'Cannot connect output to output';
       }
       return 'Cannot connect input to input';
+    }
+
+    if (
+      fieldType !== currentConnectionFieldType &&
+      fieldType !== 'CollectionItem' &&
+      currentConnectionFieldType !== 'CollectionItem'
+    ) {
+      // iterate node handling
+      const targetFieldType =
+        handleType === 'target' ? fieldType : currentConnectionFieldType;
+      const sourceFieldType =
+        handleType === 'source' ? fieldType : currentConnectionFieldType;
+
+      if (
+        !(
+          targetFieldType === 'Collection' &&
+          COLLECTION_TYPES.includes(sourceFieldType)
+        )
+      ) {
+        // except for collection items, field types must match
+        return 'Field types must match';
+      }
     }
 
     if (

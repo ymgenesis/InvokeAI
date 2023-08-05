@@ -7,6 +7,10 @@ import {
   Connection,
   Edge,
   EdgeChange,
+  EdgeRemoveChange,
+  getConnectedEdges,
+  getIncomers,
+  getOutgoers,
   Node,
   NodeChange,
   OnConnectStartParams,
@@ -117,11 +121,122 @@ const nodesSlice = createSlice({
     ) => {
       const { nodeId, isOpen } = action.payload;
       const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
+
       const node = state.nodes?.[nodeIndex];
       if (!node) {
         return;
       }
+
       node.data.isOpen = isOpen;
+
+      // edges between two closed nodes should not be visible:
+      // - if the node was just opened, we need to make all its edges visible
+      // - if the edge was just closed, we need to check all its edges and hide them if both nodes are closed
+
+      const connectedEdges = getConnectedEdges([node], state.edges);
+
+      if (isOpen) {
+        // reset hidden status of all edges
+        connectedEdges.forEach((edge) => {
+          delete edge.hidden;
+        });
+        // delete dummy edges
+        connectedEdges.forEach((edge) => {
+          if (edge.type === 'collapsed') {
+            state.edges = state.edges.filter((e) => e.id !== edge.id);
+          }
+        });
+      } else {
+        const closedIncomers = getIncomers(
+          node,
+          state.nodes,
+          state.edges
+        ).filter((node) => node.data.isOpen === false);
+
+        const closedOutgoers = getOutgoers(
+          node,
+          state.nodes,
+          state.edges
+        ).filter((node) => node.data.isOpen === false);
+
+        const collapsedEdgesToCreate: Edge<{ count: number }>[] = [];
+
+        // hide all edges
+        connectedEdges.forEach((edge) => {
+          if (
+            edge.target === nodeId &&
+            closedIncomers.find((node) => node.id === edge.source)
+          ) {
+            edge.hidden = true;
+            const collapsedEdge = collapsedEdgesToCreate.find(
+              (e) => e.source === edge.source && e.target === edge.target
+            );
+            if (collapsedEdge) {
+              collapsedEdge.data = {
+                count: (collapsedEdge.data?.count ?? 0) + 1,
+              };
+            } else {
+              collapsedEdgesToCreate.push({
+                id: `${edge.source}-${edge.target}-collapsed`,
+                source: edge.source,
+                target: edge.target,
+                type: 'collapsed',
+                data: { count: 1 },
+              });
+            }
+          }
+          if (
+            edge.source === nodeId &&
+            closedOutgoers.find((node) => node.id === edge.target)
+          ) {
+            const collapsedEdge = collapsedEdgesToCreate.find(
+              (e) => e.source === edge.source && e.target === edge.target
+            );
+            edge.hidden = true;
+            if (collapsedEdge) {
+              collapsedEdge.data = {
+                count: (collapsedEdge.data?.count ?? 0) + 1,
+              };
+            } else {
+              collapsedEdgesToCreate.push({
+                id: `${edge.source}-${edge.target}-collapsed`,
+                source: edge.source,
+                target: edge.target,
+                type: 'collapsed',
+                data: { count: 1 },
+              });
+            }
+          }
+        });
+        if (collapsedEdgesToCreate.length) {
+          state.edges = applyEdgeChanges(
+            collapsedEdgesToCreate.map((edge) => ({ type: 'add', item: edge })),
+            state.edges
+          );
+        }
+      }
+    },
+    edgesDeleted: (state, action: PayloadAction<Edge[]>) => {
+      const edges = action.payload;
+      console.log('edges', edges);
+      const collapsedEdges = edges.filter((e) => e.type === 'collapsed');
+      console.log('collapsedEdges', collapsedEdges);
+
+      // if we delete a collapsed edge, we need to delete all collapsed edges between the same nodes
+      if (collapsedEdges.length) {
+        const edgeChanges: EdgeRemoveChange[] = [];
+        collapsedEdges.forEach((collapsedEdge) => {
+          state.edges.forEach((edge) => {
+            if (
+              edge.source === collapsedEdge.source &&
+              edge.target === collapsedEdge.target
+            ) {
+              edgeChanges.push({ id: edge.id, type: 'remove' });
+            }
+          });
+        });
+        state.edges = applyEdgeChanges(edgeChanges, state.edges);
+      }
     },
     nodeUserLabelChanged: (
       state,
@@ -308,6 +423,7 @@ export const {
   fieldRefinerModelValueChanged,
   nodeIsOpenChanged,
   nodeUserLabelChanged,
+  edgesDeleted,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

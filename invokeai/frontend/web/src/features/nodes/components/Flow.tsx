@@ -7,6 +7,7 @@ import {
   OnConnectEnd,
   OnConnectStart,
   OnEdgesChange,
+  OnEdgesDelete,
   OnInit,
   OnNodesChange,
   ReactFlow,
@@ -17,6 +18,7 @@ import {
   connectionMade,
   connectionStarted,
   edgesChanged,
+  edgesDeleted,
   nodesChanged,
   setEditorInstance,
 } from '../store/nodesSlice';
@@ -76,6 +78,13 @@ export const Flow = () => {
     [dispatch]
   );
 
+  const onEdgesDelete: OnEdgesDelete = useCallback(
+    (edges) => {
+      dispatch(edgesDeleted(edges));
+    },
+    [dispatch]
+  );
+
   return (
     <ReactFlow
       nodeTypes={nodeTypes}
@@ -84,6 +93,7 @@ export const Flow = () => {
       edges={edges}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
+      onEdgesDelete={onEdgesDelete}
       onConnectStart={onConnectStart}
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}

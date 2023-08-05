@@ -1,11 +1,18 @@
 import { FieldType, FieldUIConfig } from './types';
 
 export const HANDLE_TOOLTIP_OPEN_DELAY = 500;
-
 export const COLOR_TOKEN_VALUE = 500;
-
 export const NODE_WIDTH = 320;
 export const NODE_MIN_WIDTH = 320;
+
+export const COLLECTION_TYPES: FieldType[] = [
+  'Collection',
+  'IntegerCollection',
+  'FloatCollection',
+  'StringCollection',
+  'BooleanCollection',
+  'ImageCollection',
+];
 
 const getColorTokenCssVariable = (color: string) =>
   `var(--invokeai-colors-${color}-${COLOR_TOKEN_VALUE})`;

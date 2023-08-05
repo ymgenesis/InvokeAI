@@ -70,8 +70,11 @@ export const buildNodesGraph = (state: RootState): Graph => {
     {}
   );
 
+  // skip out the "dummy" edges between collapsed nodes
+  const filteredEdges = edges.filter((n) => n.type !== 'collapsed');
+
   // Reduce the node editor edges into invocation graph edges
-  const parsedEdges = edges.reduce<NonNullable<Graph['edges']>>(
+  const parsedEdges = filteredEdges.reduce<NonNullable<Graph['edges']>>(
     (edgesAccumulator, edge) => {
       const { source, target, sourceHandle, targetHandle } = edge;
 
