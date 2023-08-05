@@ -56,9 +56,10 @@ export const InvocationComponent = memo((props: NodeProps<InvocationValue>) => {
             cursor: 'auto',
             flexDirection: 'column',
             borderBottomRadius: 'base',
-            py: 2,
+            py: 1,
             bg: 'base.100',
             _dark: { bg: 'base.800' },
+            gap: 1,
           }}
         >
           <IAINodeOutputs
@@ -66,7 +67,6 @@ export const InvocationComponent = memo((props: NodeProps<InvocationValue>) => {
             outputs={outputs}
             template={template}
           />
-          <Divider />
           <IAINodeInputs nodeId={nodeId} inputs={inputs} template={template} />
         </Flex>
       )}

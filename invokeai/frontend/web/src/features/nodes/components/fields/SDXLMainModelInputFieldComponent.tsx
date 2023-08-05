@@ -126,9 +126,6 @@ const ModelInputFieldComponent = (
     <Flex w="100%" alignItems="center" gap={2}>
       <IAIMantineSearchableSelect
         tooltip={selectedModel?.description}
-        label={
-          selectedModel?.base_model && MODEL_TYPE_MAP[selectedModel?.base_model]
-        }
         value={selectedModel?.id}
         placeholder={data.length > 0 ? 'Select a model' : 'No models available'}
         data={data}
@@ -136,11 +133,7 @@ const ModelInputFieldComponent = (
         disabled={data.length === 0}
         onChange={handleChangeModel}
       />
-      {isSyncModelEnabled && (
-        <Box mt={7}>
-          <SyncModelsButton iconMode />
-        </Box>
-      )}
+      {isSyncModelEnabled && <SyncModelsButton iconMode />}
     </Flex>
   );
 };

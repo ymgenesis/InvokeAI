@@ -1,5 +1,4 @@
 import {
-  Box,
   Flex,
   FormControl,
   FormLabel,
@@ -30,8 +29,8 @@ function IAINodeOutput(props: IAINodeOutputProps) {
   const { nodeId, output, template, connected } = props;
 
   return (
-    <Box position="relative">
-      <FormControl isDisabled={!template ? true : connected} paddingRight={3}>
+    <Flex sx={{ position: 'relative', minH: 8, py: 0.5, alignItems: 'center' }}>
+      <FormControl isDisabled={!template ? true : connected} pe={4}>
         {!template ? (
           <HStack justifyContent="space-between" alignItems="center">
             <FormLabel color="error.400">
@@ -47,13 +46,13 @@ function IAINodeOutput(props: IAINodeOutputProps) {
               hasArrow
               openDelay={HANDLE_TOOLTIP_OPEN_DELAY}
             >
-              <FormLabel padding={1}>{template?.title}</FormLabel>
+              <FormLabel sx={{ mb: 0 }}>{template?.title}</FormLabel>
             </Tooltip>
             <FieldHandle nodeId={nodeId} field={template} handleType="source" />
           </Flex>
         )}
       </FormControl>
-    </Box>
+    </Flex>
   );
 }
 

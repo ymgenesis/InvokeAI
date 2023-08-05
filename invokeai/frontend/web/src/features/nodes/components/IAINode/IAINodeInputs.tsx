@@ -1,6 +1,4 @@
 import {
-  Box,
-  Divider,
   Flex,
   FormControl,
   FormLabel,
@@ -32,10 +30,9 @@ const IAINodeInputs = (props: IAINodeInputsProps) => {
   const inputsArray = useMemo(() => map(inputs), [inputs]);
 
   return (
-    <Flex className="nopan" flexDir="column" gap={2} p={2}>
-      {inputsArray.map((input, i) => (
+    <Flex className="nopan" flexDir="column" px={2}>
+      {inputsArray.map((input) => (
         <Fragment key={`${nodeId}.${input.id}.input`}>
-          {i > 0 && i < inputsArray.length && <Divider />}
           <IAINodeInput nodeId={nodeId} input={input} template={template} />
         </Fragment>
       ))}
@@ -96,8 +93,11 @@ function IAINodeInput(props: IAINodeInputProps) {
   }
 
   return (
-    <Box className="nopan" position="relative">
-      <FormControl isDisabled={isConnected} pl={2}>
+    <Flex
+      className="nopan"
+      sx={{ position: 'relative', minH: 8, py: 0.5, alignItems: 'center' }}
+    >
+      <FormControl isDisabled={isConnected} ps={2}>
         <HStack justifyContent="space-between" alignItems="center">
           <HStack>
             <Tooltip
@@ -134,6 +134,6 @@ function IAINodeInput(props: IAINodeInputProps) {
           />
         )}
       </FormControl>
-    </Box>
+    </Flex>
   );
 }

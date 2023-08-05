@@ -2,7 +2,10 @@ import { FieldType, FieldUIConfig } from './types';
 
 export const HANDLE_TOOLTIP_OPEN_DELAY = 500;
 
-const COLOR_TOKEN_VALUE = 500;
+export const COLOR_TOKEN_VALUE = 500;
+
+export const NODE_WIDTH = 320;
+export const NODE_MIN_WIDTH = 320;
 
 const getColorTokenCssVariable = (color: string) =>
   `var(--invokeai-colors-${color}-${COLOR_TOKEN_VALUE})`;
@@ -189,7 +192,3 @@ export const FIELDS: Record<FieldType, FieldUIConfig> = {
     description: 'A collection of strings.',
   },
 };
-
-export const NODE_WIDTH = 256;
-
-export const NODE_MIN_WIDTH = 250;
