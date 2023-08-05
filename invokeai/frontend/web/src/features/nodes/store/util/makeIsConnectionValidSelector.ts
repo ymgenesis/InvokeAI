@@ -32,7 +32,12 @@ export const makeConnectionErrorSelector = (
       return 'Cannot connect to self';
     }
 
-    if (fieldType !== currentConnectionFieldType) {
+    if (
+      fieldType !== currentConnectionFieldType &&
+      fieldType !== 'CollectionItem' &&
+      currentConnectionFieldType !== 'CollectionItem'
+    ) {
+      // except for collection items, field types must match
       return 'Field types must match';
     }
 
