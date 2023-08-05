@@ -14,6 +14,7 @@ export const makeConnectionErrorSelector = (
   createSelector(stateSelector, (state) => {
     const { currentConnectionFieldType, connectionStartParams, nodes, edges } =
       state.nodes;
+
     if (!connectionStartParams || !currentConnectionFieldType) {
       // there is no connection in progress
       return 'No connection in progress';
@@ -28,6 +29,11 @@ export const makeConnectionErrorSelector = (
     if (!connectionHandleType || !connectionNodeId || !connectionFieldName) {
       return 'No connection data';
     }
+    // iterate node handling
+    const targetFieldType =
+      handleType === 'target' ? fieldType : currentConnectionFieldType;
+    const sourceFieldType =
+      handleType === 'source' ? fieldType : currentConnectionFieldType;
 
     if (nodeId === connectionNodeId) {
       return 'Cannot connect to self';
@@ -45,15 +51,9 @@ export const makeConnectionErrorSelector = (
       fieldType !== 'CollectionItem' &&
       currentConnectionFieldType !== 'CollectionItem'
     ) {
-      // iterate node handling
-      const targetFieldType =
-        handleType === 'target' ? fieldType : currentConnectionFieldType;
-      const sourceFieldType =
-        handleType === 'source' ? fieldType : currentConnectionFieldType;
-
       if (
         !(
-          targetFieldType === 'Collection' &&
+          COLLECTION_TYPES.includes(targetFieldType) &&
           COLLECTION_TYPES.includes(sourceFieldType)
         )
       ) {
@@ -66,7 +66,9 @@ export const makeConnectionErrorSelector = (
       handleType === 'target' &&
       edges.find((edge) => {
         return edge.target === nodeId && edge.targetHandle === fieldName;
-      })
+      }) &&
+      // except CollectionItem inputs can have multiples
+      targetFieldType !== 'CollectionItem'
     ) {
       return 'Inputs may only have one connection';
     }
