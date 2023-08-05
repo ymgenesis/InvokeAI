@@ -7,6 +7,7 @@ import numpy as np
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
+    FieldDescriptions,
     InputField,
     InvocationContext,
     OutputField,
@@ -37,8 +38,8 @@ class AddInvocation(BaseInvocation):
     type: Literal["add"] = "add"
 
     # Inputs
-    a: int = InputField(default=0, description="The first number")
-    b: int = InputField(default=0, description="The second number")
+    a: int = InputField(default=0, description=FieldDescriptions.num_1)
+    b: int = InputField(default=0, description=FieldDescriptions.num_2)
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=self.a + self.b)
@@ -52,8 +53,8 @@ class SubtractInvocation(BaseInvocation):
     type: Literal["sub"] = "sub"
 
     # Inputs
-    a: int = InputField(default=0, description="The first number")
-    b: int = InputField(default=0, description="The second number")
+    a: int = InputField(default=0, description=FieldDescriptions.num_1)
+    b: int = InputField(default=0, description=FieldDescriptions.num_2)
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=self.a - self.b)
@@ -67,8 +68,8 @@ class MultiplyInvocation(BaseInvocation):
     type: Literal["mul"] = "mul"
 
     # Inputs
-    a: int = InputField(default=0, description="The first number")
-    b: int = InputField(default=0, description="The second number")
+    a: int = InputField(default=0, description=FieldDescriptions.num_1)
+    b: int = InputField(default=0, description=FieldDescriptions.num_2)
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=self.a * self.b)
@@ -82,8 +83,8 @@ class DivideInvocation(BaseInvocation):
     type: Literal["div"] = "div"
 
     # Inputs
-    a: int = InputField(default=0, description="The first number")
-    b: int = InputField(default=0, description="The second number")
+    a: int = InputField(default=0, description=FieldDescriptions.num_1)
+    b: int = InputField(default=0, description=FieldDescriptions.num_2)
 
     def invoke(self, context: InvocationContext) -> IntOutput:
         return IntOutput(a=int(self.a / self.b))

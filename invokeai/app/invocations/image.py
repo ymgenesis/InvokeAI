@@ -1,28 +1,17 @@
 # Copyright (c) 2022 Kyle Schouviller (https://github.com/kyle0654)
 
+from pathlib import Path
 from typing import Literal, Optional
 
 import numpy
-from PIL import Image, ImageFilter, ImageOps, ImageChops
-from pathlib import Path
-from typing import Union
+from PIL import Image, ImageChops, ImageFilter, ImageOps
+
 from invokeai.app.invocations.metadata import CoreMetadata
-from ..models.image import (
-    ImageCategory,
-    ImageField,
-    ResourceOrigin,
-    ImageOutput,
-    MaskOutput,
-)
-from .baseinvocation import (
-    BaseInvocation,
-    InputField,
-    InvocationContext,
-    tags,
-    title,
-)
-from invokeai.backend.image_util.safety_checker import SafetyChecker
 from invokeai.backend.image_util.invisible_watermark import InvisibleWatermark
+from invokeai.backend.image_util.safety_checker import SafetyChecker
+
+from ..models.image import ImageCategory, ImageField, ImageOutput, MaskOutput, ResourceOrigin
+from .baseinvocation import BaseInvocation, FieldDescriptions, InputField, InvocationContext, tags, title
 
 
 @title("Load Image")
@@ -528,7 +517,7 @@ class ImageNSFWBlurInvocation(BaseInvocation):
     # Inputs
     image: ImageField = InputField(description="The image to check")
     metadata: Optional[CoreMetadata] = InputField(
-        default=None, description="Optional core metadata to be written to the image", ui_hidden=True
+        default=None, description=FieldDescriptions.core_metadata, ui_hidden=True
     )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -578,7 +567,7 @@ class ImageWatermarkInvocation(BaseInvocation):
     image: ImageField = InputField(description="The image to check")
     text: str = InputField(default="InvokeAI", description="Watermark text")
     metadata: Optional[CoreMetadata] = InputField(
-        default=None, description="Optional core metadata to be written to the image", ui_hidden=True
+        default=None, description=FieldDescriptions.core_metadata, ui_hidden=True
     )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

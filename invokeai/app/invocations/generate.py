@@ -13,7 +13,14 @@ from invokeai.backend.generator.inpaint import infill_methods
 from ...backend.generator import Inpaint, InvokeAIGenerator
 from ...backend.stable_diffusion import PipelineIntermediateState
 from ..util.step_callback import stable_diffusion_step_callback
-from .baseinvocation import BaseInvocation, InputField, InvocationContext, title, tags
+from .baseinvocation import (
+    BaseInvocation,
+    FieldDescriptions,
+    InputField,
+    InvocationContext,
+    title,
+    tags,
+)
 from .image import ImageOutput
 
 from ...backend.model_management.lora import ModelPatcher
@@ -63,36 +70,32 @@ class InpaintInvocation(BaseInvocation):
 
     type: Literal["inpaint"] = "inpaint"
 
-    positive_conditioning: ConditioningField = InputField(description="Positive conditioning for generation")
-    negative_conditioning: ConditioningField = InputField(description="Negative conditioning for generation")
-    seed: int = InputField(
-        ge=0, le=SEED_MAX, description="The seed to use (omit for random)", default_factory=get_random_seed
-    )
-    steps: int = InputField(default=30, gt=0, description="The number of steps to use to generate the image")
+    positive_conditioning: ConditioningField = InputField(description=FieldDescriptions.positive_cond)
+    negative_conditioning: ConditioningField = InputField(description=FieldDescriptions.negative_cond)
+    seed: int = InputField(ge=0, le=SEED_MAX, description=FieldDescriptions.seed, default_factory=get_random_seed)
+    steps: int = InputField(default=30, gt=0, description=FieldDescriptions.steps)
     width: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
-        description="The width of the resulting image",
+        description=FieldDescriptions.width,
     )
     height: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
-        description="The height of the resulting image",
+        description=FieldDescriptions.height,
     )
     cfg_scale: float = InputField(
         default=7.5,
         ge=1,
-        description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
+        description=FieldDescriptions.cfg_scale,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    unet: UNetField = InputField(description="UNet model")
-    vae: VaeField = InputField(description="Vae model")
-
-    # Inputs
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    unet: UNetField = InputField(description=FieldDescriptions.unet)
+    vae: VaeField = InputField(description=FieldDescriptions.vae)
     image: ImageField = InputField(description="The input image")
-    strength: float = InputField(default=0.75, gt=0, le=1, description="The strength of the original image")
+    strength: float = InputField(default=0.75, gt=0, le=1, description=FieldDescriptions.strength)
     fit: bool = InputField(
         default=True,
         description="Whether or not the result should be fit to the aspect ratio of the input image",

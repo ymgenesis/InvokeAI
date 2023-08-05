@@ -31,6 +31,7 @@ from ..models.image import ImageCategory, ImageField, ResourceOrigin
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
+    FieldDescriptions,
     InputField,
     Input,
     InvocationContext,
@@ -84,18 +85,6 @@ class ControlField(BaseModel):
                 raise ValueError("Control weights must be within -1 to 2 range")
         return v
 
-    class Config:
-        schema_extra = {
-            "required": ["image", "control_model", "control_weight", "begin_step_percent", "end_step_percent"],
-            "ui": {
-                "type_hints": {
-                    "control_weight": "float",
-                    "control_model": "controlnet_model",
-                    # "control_weight": "number",
-                }
-            },
-        }
-
 
 class ControlOutput(BaseInvocationOutput):
     """node output for ControlNet info"""
@@ -103,7 +92,7 @@ class ControlOutput(BaseInvocationOutput):
     type: Literal["control_output"] = "control_output"
 
     # Outputs
-    control: ControlField = OutputField(description="The control info")
+    control: ControlField = OutputField(description=FieldDescriptions.control)
 
 
 @title("ControlNet")
@@ -116,7 +105,7 @@ class ControlNetInvocation(BaseInvocation):
     # Inputs
     image: ImageField = InputField(description="The control image")
     control_model: ControlNetModelField = InputField(
-        default="lllyasviel/sd-controlnet-canny", description="control model used", input=Input.Direct
+        default="lllyasviel/sd-controlnet-canny", description=FieldDescriptions.controlnet_model, input=Input.Direct
     )
     control_weight: Union[float, List[float]] = InputField(
         default=1.0, description="The weight given to the ControlNet", ui_type_hint=UITypeHint.Float
@@ -218,11 +207,11 @@ class HedImageProcessorInvocation(ImageProcessorInvocation):
     type: Literal["hed_image_processor"] = "hed_image_processor"
 
     # Inputs
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
     # safe not supported in controlnet_aux v0.0.3
-    # safe: bool = InputField(default=False, description="whether to use safe mode")
-    scribble: bool = InputField(default=False, description="Whether to use scribble mode")
+    # safe: bool = InputField(default=False, description=FieldDescriptions.safe_mode)
+    scribble: bool = InputField(default=False, description=FieldDescriptions.scribble_mode)
 
     def run_processor(self, image):
         hed_processor = HEDdetector.from_pretrained("lllyasviel/Annotators")
@@ -245,8 +234,8 @@ class LineartImageProcessorInvocation(ImageProcessorInvocation):
     type: Literal["lineart_image_processor"] = "lineart_image_processor"
 
     # Inputs
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
     coarse: bool = InputField(default=False, description="Whether to use coarse mode")
 
     def run_processor(self, image):
@@ -265,8 +254,8 @@ class LineartAnimeImageProcessorInvocation(ImageProcessorInvocation):
     type: Literal["lineart_anime_image_processor"] = "lineart_anime_image_processor"
 
     # Inputs
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
 
     def run_processor(self, image):
         processor = LineartAnimeDetector.from_pretrained("lllyasviel/Annotators")
@@ -287,8 +276,8 @@ class OpenposeImageProcessorInvocation(ImageProcessorInvocation):
 
     # Inputs
     hand_and_face: bool = InputField(default=False, description="Whether to use hands and face mode")
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
 
     def run_processor(self, image):
         openpose_processor = OpenposeDetector.from_pretrained("lllyasviel/Annotators")
@@ -334,8 +323,8 @@ class NormalbaeImageProcessorInvocation(ImageProcessorInvocation):
     type: Literal["normalbae_image_processor"] = "normalbae_image_processor"
 
     # Inputs
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
 
     def run_processor(self, image):
         normalbae_processor = NormalBaeDetector.from_pretrained("lllyasviel/Annotators")
@@ -353,8 +342,8 @@ class MlsdImageProcessorInvocation(ImageProcessorInvocation):
     type: Literal["mlsd_image_processor"] = "mlsd_image_processor"
 
     # Inputs
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
     thr_v: float = InputField(default=0.1, ge=0, description="MLSD parameter `thr_v`")
     thr_d: float = InputField(default=0.1, ge=0, description="MLSD parameter `thr_d`")
 
@@ -378,10 +367,10 @@ class PidiImageProcessorInvocation(ImageProcessorInvocation):
     type: Literal["pidi_image_processor"] = "pidi_image_processor"
 
     # Inputs
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
-    safe: bool = InputField(default=False, description="Whether to use safe mode")
-    scribble: bool = InputField(default=False, description="Whether to use scribble mode")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
+    safe: bool = InputField(default=False, description=FieldDescriptions.safe_mode)
+    scribble: bool = InputField(default=False, description=FieldDescriptions.scribble_mode)
 
     def run_processor(self, image):
         pidi_processor = PidiNetDetector.from_pretrained("lllyasviel/Annotators")
@@ -403,8 +392,8 @@ class ContentShuffleImageProcessorInvocation(ImageProcessorInvocation):
     type: Literal["content_shuffle_image_processor"] = "content_shuffle_image_processor"
 
     # Inputs
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
     h: Optional[int] = InputField(default=512, ge=0, description="Content shuffle `h` parameter")
     w: Optional[int] = InputField(default=512, ge=0, description="Content shuffle `w` parameter")
     f: Optional[int] = InputField(default=256, ge=0, description="Content shuffle `f` parameter")
@@ -468,8 +457,8 @@ class LeresImageProcessorInvocation(ImageProcessorInvocation):
     thr_a: float = InputField(default=0, description="Leres parameter `thr_a`")
     thr_b: float = InputField(default=0, description="Leres parameter `thr_b`")
     boost: bool = InputField(default=False, description="Whether to use boost mode")
-    detect_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for detection")
-    image_resolution: int = InputField(default=512, ge=0, description="The pixel resolution for the output image")
+    detect_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.detect_res)
+    image_resolution: int = InputField(default=512, ge=0, description=FieldDescriptions.image_res)
 
     def run_processor(self, image):
         leres_processor = LeresDetector.from_pretrained("lllyasviel/Annotators")

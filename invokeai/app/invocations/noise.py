@@ -11,6 +11,7 @@ from ...backend.util.devices import choose_torch_device, torch_dtype
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
+    FieldDescriptions,
     InputField,
     InvocationContext,
     OutputField,
@@ -67,9 +68,9 @@ class NoiseOutput(BaseInvocationOutput):
     type: Literal["noise_output"] = "noise_output"
 
     # Inputs
-    noise: LatentsField = OutputField(default=None, description="The output noise")
-    width: int = OutputField(description="The width of the noise in pixels")
-    height: int = OutputField(description="The height of the noise in pixels")
+    noise: LatentsField = OutputField(default=None, description=FieldDescriptions.noise)
+    width: int = OutputField(description=FieldDescriptions.width)
+    height: int = OutputField(description=FieldDescriptions.height)
 
 
 def build_noise_output(latents_name: str, latents: torch.Tensor):
@@ -89,19 +90,23 @@ class NoiseInvocation(BaseInvocation):
 
     # Inputs
     seed: int = InputField(
-        ge=0, le=SEED_MAX, description="The seed to use", default_factory=get_random_seed, ui_type_hint=UITypeHint.Seed
+        ge=0,
+        le=SEED_MAX,
+        description=FieldDescriptions.seed,
+        default_factory=get_random_seed,
+        ui_type_hint=UITypeHint.Seed,
     )
     width: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
-        description="The width of the resulting noise",
+        description=FieldDescriptions.width,
     )
     height: int = InputField(
         default=512,
         multiple_of=8,
         gt=0,
-        description="The height of the resulting noise",
+        description=FieldDescriptions.height,
     )
     use_cpu: bool = InputField(
         default=True,

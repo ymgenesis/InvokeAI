@@ -10,6 +10,7 @@ from invokeai.app.util.step_callback import stable_diffusion_xl_step_callback
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
+    FieldDescriptions,
     InputField,
     Input,
     InvocationContext,
@@ -29,10 +30,10 @@ class SDXLModelLoaderOutput(BaseInvocationOutput):
 
     type: Literal["sdxl_model_loader_output"] = "sdxl_model_loader_output"
 
-    unet: UNetField = OutputField(default=None, description="UNet submodel", title="UNet")
-    clip: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP 1")
-    clip2: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP 2")
-    vae: VaeField = OutputField(default=None, description="Vae submodel", title="VAE")
+    unet: UNetField = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
+    clip: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 1")
+    clip2: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 2")
+    vae: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE")
 
 
 class SDXLRefinerModelLoaderOutput(BaseInvocationOutput):
@@ -40,9 +41,9 @@ class SDXLRefinerModelLoaderOutput(BaseInvocationOutput):
 
     type: Literal["sdxl_refiner_model_loader_output"] = "sdxl_refiner_model_loader_output"
 
-    unet: UNetField = OutputField(default=None, description="UNet submodel", title="UNet")
-    clip2: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP 2")
-    vae: VaeField = OutputField(default=None, description="Vae submodel", title="VAE")
+    unet: UNetField = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
+    clip2: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 2")
+    vae: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE")
 
 
 @title("SDXL Main Model Loader")
@@ -54,7 +55,7 @@ class SDXLModelLoaderInvocation(BaseInvocation):
 
     # Inputs
     model: MainModelField = InputField(
-        description="The model to load", input=Input.Direct, ui_type_hint=UITypeHint.SDXLMainModelField
+        description=FieldDescriptions.sdxl_main_model, input=Input.Direct, ui_type_hint=UITypeHint.SDXLMainModelField
     )
     # TODO: precision?
 
@@ -139,7 +140,9 @@ class SDXLRefinerModelLoaderInvocation(BaseInvocation):
 
     # Inputs
     model: MainModelField = InputField(
-        description="The model to load", input=Input.Direct, ui_type_hint=UITypeHint.SDXLRefinerModelField
+        description=FieldDescriptions.sdxl_refiner_model,
+        input=Input.Direct,
+        ui_type_hint=UITypeHint.SDXLRefinerModelField,
     )
     # TODO: precision?
 
@@ -209,27 +212,27 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
 
     # Inputs
     positive_conditioning: ConditioningField = InputField(
-        description="Positive conditioning for generation",
+        description=FieldDescriptions.positive_cond,
         input=Input.Connection,
     )
     negative_conditioning: ConditioningField = InputField(
-        description="Negative conditioning for generation",
+        description=FieldDescriptions.negative_cond,
         input=Input.Connection,
     )
     noise: LatentsField = InputField(
-        description="The noise to use",
+        description=FieldDescriptions.noise,
         input=Input.Connection,
     )
-    steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
+    steps: int = InputField(default=10, gt=0, description=FieldDescriptions.steps)
     cfg_scale: Union[float, List[float]] = InputField(
         default=7.5,
         ge=1,
-        description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
+        description=FieldDescriptions.cfg_scale,
         ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    unet: UNetField = InputField(description="UNet submodel", input=Input.Connection)
-    denoising_end: float = InputField(default=1.0, gt=0, le=1, description="")
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    unet: UNetField = InputField(description=FieldDescriptions.unet, input=Input.Connection)
+    denoising_end: float = InputField(default=1.0, gt=0, le=1, description=FieldDescriptions.denoising_end)
     # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")
@@ -460,36 +463,36 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
 
     # Inputs
     positive_conditioning: ConditioningField = InputField(
-        description="Positive conditioning for generation",
+        description=FieldDescriptions.positive_cond,
         input=Input.Connection,
     )
     negative_conditioning: ConditioningField = InputField(
-        description="Negative conditioning for generation",
+        description=FieldDescriptions.negative_cond,
         input=Input.Connection,
     )
     noise: Optional[LatentsField] = InputField(
         default=None,
-        description="The noise to use",
+        description=FieldDescriptions.noise,
         input=Input.Connection,
     )
-    steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
+    steps: int = InputField(default=10, gt=0, description=FieldDescriptions.steps)
     cfg_scale: Union[float, List[float]] = InputField(
         default=7.5,
         ge=1,
-        description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
+        description=FieldDescriptions.cfg_scale,
         ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
     unet: UNetField = InputField(
-        description="UNet submodel",
+        description=FieldDescriptions.unet,
         input=Input.Connection,
     )
     latents: LatentsField = InputField(
-        description="Initial latents",
+        description=FieldDescriptions.latents,
         input=Input.Connection,
     )
-    denoising_start: float = InputField(default=0.0, ge=0, le=1, description="")
-    denoising_end: float = InputField(default=1.0, ge=0, le=1, description="")
+    denoising_start: float = InputField(default=0.0, ge=0, le=1, description=FieldDescriptions.denoising_start)
+    denoising_end: float = InputField(default=1.0, ge=0, le=1, description=FieldDescriptions.denoising_end)
     # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
     # seamless_axes: str = InputField(default="", description="The axes to tile the image on, 'x' and/or 'y'")

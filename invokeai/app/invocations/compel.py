@@ -15,8 +15,9 @@ from ...backend.util.devices import torch_dtype
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
-    InputField,
+    FieldDescriptions,
     Input,
+    InputField,
     InvocationContext,
     OutputField,
     UIComponent,
@@ -70,7 +71,7 @@ class CompelOutput(BaseInvocationOutput):
     # fmt: off
     type: Literal["compel_output"] = "compel_output"
 
-    conditioning: ConditioningField = Field(default=None, description="Conditioning")
+    conditioning: ConditioningField = OutputField(description=FieldDescriptions.cond)
     # fmt: on
 
 
@@ -81,8 +82,16 @@ class CompelInvocation(BaseInvocation):
 
     type: Literal["compel"] = "compel"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
-    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
+    prompt: str = InputField(
+        default="",
+        description=FieldDescriptions.compel_prompt,
+        ui_component=UIComponent.Textarea,
+    )
+    clip: ClipField = InputField(
+        title="CLIP",
+        description=FieldDescriptions.clip,
+        input=Input.Connection,
+    )
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -349,16 +358,16 @@ class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
 
     type: Literal["sdxl_compel_prompt"] = "sdxl_compel_prompt"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)
+    prompt: str = InputField(default="", description=FieldDescriptions.compel_prompt, ui_component=UIComponent.Textarea)
+    style: str = InputField(default="", description=FieldDescriptions.compel_prompt, ui_component=UIComponent.Textarea)
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     target_width: int = InputField(default=1024, description="")
     target_height: int = InputField(default=1024, description="")
-    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
-    clip2: ClipField = InputField(description="Clip2 to use", input=Input.Connection)
+    clip: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection)
+    clip2: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -402,13 +411,15 @@ class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase
 
     type: Literal["sdxl_refiner_compel_prompt"] = "sdxl_refiner_compel_prompt"
 
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)  # TODO: ?
+    style: str = InputField(
+        default="", description=FieldDescriptions.compel_prompt, ui_component=UIComponent.Textarea
+    )  # TODO: ?
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
-    aesthetic_score: float = InputField(default=6.0, description="")
-    clip2: ClipField = InputField(description="Clip to use", input=Input.Connection)
+    aesthetic_score: float = InputField(default=6.0, description=FieldDescriptions.sdxl_aesthetic)
+    clip2: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -448,16 +459,16 @@ class SDXLRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
 
     type: Literal["sdxl_raw_prompt"] = "sdxl_raw_prompt"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)
+    prompt: str = InputField(default="", description=FieldDescriptions.raw_prompt, ui_component=UIComponent.Textarea)
+    style: str = InputField(default="", description=FieldDescriptions.raw_prompt, ui_component=UIComponent.Textarea)
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
     target_width: int = InputField(default=1024, description="")
     target_height: int = InputField(default=1024, description="")
-    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
-    clip2: ClipField = InputField(description="Clip2 to use", input=Input.Connection)
+    clip: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection)
+    clip2: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -501,13 +512,15 @@ class SDXLRefinerRawPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
 
     type: Literal["sdxl_refiner_raw_prompt"] = "sdxl_refiner_raw_prompt"
 
-    style: str = InputField(default="", description="Style prompt", ui_component=UIComponent.Textarea)  # TODO: ?
+    style: str = InputField(
+        default="", description=FieldDescriptions.raw_prompt, ui_component=UIComponent.Textarea
+    )  # TODO: ?
     original_width: int = InputField(default=1024, description="")
     original_height: int = InputField(default=1024, description="")
     crop_top: int = InputField(default=0, description="")
     crop_left: int = InputField(default=0, description="")
-    aesthetic_score: float = InputField(default=6.0, description="")
-    clip2: ClipField = InputField(description="Clip to use", input=Input.Connection)
+    aesthetic_score: float = InputField(default=6.0, description=FieldDescriptions.sdxl_aesthetic)
+    clip2: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection)
 
     @torch.no_grad()
     def invoke(self, context: InvocationContext) -> CompelOutput:
@@ -544,7 +557,7 @@ class ClipSkipInvocationOutput(BaseInvocationOutput):
     """Clip skip node output"""
 
     type: Literal["clip_skip_output"] = "clip_skip_output"
-    clip: ClipField = OutputField(default=None, description="CLIP with skipped layers", title="CLIP")
+    clip: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP")
 
 
 @title("CLIP Skip")
@@ -554,8 +567,8 @@ class ClipSkipInvocation(BaseInvocation):
 
     type: Literal["clip_skip"] = "clip_skip"
 
-    clip: ClipField = InputField(description="Clip to use", input=Input.Connection, title="CLIP")
-    skipped_layers: int = InputField(default=0, description="Number of layers to skip in text_encoder")
+    clip: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection, title="CLIP")
+    skipped_layers: int = InputField(default=0, description=FieldDescriptions.skipped_layers)
 
     def invoke(self, context: InvocationContext) -> ClipSkipInvocationOutput:
         self.clip.skipped_layers += self.skipped_layers
