@@ -11,7 +11,6 @@ import {
 import { createSelector } from '@reduxjs/toolkit';
 import { stateSelector } from 'app/store/store';
 import { useAppSelector } from 'app/store/storeHooks';
-import { useIsValidConnection } from 'features/nodes/hooks/useIsValidConnection';
 import { HANDLE_TOOLTIP_OPEN_DELAY } from 'features/nodes/types/constants';
 import {
   InputFieldValue,
@@ -54,7 +53,6 @@ interface IAINodeInputProps {
 
 function IAINodeInput(props: IAINodeInputProps) {
   const { nodeId, input, template } = props;
-  const isValidConnection = useIsValidConnection();
 
   const selectIsConnected = useMemo(
     () =>
@@ -132,7 +130,6 @@ function IAINodeInput(props: IAINodeInputProps) {
           <FieldHandle
             nodeId={nodeId}
             field={inputTemplate}
-            isValidConnection={isValidConnection}
             handleType="target"
           />
         )}

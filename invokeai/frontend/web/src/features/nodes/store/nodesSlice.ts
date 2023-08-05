@@ -38,6 +38,7 @@ export const initialNodesState: NodesState = {
   schema: null,
   invocationTemplates: {},
   connectionStartParams: null,
+  currentConnectionFieldType: null,
   shouldShowGraphOverlay: false,
   shouldShowFieldTypeLegend: false,
   shouldShowMinimapPanel: true,
@@ -81,12 +82,27 @@ const nodesSlice = createSlice({
     },
     connectionStarted: (state, action: PayloadAction<OnConnectStartParams>) => {
       state.connectionStartParams = action.payload;
+      const { nodeId, handleId, handleType } = action.payload;
+      if (!nodeId || !handleId) {
+        return;
+      }
+      const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
+      const node = state.nodes?.[nodeIndex];
+      if (!node) {
+        return;
+      }
+      const field =
+        handleType === 'source'
+          ? node.data.outputs[handleId]
+          : node.data.inputs[handleId];
+      state.currentConnectionFieldType = field?.type ?? null;
     },
     connectionMade: (state, action: PayloadAction<Connection>) => {
       state.edges = addEdge(action.payload, state.edges);
     },
     connectionEnded: (state) => {
       state.connectionStartParams = null;
+      state.currentConnectionFieldType = null;
     },
     nodeIsOpenChanged: (
       state,

@@ -26,6 +26,7 @@ import MinimapPanel from './panels/MinimapPanel';
 import TopCenterPanel from './panels/TopCenterPanel';
 import TopLeftPanel from './panels/TopLeftPanel';
 import TopRightPanel from './panels/TopRightPanel';
+import { useIsValidConnection } from '../hooks/useIsValidConnection';
 
 const nodeTypes = {
   invocation: InvocationComponent,
@@ -36,6 +37,8 @@ export const Flow = () => {
   const dispatch = useAppDispatch();
   const nodes = useAppSelector((state: RootState) => state.nodes.nodes);
   const edges = useAppSelector((state: RootState) => state.nodes.edges);
+
+  const isValidConnection = useIsValidConnection();
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
@@ -88,9 +91,8 @@ export const Flow = () => {
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}
       onInit={onInit}
-      defaultEdgeOptions={{
-        style: { strokeWidth: 2 },
-      }}
+      isValidConnection={isValidConnection}
+      connectionRadius={30}
     >
       <TopLeftPanel />
       <TopCenterPanel />
