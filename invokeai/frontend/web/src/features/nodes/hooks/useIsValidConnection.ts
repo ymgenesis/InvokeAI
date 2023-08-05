@@ -29,10 +29,15 @@ export const useIsValidConnection = () => {
       if (!(sourceNode && targetNode && sourceNode.data && targetNode.data)) {
         return false;
       }
+
+      const sourceType = sourceNode.data.outputs[sourceHandle]?.type;
+      const targetType = targetNode.data.inputs[targetHandle]?.type;
+
       // Connection types must be the same for a connection
       if (
-        sourceNode.data.outputs[sourceHandle]?.type !==
-        targetNode.data.inputs[targetHandle]?.type
+        sourceType !== targetType &&
+        sourceType !== 'CollectionItem' &&
+        targetType !== 'CollectionItem'
       ) {
         return false;
       }
