@@ -1,29 +1,18 @@
 # Copyright (c) 2022 Kyle Schouviller (https://github.com/kyle0654)
 
+from pathlib import Path
 from typing import Literal, Optional
 
-import numpy
 import cv2
-from PIL import Image, ImageFilter, ImageOps, ImageChops
-from pathlib import Path
-from typing import Union
+import numpy
+from PIL import Image, ImageChops, ImageFilter, ImageOps
+
 from invokeai.app.invocations.metadata import CoreMetadata
-from ..models.image import (
-    ImageCategory,
-    ImageField,
-    ResourceOrigin,
-    ImageOutput,
-    MaskOutput,
-)
-from .baseinvocation import (
-    BaseInvocation,
-    InputField,
-    InvocationContext,
-    tags,
-    title,
-)
-from invokeai.backend.image_util.safety_checker import SafetyChecker
 from invokeai.backend.image_util.invisible_watermark import InvisibleWatermark
+from invokeai.backend.image_util.safety_checker import SafetyChecker
+
+from ..models.image import ImageCategory, ImageField, ImageOutput, MaskOutput, ResourceOrigin
+from .baseinvocation import BaseInvocation, FieldDescriptions, InputField, InvocationContext, tags, title
 
 
 @title("Load Image")
@@ -529,7 +518,7 @@ class ImageNSFWBlurInvocation(BaseInvocation):
     # Inputs
     image: ImageField = InputField(description="The image to check")
     metadata: Optional[CoreMetadata] = InputField(
-        default=None, description="Optional core metadata to be written to the image", ui_hidden=True
+        default=None, description=FieldDescriptions.core_metadata, ui_hidden=True
     )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -579,7 +568,7 @@ class ImageWatermarkInvocation(BaseInvocation):
     image: ImageField = InputField(description="The image to check")
     text: str = InputField(default="InvokeAI", description="Watermark text")
     metadata: Optional[CoreMetadata] = InputField(
-        default=None, description="Optional core metadata to be written to the image", ui_hidden=True
+        default=None, description=FieldDescriptions.core_metadata, ui_hidden=True
     )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -609,8 +598,8 @@ class ImageHueAdjustmentInvocation(BaseInvocation):
     type: Literal["img_hue_adjust"] = "img_hue_adjust"
 
     # Inputs
-    image: ImageField = Field(default=None, description="The image to adjust")
-    hue: int = Field(default=0, description="The degrees by which to rotate the hue, 0-360")
+    image: ImageField = InputField(description="The image to adjust")
+    hue: int = InputField(default=0, description="The degrees by which to rotate the hue, 0-360")
     # fmt: on
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -653,8 +642,8 @@ class ImageLuminosityAdjustmentInvocation(BaseInvocation):
     type: Literal["img_luminosity_adjust"] = "img_luminosity_adjust"
 
     # Inputs
-    image: ImageField = Field(default=None, description="The image to adjust")
-    luminosity: float = Field(default=1.0, ge=0, le=1, description="The factor by which to adjust the luminosity (value)")
+    image: ImageField = InputField(description="The image to adjust")
+    luminosity: float = InputField(default=1.0, ge=0, le=1, description="The factor by which to adjust the luminosity (value)")
     # fmt: on
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
@@ -701,8 +690,8 @@ class ImageSaturationAdjustmentInvocation(BaseInvocation):
     type: Literal["img_saturation_adjust"] = "img_saturation_adjust"
 
     # Inputs
-    image: ImageField = Field(default=None, description="The image to adjust")
-    saturation: float = Field(default=1.0, ge=0, le=1, description="The factor by which to adjust the saturation")
+    image: ImageField = InputField(description="The image to adjust")
+    saturation: float = InputField(default=1.0, ge=0, le=1, description="The factor by which to adjust the saturation")
     # fmt: on
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

@@ -7,6 +7,7 @@ from ...backend.model_management import BaseModelType, ModelType, SubModelType
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
+    FieldDescriptions,
     InputField,
     Input,
     InvocationContext,
@@ -51,9 +52,9 @@ class ModelLoaderOutput(BaseInvocationOutput):
 
     type: Literal["model_loader_output"] = "model_loader_output"
 
-    unet: UNetField = OutputField(default=None, description="UNet submodel", title="UNet")
-    clip: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP")
-    vae: VaeField = OutputField(default=None, description="Vae submodel", title="VAE")
+    unet: UNetField = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
+    clip: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP")
+    vae: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE")
 
 
 class MainModelField(BaseModel):
@@ -79,7 +80,7 @@ class MainModelLoaderInvocation(BaseInvocation):
     type: Literal["main_model_loader"] = "main_model_loader"
 
     # Inputs
-    model: MainModelField = InputField(description="The model to load", input=Input.Direct)
+    model: MainModelField = InputField(description=FieldDescriptions.main_model, input=Input.Direct)
     # TODO: precision?
 
     def invoke(self, context: InvocationContext) -> ModelLoaderOutput:
@@ -156,22 +157,6 @@ class MainModelLoaderInvocation(BaseInvocation):
                 loras=[],
                 skipped_layers=0,
             ),
-            clip2=ClipField(
-                tokenizer=ModelInfo(
-                    model_name=model_name,
-                    base_model=base_model,
-                    model_type=model_type,
-                    submodel=SubModelType.Tokenizer2,
-                ),
-                text_encoder=ModelInfo(
-                    model_name=model_name,
-                    base_model=base_model,
-                    model_type=model_type,
-                    submodel=SubModelType.TextEncoder2,
-                ),
-                loras=[],
-                skipped_layers=0,
-            ),
             vae=VaeField(
                 vae=ModelInfo(
                     model_name=model_name,
@@ -189,8 +174,8 @@ class LoraLoaderOutput(BaseInvocationOutput):
     # fmt: off
     type: Literal["lora_loader_output"] = "lora_loader_output"
 
-    unet: Optional[UNetField] = OutputField(default=None, description="UNet submodel")
-    clip: Optional[ClipField] = OutputField(default=None, description="Tokenizer and text_encoder submodels")
+    unet: Optional[UNetField] = OutputField(default=None, description=FieldDescriptions.unet)
+    clip: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip)
     # fmt: on
 
 
@@ -202,16 +187,16 @@ class LoraLoaderInvocation(BaseInvocation):
     type: Literal["lora_loader"] = "lora_loader"
 
     # Inputs
-    lora: LoRAModelField = InputField(description="Lora model name", input=Input.Direct)
-    weight: float = InputField(default=0.75, description="With what weight to apply lora")
+    lora: LoRAModelField = InputField(description=FieldDescriptions.lora_model, input=Input.Direct)
+    weight: float = InputField(default=0.75, description=FieldDescriptions.lora_weight)
     unet: Optional[UNetField] = InputField(
         default=None,
-        description="UNet model for applying lora",
+        description=FieldDescriptions.unet,
         input=Input.Connection,
     )
     clip: Optional[ClipField] = InputField(
         default=None,
-        description="Clip model for applying lora",
+        description=FieldDescriptions.clip,
         input=Input.Connection,
     )
 
@@ -270,9 +255,9 @@ class SDXLLoraLoaderOutput(BaseInvocationOutput):
     # fmt: off
     type: Literal["sdxl_lora_loader_output"] = "sdxl_lora_loader_output"
 
-    unet: Optional[UNetField] = OutputField(default=None, description="UNet submodel")
-    clip: Optional[ClipField] = OutputField(default=None, description="Tokenizer and text_encoder submodels")
-    clip2: Optional[ClipField] = OutputField(default=None, description="Tokenizer2 and text_encoder2 submodels")
+    unet: Optional[UNetField] = OutputField(default=None, description=FieldDescriptions.unet)
+    clip: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip)
+    clip2: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip)
     # fmt: on
 
 
@@ -283,22 +268,22 @@ class SDXLLoraLoaderInvocation(BaseInvocation):
 
     type: Literal["sdxl_lora_loader"] = "sdxl_lora_loader"
 
-    lora: LoRAModelField = InputField(description="Lora model name", input=Input.Direct)
-    weight: float = Field(default=0.75, description="With what weight to apply lora")
+    lora: LoRAModelField = InputField(description=FieldDescriptions.lora_model, input=Input.Direct)
+    weight: float = Field(default=0.75, description=FieldDescriptions.lora_weight)
 
     unet: Optional[UNetField] = Field(
         default=None,
-        description="UNet model for applying lora",
+        description=FieldDescriptions.unet,
         input=Input.Connection,
     )
     clip: Optional[ClipField] = Field(
         default=None,
-        description="Clip model for applying lora",
+        description=FieldDescriptions.clip,
         input=Input.Connection,
     )
     clip2: Optional[ClipField] = Field(
         default=None,
-        description="Clip2 model for applying lora",
+        description=FieldDescriptions.clip,
         input=Input.Connection,
     )
 
@@ -379,7 +364,7 @@ class VaeLoaderOutput(BaseInvocationOutput):
     type: Literal["vae_loader_output"] = "vae_loader_output"
 
     # Outputs
-    vae: VaeField = OutputField(default=None, description="Vae model", title="VAE")
+    vae: VaeField = OutputField(description=FieldDescriptions.vae, title="VAE")
 
 
 @title("VAE Loader")
@@ -391,7 +376,7 @@ class VaeLoaderInvocation(BaseInvocation):
 
     # Inputs
     vae_model: VAEModelField = InputField(
-        description="The VAE to load", input=Input.Direct, ui_type_hint=UITypeHint.VaeModelField, title="VAE"
+        description=FieldDescriptions.vae_model, input=Input.Direct, ui_type_hint=UITypeHint.VaeModelField, title="VAE"
     )
 
     def invoke(self, context: InvocationContext) -> VaeLoaderOutput:

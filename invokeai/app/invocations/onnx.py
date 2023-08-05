@@ -24,6 +24,7 @@ from ..models.image import ImageCategory, ImageField, ResourceOrigin
 from .baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
+    FieldDescriptions,
     InputField,
     Input,
     InvocationContext,
@@ -62,8 +63,8 @@ PRECISION_VALUES = Literal[tuple(list(ORT_TO_NP_TYPE.keys()))]
 class ONNXPromptInvocation(BaseInvocation):
     type: Literal["prompt_onnx"] = "prompt_onnx"
 
-    prompt: str = InputField(default="", description="Prompt", ui_component=UIComponent.Textarea)
-    clip: ClipField = InputField(description="Clip to use", input=Input.Connection)
+    prompt: str = InputField(default="", description=FieldDescriptions.raw_prompt, ui_component=UIComponent.Textarea)
+    clip: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection)
 
     def invoke(self, context: InvocationContext) -> CompelOutput:
         tokenizer_info = context.services.model_manager.get_model(
@@ -151,35 +152,33 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
 
     # Inputs
     positive_conditioning: ConditioningField = InputField(
-        description="Positive conditioning for generation",
+        description=FieldDescriptions.positive_cond,
         input=Input.Connection,
     )
     negative_conditioning: ConditioningField = InputField(
-        description="Negative conditioning for generation",
+        description=FieldDescriptions.negative_cond,
         input=Input.Connection,
     )
     noise: LatentsField = InputField(
-        description="The noise to use",
+        description=FieldDescriptions.noise,
         input=Input.Connection,
     )
-    steps: int = InputField(default=10, gt=0, description="The number of steps to use to generate the image")
+    steps: int = InputField(default=10, gt=0, description=FieldDescriptions.steps)
     cfg_scale: Union[float, List[float]] = InputField(
         default=7.5,
         ge=1,
-        description="The Classifier-Free Guidance, higher values may result in a result closer to the prompt",
+        description=FieldDescriptions.cfg_scale,
         ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description="The scheduler to use")
-    precision: PRECISION_VALUES = InputField(
-        default="tensor(float16)", description="The precision to use when generating latents"
-    )
+    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    precision: PRECISION_VALUES = InputField(default="tensor(float16)", description=FieldDescriptions.precision)
     unet: UNetField = InputField(
-        description="UNet submodel",
+        description=FieldDescriptions.unet,
         input=Input.Connection,
     )
     control: Optional[Union[ControlField, list[ControlField]]] = InputField(
         default=None,
-        description="The control to use",
+        description=FieldDescriptions.control,
         ui_type_hint=UITypeHint.ControlField,
     )
     # seamless:   bool = InputField(default=False, description="Whether or not to generate an image that can tile without seams", )
@@ -325,16 +324,16 @@ class ONNXLatentsToImageInvocation(BaseInvocation):
 
     # Inputs
     latents: LatentsField = InputField(
-        description="The latents to generate an image from",
+        description=FieldDescriptions.denoised_latents,
         input=Input.Connection,
     )
     vae: VaeField = InputField(
-        description="Vae submodel",
+        description=FieldDescriptions.vae,
         input=Input.Connection,
     )
     metadata: Optional[CoreMetadata] = InputField(
         default=None,
-        description="Optional core metadata to be written to the image",
+        description=FieldDescriptions.core_metadata,
         ui_hidden=True,
     )
     # tiled: bool = InputField(default=False, description="Decode latents by overlaping tiles(less memory consumption)")
@@ -391,10 +390,10 @@ class ONNXModelLoaderOutput(BaseInvocationOutput):
     # fmt: off
     type: Literal["model_loader_output_onnx"] = "model_loader_output_onnx"
 
-    unet: UNetField = OutputField(default=None, description="UNet submodel", title="UNet")
-    clip: ClipField = OutputField(default=None, description="Tokenizer and text_encoder submodels", title="CLIP")
-    vae_decoder: VaeField = OutputField(default=None, description="Vae submodel", title="VAE Decoder")
-    vae_encoder: VaeField = OutputField(default=None, description="Vae submodel", title="VAE Encoder")
+    unet: UNetField = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
+    clip: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP")
+    vae_decoder: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE Decoder")
+    vae_encoder: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE Encoder")
     # fmt: on
 
 
@@ -415,7 +414,7 @@ class OnnxModelLoaderInvocation(BaseInvocation):
 
     # Inputs
     model: OnnxModelField = InputField(
-        description="The model to load", input=Input.Direct, ui_type_hint=UITypeHint.ONNXModelField
+        description=FieldDescriptions.onnx_main_model, input=Input.Direct, ui_type_hint=UITypeHint.ONNXModelField
     )
 
     def invoke(self, context: InvocationContext) -> ONNXModelLoaderOutput:
