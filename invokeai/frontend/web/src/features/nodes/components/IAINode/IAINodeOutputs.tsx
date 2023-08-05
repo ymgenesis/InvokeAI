@@ -1,13 +1,22 @@
-import { Box, Flex, FormControl, FormLabel, HStack } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  FormControl,
+  FormLabel,
+  HStack,
+  Spacer,
+  Tooltip,
+} from '@chakra-ui/react';
 import { RootState } from 'app/store/store';
 import { useAppSelector } from 'app/store/storeHooks';
+import { HANDLE_TOOLTIP_OPEN_DELAY } from 'features/nodes/types/constants';
 import {
   InvocationTemplate,
   OutputFieldTemplate,
   OutputFieldValue,
 } from 'features/nodes/types/types';
 import { map } from 'lodash-es';
-import { Fragment, ReactNode, memo, useCallback } from 'react';
+import { ReactNode, memo, useCallback } from 'react';
 import FieldHandle from '../FieldHandle';
 
 interface IAINodeOutputProps {
@@ -30,12 +39,18 @@ function IAINodeOutput(props: IAINodeOutputProps) {
             </FormLabel>
           </HStack>
         ) : (
-          <Fragment key={output.id}>
-            <FormLabel textAlign="end" padding={1}>
-              {template?.title}
-            </FormLabel>
+          <Flex key={output.id}>
+            <Spacer />
+            <Tooltip
+              label={template.description}
+              placement="top"
+              hasArrow
+              openDelay={HANDLE_TOOLTIP_OPEN_DELAY}
+            >
+              <FormLabel padding={1}>{template?.title}</FormLabel>
+            </Tooltip>
             <FieldHandle nodeId={nodeId} field={template} handleType="source" />
-          </Fragment>
+          </Flex>
         )}
       </FormControl>
     </Box>
