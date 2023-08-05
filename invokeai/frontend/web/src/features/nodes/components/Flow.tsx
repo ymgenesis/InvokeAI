@@ -92,6 +92,8 @@ export const Flow = () => {
       onConnectEnd={onConnectEnd}
       onInit={onInit}
       isValidConnection={isValidConnection}
+      minZoom={1}
+      // minZoom={0.2}
       connectionRadius={30}
     >
       <TopLeftPanel />

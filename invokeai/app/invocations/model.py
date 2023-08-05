@@ -174,8 +174,8 @@ class LoraLoaderOutput(BaseInvocationOutput):
     # fmt: off
     type: Literal["lora_loader_output"] = "lora_loader_output"
 
-    unet: Optional[UNetField] = OutputField(default=None, description=FieldDescriptions.unet)
-    clip: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip)
+    unet: Optional[UNetField] = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
+    clip: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP")
     # fmt: on
 
 
@@ -187,17 +187,13 @@ class LoraLoaderInvocation(BaseInvocation):
     type: Literal["lora_loader"] = "lora_loader"
 
     # Inputs
-    lora: LoRAModelField = InputField(description=FieldDescriptions.lora_model, input=Input.Direct)
+    lora: LoRAModelField = InputField(description=FieldDescriptions.lora_model, input=Input.Direct, title="LoRA")
     weight: float = InputField(default=0.75, description=FieldDescriptions.lora_weight)
     unet: Optional[UNetField] = InputField(
-        default=None,
-        description=FieldDescriptions.unet,
-        input=Input.Connection,
+        default=None, description=FieldDescriptions.unet, input=Input.Connection, title="UNet"
     )
     clip: Optional[ClipField] = InputField(
-        default=None,
-        description=FieldDescriptions.clip,
-        input=Input.Connection,
+        default=None, description=FieldDescriptions.clip, input=Input.Connection, title="CLIP"
     )
 
     def invoke(self, context: InvocationContext) -> LoraLoaderOutput:
@@ -255,9 +251,9 @@ class SDXLLoraLoaderOutput(BaseInvocationOutput):
     # fmt: off
     type: Literal["sdxl_lora_loader_output"] = "sdxl_lora_loader_output"
 
-    unet: Optional[UNetField] = OutputField(default=None, description=FieldDescriptions.unet)
-    clip: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip)
-    clip2: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip)
+    unet: Optional[UNetField] = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
+    clip: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 1")
+    clip2: Optional[ClipField] = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 2")
     # fmt: on
 
 
@@ -268,23 +264,16 @@ class SDXLLoraLoaderInvocation(BaseInvocation):
 
     type: Literal["sdxl_lora_loader"] = "sdxl_lora_loader"
 
-    lora: LoRAModelField = InputField(description=FieldDescriptions.lora_model, input=Input.Direct)
+    lora: LoRAModelField = InputField(description=FieldDescriptions.lora_model, input=Input.Direct, title="LoRA")
     weight: float = Field(default=0.75, description=FieldDescriptions.lora_weight)
-
     unet: Optional[UNetField] = Field(
-        default=None,
-        description=FieldDescriptions.unet,
-        input=Input.Connection,
+        default=None, description=FieldDescriptions.unet, input=Input.Connection, title="UNET"
     )
     clip: Optional[ClipField] = Field(
-        default=None,
-        description=FieldDescriptions.clip,
-        input=Input.Connection,
+        default=None, description=FieldDescriptions.clip, input=Input.Connection, title="CLIP 1"
     )
     clip2: Optional[ClipField] = Field(
-        default=None,
-        description=FieldDescriptions.clip,
-        input=Input.Connection,
+        default=None, description=FieldDescriptions.clip, input=Input.Connection, title="CLIP 2"
     )
 
     def invoke(self, context: InvocationContext) -> SDXLLoraLoaderOutput:

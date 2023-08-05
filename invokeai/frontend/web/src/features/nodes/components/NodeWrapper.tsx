@@ -27,7 +27,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
       sx={{
         position: 'relative',
         borderRadius: 'base',
-        minWidth: NODE_WIDTH,
+        w: NODE_WIDTH,
         transitionProperty: 'common',
         transitionDuration: '0.1s',
         shadow: props.selected ? shadow : undefined,
