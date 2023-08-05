@@ -3,6 +3,7 @@ import graphlib from '@dagrejs/graphlib';
 import { useCallback } from 'react';
 import { Connection, Edge, Node, useReactFlow } from 'reactflow';
 import { InvocationValue } from '../types/types';
+import { COLLECTION_TYPES } from '../types/constants';
 
 export const useIsValidConnection = () => {
   const flow = useReactFlow();
@@ -25,6 +26,7 @@ export const useIsValidConnection = () => {
       // Find the source and target nodes
       const sourceNode = flow.getNode(source) as Node<InvocationValue>;
       const targetNode = flow.getNode(target) as Node<InvocationValue>;
+
       // Conditional guards against undefined nodes/handles
       if (!(sourceNode && targetNode && sourceNode.data && targetNode.data)) {
         return false;
@@ -33,13 +35,24 @@ export const useIsValidConnection = () => {
       const sourceType = sourceNode.data.outputs[sourceHandle]?.type;
       const targetType = targetNode.data.inputs[targetHandle]?.type;
 
+      if (!sourceType || !targetType) {
+        // something has gone terribly awry
+        return false;
+      }
+
       // Connection types must be the same for a connection
       if (
         sourceType !== targetType &&
         sourceType !== 'CollectionItem' &&
         targetType !== 'CollectionItem'
       ) {
-        return false;
+        if (
+          !(
+            targetType === 'Collection' && COLLECTION_TYPES.includes(sourceType)
+          )
+        ) {
+          return false;
+        }
       }
       // Graphs much be acyclic (no loops!)
       return getIsGraphAcyclic(source, target, nodes, edges);
