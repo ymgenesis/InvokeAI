@@ -1,15 +1,14 @@
+import { Box, Flex, FormControl, FormLabel, HStack } from '@chakra-ui/react';
+import { RootState } from 'app/store/store';
+import { useAppSelector } from 'app/store/storeHooks';
 import {
   InvocationTemplate,
   OutputFieldTemplate,
   OutputFieldValue,
 } from 'features/nodes/types/types';
-import { memo, ReactNode, useCallback } from 'react';
 import { map } from 'lodash-es';
-import { useAppSelector } from 'app/store/storeHooks';
-import { RootState } from 'app/store/store';
-import { Box, Flex, FormControl, FormLabel, HStack } from '@chakra-ui/react';
+import { Fragment, ReactNode, memo, useCallback } from 'react';
 import FieldHandle from '../FieldHandle';
-import { useIsValidConnection } from 'features/nodes/hooks/useIsValidConnection';
 
 interface IAINodeOutputProps {
   nodeId: string;
@@ -20,7 +19,6 @@ interface IAINodeOutputProps {
 
 function IAINodeOutput(props: IAINodeOutputProps) {
   const { nodeId, output, template, connected } = props;
-  const isValidConnection = useIsValidConnection();
 
   return (
     <Box position="relative">
@@ -32,18 +30,12 @@ function IAINodeOutput(props: IAINodeOutputProps) {
             </FormLabel>
           </HStack>
         ) : (
-          <>
+          <Fragment key={output.id}>
             <FormLabel textAlign="end" padding={1}>
               {template?.title}
             </FormLabel>
-            <FieldHandle
-              key={output.id}
-              nodeId={nodeId}
-              field={template}
-              isValidConnection={isValidConnection}
-              handleType="source"
-            />
-          </>
+            <FieldHandle nodeId={nodeId} field={template} handleType="source" />
+          </Fragment>
         )}
       </FormControl>
     </Box>
