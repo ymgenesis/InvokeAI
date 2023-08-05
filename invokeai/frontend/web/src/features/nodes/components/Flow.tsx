@@ -11,6 +11,7 @@ import {
   OnNodesChange,
   ReactFlow,
 } from 'reactflow';
+import { useIsValidConnection } from '../hooks/useIsValidConnection';
 import {
   connectionEnded,
   connectionMade,
@@ -19,19 +20,14 @@ import {
   nodesChanged,
   setEditorInstance,
 } from '../store/nodesSlice';
-import { InvocationComponent } from './InvocationComponent';
-import ProgressImageNode from './ProgressImageNode';
+import { CustomConnectionLine } from './CustomConnectionLine';
+import { edgeTypes } from './CustomEdges';
+import { nodeTypes } from './CustomNodes';
 import BottomLeftPanel from './panels/BottomLeftPanel.tsx';
 import MinimapPanel from './panels/MinimapPanel';
 import TopCenterPanel from './panels/TopCenterPanel';
 import TopLeftPanel from './panels/TopLeftPanel';
 import TopRightPanel from './panels/TopRightPanel';
-import { useIsValidConnection } from '../hooks/useIsValidConnection';
-
-const nodeTypes = {
-  invocation: InvocationComponent,
-  progress_image: ProgressImageNode,
-};
 
 export const Flow = () => {
   const dispatch = useAppDispatch();
@@ -83,6 +79,7 @@ export const Flow = () => {
   return (
     <ReactFlow
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -90,10 +87,10 @@ export const Flow = () => {
       onConnectStart={onConnectStart}
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}
+      connectionLineComponent={CustomConnectionLine}
       onInit={onInit}
       isValidConnection={isValidConnection}
-      minZoom={1}
-      // minZoom={0.2}
+      minZoom={0.2}
       connectionRadius={30}
     >
       <TopLeftPanel />

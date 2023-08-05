@@ -6,8 +6,10 @@ import {
   Spacer,
   Tooltip,
 } from '@chakra-ui/react';
-import { RootState } from 'app/store/store';
+import { createSelector } from '@reduxjs/toolkit';
+import { RootState, stateSelector } from 'app/store/store';
 import { useAppSelector } from 'app/store/storeHooks';
+import { makeConnectionErrorSelector } from 'features/nodes/store/util/makeIsConnectionValidSelector';
 import { HANDLE_TOOLTIP_OPEN_DELAY } from 'features/nodes/types/constants';
 import {
   InvocationTemplate,
@@ -15,7 +17,7 @@ import {
   OutputFieldValue,
 } from 'features/nodes/types/types';
 import { map } from 'lodash-es';
-import { ReactNode, memo, useCallback } from 'react';
+import { ReactNode, memo, useCallback, useMemo } from 'react';
 import FieldHandle from '../FieldHandle';
 
 interface IAINodeOutputProps {
@@ -25,11 +27,52 @@ interface IAINodeOutputProps {
   connected: boolean;
 }
 
+const selectIsConnectionInProgress = createSelector(
+  stateSelector,
+  ({ nodes }) =>
+    nodes.currentConnectionFieldType !== null &&
+    nodes.connectionStartParams !== null
+);
+
 function IAINodeOutput(props: IAINodeOutputProps) {
   const { nodeId, output, template, connected } = props;
 
+  const selectConnectionError = useMemo(
+    () =>
+      makeConnectionErrorSelector(nodeId, output.name, 'source', output.type),
+    [output.name, nodeId, output.type]
+  );
+
+  const selectIsSource = useMemo(
+    () =>
+      createSelector(
+        stateSelector,
+        ({ nodes }) =>
+          nodes.connectionStartParams?.nodeId === nodeId &&
+          nodes.connectionStartParams?.handleId === output.name
+      ),
+    [output.name, nodeId]
+  );
+
+  const isConnectionInProgress = useAppSelector(selectIsConnectionInProgress);
+  const isConnectionSource = useAppSelector(selectIsSource);
+  const connectionError = useAppSelector(selectConnectionError);
+
   return (
-    <Flex sx={{ position: 'relative', minH: 8, py: 0.5, alignItems: 'center' }}>
+    <Flex
+      sx={{
+        position: 'relative',
+        minH: 8,
+        py: 0.5,
+        alignItems: 'center',
+        opacity:
+          isConnectionInProgress && connectionError && !isConnectionSource
+            ? 0.5
+            : 1,
+        transitionProperty: 'opacity',
+        transitionDuration: '0.1s',
+      }}
+    >
       <FormControl isDisabled={!template ? true : connected} pe={4}>
         {!template ? (
           <HStack justifyContent="space-between" alignItems="center">
@@ -48,7 +91,14 @@ function IAINodeOutput(props: IAINodeOutputProps) {
             >
               <FormLabel sx={{ mb: 0 }}>{template?.title}</FormLabel>
             </Tooltip>
-            <FieldHandle nodeId={nodeId} field={template} handleType="source" />
+            <FieldHandle
+              nodeId={nodeId}
+              field={template}
+              handleType="source"
+              isConnectionInProgress={isConnectionInProgress}
+              isConnectionSource={isConnectionSource}
+              connectionError={connectionError}
+            />
           </Flex>
         )}
       </FormControl>

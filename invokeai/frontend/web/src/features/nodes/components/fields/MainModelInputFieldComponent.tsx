@@ -1,19 +1,17 @@
+import { Flex, Text } from '@chakra-ui/react';
+import { SelectItem } from '@mantine/core';
 import { useAppDispatch } from 'app/store/storeHooks';
+import IAIMantineSearchableSelect from 'common/components/IAIMantineSearchableSelect';
 import { fieldMainModelValueChanged } from 'features/nodes/store/nodesSlice';
 import {
   MainModelInputFieldTemplate,
   MainModelInputFieldValue,
 } from 'features/nodes/types/types';
-
-import { Box, Flex, Text } from '@chakra-ui/react';
-import { SelectItem } from '@mantine/core';
-import IAIMantineSearchableSelect from 'common/components/IAIMantineSearchableSelect';
 import { MODEL_TYPE_MAP } from 'features/parameters/types/constants';
 import { modelIdToMainModelParam } from 'features/parameters/util/modelIdToMainModelParam';
 import SyncModelsButton from 'features/ui/components/tabs/ModelManager/subpanels/ModelManagerSettingsPanel/SyncModelsButton';
 import { forEach } from 'lodash-es';
 import { memo, useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { NON_SDXL_MAIN_MODELS } from 'services/api/constants';
 import {
   useGetMainModelsQuery,
@@ -31,7 +29,6 @@ const MainModelInputFieldComponent = (
   const { nodeId, field } = props;
 
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const isSyncModelEnabled = useFeatureStatus('syncModels').isFeatureEnabled;
 
   const { data: onnxModels, isLoading: isLoadingOnnxModels } =

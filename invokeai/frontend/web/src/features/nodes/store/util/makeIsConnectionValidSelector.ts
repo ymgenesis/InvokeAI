@@ -25,17 +25,18 @@ export const makeConnectionErrorSelector = (
     } = connectionStartParams;
 
     if (!connectionHandleType || !connectionNodeId || !connectionFieldName) {
-      // connection in progress with no handle type or node id???
       return 'No connection data';
     }
 
     if (nodeId === connectionNodeId) {
-      // cannot connect to self
       return 'Cannot connect to self';
     }
 
+    if (fieldType !== currentConnectionFieldType) {
+      return 'Field types must match';
+    }
+
     if (handleType === connectionHandleType) {
-      // cannot connect to same handle type (eg cannot connect input to input or output to output)
       if (handleType === 'source') {
         return 'Cannot connect output to output';
       }
@@ -48,13 +49,7 @@ export const makeConnectionErrorSelector = (
         return edge.target === nodeId && edge.targetHandle === fieldName;
       })
     ) {
-      // Connection is invalid if target already has a connection
       return 'Inputs may only have one connection';
-    }
-
-    if (fieldType !== currentConnectionFieldType) {
-      // field types must match
-      return 'Field types must match';
     }
 
     const isGraphAcyclic = getIsGraphAcyclic(
@@ -65,7 +60,6 @@ export const makeConnectionErrorSelector = (
     );
 
     if (!isGraphAcyclic) {
-      // connection would create a cycle
       return 'Connection would create a cycle';
     }
 
