@@ -15,14 +15,7 @@ export const useIsValidConnection = () => {
       if (!(source && sourceHandle && target && targetHandle)) {
         return false;
       }
-      // Connection is invalid if target already has a connection
-      if (
-        edges.find((edge) => {
-          return edge.target === target && edge.targetHandle === targetHandle;
-        })
-      ) {
-        return false;
-      }
+
       // Find the source and target nodes
       const sourceNode = flow.getNode(source) as Node<InvocationValue>;
       const targetNode = flow.getNode(target) as Node<InvocationValue>;
@@ -40,6 +33,17 @@ export const useIsValidConnection = () => {
         return false;
       }
 
+      // Connection is invalid if target already has a connection
+      if (
+        edges.find((edge) => {
+          return edge.target === target && edge.targetHandle === targetHandle;
+        }) &&
+        // except CollectionItem inputs can have multiples
+        targetType !== 'CollectionItem'
+      ) {
+        return false;
+      }
+
       // Connection types must be the same for a connection
       if (
         sourceType !== targetType &&
@@ -48,7 +52,8 @@ export const useIsValidConnection = () => {
       ) {
         if (
           !(
-            targetType === 'Collection' && COLLECTION_TYPES.includes(sourceType)
+            COLLECTION_TYPES.includes(targetType) &&
+            COLLECTION_TYPES.includes(sourceType)
           )
         ) {
           return false;
