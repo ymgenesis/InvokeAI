@@ -48,6 +48,11 @@ export const initialNodesState: NodesState = {
   shouldShowMinimapPanel: true,
   editorInstance: undefined,
   progressNodeSize: { width: 512, height: 512 },
+  shouldValidateGraph: true,
+  shouldAnimateEdges: true,
+  shouldSnapToGrid: true,
+  shouldColorEdges: true,
+  nodeOpacity: 1,
 };
 
 type FieldValueAction<T extends InputFieldValue> = PayloadAction<{
@@ -107,7 +112,7 @@ const nodesSlice = createSlice({
         return;
       }
       state.edges = addEdge(
-        { ...action.payload, type: fieldType },
+        { ...action.payload, type: 'default' },
         state.edges
       );
     },
@@ -348,6 +353,15 @@ const nodesSlice = createSlice({
         'image_name'
       );
     },
+    nodeSelected: (state, action: PayloadAction<string>) => {
+      state.nodes.forEach((node) => {
+        if (node.id === action.payload) {
+          node.selected = true;
+        } else {
+          node.selected = false;
+        }
+      });
+    },
     shouldShowGraphOverlayChanged: (state, action: PayloadAction<boolean>) => {
       state.shouldShowGraphOverlay = action.payload;
     },
@@ -369,6 +383,21 @@ const nodesSlice = createSlice({
     nodeEditorReset: (state) => {
       state.nodes = [];
       state.edges = [];
+    },
+    shouldValidateGraphChanged: (state, action: PayloadAction<boolean>) => {
+      state.shouldValidateGraph = action.payload;
+    },
+    shouldAnimateEdgesChanged: (state, action: PayloadAction<boolean>) => {
+      state.shouldAnimateEdges = action.payload;
+    },
+    shouldSnapToGridChanged: (state, action: PayloadAction<boolean>) => {
+      state.shouldSnapToGrid = action.payload;
+    },
+    shouldColorEdgesChanged: (state, action: PayloadAction<boolean>) => {
+      state.shouldColorEdges = action.payload;
+    },
+    nodeOpacityChanged: (state, action: PayloadAction<number>) => {
+      state.nodeOpacity = action.payload;
     },
     setEditorInstance: (state, action) => {
       state.editorInstance = action.payload;
@@ -400,6 +429,7 @@ export const {
   connectionMade,
   connectionStarted,
   connectionEnded,
+  nodeSelected,
   shouldShowGraphOverlayChanged,
   shouldShowFieldTypeLegendChanged,
   shouldShowMinimapPanelChanged,
@@ -424,6 +454,11 @@ export const {
   nodeIsOpenChanged,
   nodeUserLabelChanged,
   edgesDeleted,
+  shouldValidateGraphChanged,
+  shouldAnimateEdgesChanged,
+  nodeOpacityChanged,
+  shouldSnapToGridChanged,
+  shouldColorEdgesChanged,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

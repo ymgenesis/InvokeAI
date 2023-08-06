@@ -14,4 +14,9 @@ export type NodesState = {
   shouldShowMinimapPanel: boolean;
   editorInstance: ReactFlowInstance | undefined;
   progressNodeSize: { width: number; height: number };
+  shouldValidateGraph: boolean;
+  shouldAnimateEdges: boolean;
+  nodeOpacity: number;
+  shouldSnapToGrid: boolean;
+  shouldColorEdges: boolean;
 };

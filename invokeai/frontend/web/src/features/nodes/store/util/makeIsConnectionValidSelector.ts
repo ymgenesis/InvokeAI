@@ -15,8 +15,12 @@ export const makeConnectionErrorSelector = (
     const { currentConnectionFieldType, connectionStartParams, nodes, edges } =
       state.nodes;
 
+    if (!state.nodes.shouldValidateGraph) {
+      // manual override!
+      return null;
+    }
+
     if (!connectionStartParams || !currentConnectionFieldType) {
-      // there is no connection in progress
       return 'No connection in progress';
     }
 
@@ -29,7 +33,7 @@ export const makeConnectionErrorSelector = (
     if (!connectionHandleType || !connectionNodeId || !connectionFieldName) {
       return 'No connection data';
     }
-    // iterate node handling
+
     const targetFieldType =
       handleType === 'target' ? fieldType : currentConnectionFieldType;
     const sourceFieldType =

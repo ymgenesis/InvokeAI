@@ -3,7 +3,10 @@ import { useAppDispatch } from 'app/store/storeHooks';
 import IAIIconButton from 'common/components/IAIIconButton';
 import IAIPopover from 'common/components/IAIPopover';
 import IAISwitch from 'common/components/IAISwitch';
-import { fieldBooleanValueChanged } from 'features/nodes/store/nodesSlice';
+import {
+  fieldBooleanValueChanged,
+  nodeSelected,
+} from 'features/nodes/store/nodesSlice';
 import { InvocationValue } from 'features/nodes/types/types';
 import { memo, useCallback, useMemo } from 'react';
 import { FaBars } from 'react-icons/fa';
@@ -22,6 +25,10 @@ const IAINodeSettings = (props: IAINodeSettingsProps) => {
     [data.inputs]
   );
 
+  const handleClick = useCallback(() => {
+    dispatch(nodeSelected(data.id));
+  }, [data.id, dispatch]);
+
   const handleChangeIsIntermediate = useCallback(() => {
     dispatch(
       fieldBooleanValueChanged({
@@ -39,6 +46,7 @@ const IAINodeSettings = (props: IAINodeSettingsProps) => {
           className="nopan"
           aria-label="Node Settings"
           variant="link"
+          onClick={handleClick}
           sx={{
             minW: 8,
             w: 8,

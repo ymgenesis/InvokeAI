@@ -20,7 +20,7 @@ const MinimapPanel = () => {
 
   const nodeColor = useColorModeValue(
     'var(--invokeai-colors-accent-300)',
-    'var(--invokeai-colors-accent-700)'
+    'var(--invokeai-colors-accent-600)'
   );
 
   const maskColor = useColorModeValue(
@@ -32,10 +32,9 @@ const MinimapPanel = () => {
     <>
       {shouldShowMinimapPanel && (
         <MiniMap
-          nodeStrokeWidth={3}
           pannable
           zoomable
-          nodeBorderRadius={30}
+          nodeBorderRadius={15}
           style={miniMapStyle}
           nodeColor={nodeColor}
           maskColor={maskColor}

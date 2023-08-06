@@ -1,4 +1,3 @@
-import { RootState } from 'app/store/store';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { useCallback } from 'react';
 import {
@@ -25,7 +24,7 @@ import {
 import { CustomConnectionLine } from './CustomConnectionLine';
 import { edgeTypes } from './CustomEdges';
 import { nodeTypes } from './CustomNodes';
-import BottomLeftPanel from './panels/BottomLeftPanel.tsx';
+import BottomLeftPanel from './panels/BottomLeftPanel';
 import MinimapPanel from './panels/MinimapPanel';
 import TopCenterPanel from './panels/TopCenterPanel';
 import TopLeftPanel from './panels/TopLeftPanel';
@@ -33,11 +32,13 @@ import TopRightPanel from './panels/TopRightPanel';
 
 export const Flow = () => {
   const dispatch = useAppDispatch();
-  const nodes = useAppSelector((state: RootState) => state.nodes.nodes);
-  const edges = useAppSelector((state: RootState) => state.nodes.edges);
+  const nodes = useAppSelector((state) => state.nodes.nodes);
+  const edges = useAppSelector((state) => state.nodes.edges);
+  const shouldSnapToGrid = useAppSelector(
+    (state) => state.nodes.shouldSnapToGrid
+  );
 
   const isValidConnection = useIsValidConnection();
-
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
       dispatch(nodesChanged(changes));
@@ -101,14 +102,16 @@ export const Flow = () => {
       onInit={onInit}
       isValidConnection={isValidConnection}
       minZoom={0.2}
+      snapToGrid={shouldSnapToGrid}
+      snapGrid={[50, 50]}
       connectionRadius={30}
     >
       <TopLeftPanel />
       <TopCenterPanel />
       <TopRightPanel />
       <BottomLeftPanel />
-      <Background />
       <MinimapPanel />
+      <Background />
     </ReactFlow>
   );
 };
