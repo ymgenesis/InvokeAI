@@ -1,12 +1,24 @@
 import { Box } from '@chakra-ui/react';
 import { RootState } from 'app/store/store';
 import { useAppSelector } from 'app/store/storeHooks';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { buildNodesGraph } from '../util/graphBuilders/buildNodesGraph';
+import { useDebounce } from 'use-debounce';
+import { omit } from 'lodash-es';
+
+const useNodesGraph = () => {
+  const nodes = useAppSelector((state: RootState) => state.nodes);
+  const [debouncedNodes] = useDebounce(nodes, 300);
+  const graph = useMemo(
+    () => omit(buildNodesGraph(debouncedNodes), 'id'),
+    [debouncedNodes]
+  );
+
+  return graph;
+};
 
 const NodeGraphOverlay = () => {
-  const state = useAppSelector((state: RootState) => state);
-  const graph = buildNodesGraph(state);
+  const graph = useNodesGraph();
 
   return (
     <Box

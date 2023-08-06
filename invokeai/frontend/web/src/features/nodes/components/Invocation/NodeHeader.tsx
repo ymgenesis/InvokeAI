@@ -1,10 +1,10 @@
 import { Flex } from '@chakra-ui/react';
 import { InvocationValue } from 'features/nodes/types/types';
 import { memo } from 'react';
-import IAINodeCollapseButton from './IAINodeCollapseButton';
-import IAINodeCollapsedHandles from './IAINodeCollapsedHandles';
-import IAINodeSettings from './IAINodeSettings';
-import IAINodeTitle from './IAINodeTitle';
+import IAINodeCollapseButton from './NodeCollapseButton';
+import IAINodeCollapsedHandles from './NodeCollapsedHandles';
+import IAINodeSettings from './NodeSettings';
+import IAINodeTitle from './NodeTitle';
 
 interface IAINodeHeaderProps {
   data: InvocationValue;

@@ -17,7 +17,7 @@ import {
   useGetMainModelsQuery,
   useGetOnnxModelsQuery,
 } from 'services/api/endpoints/models';
-import { useFeatureStatus } from '../../../system/hooks/useFeatureStatus';
+import { useFeatureStatus } from 'features/system/hooks/useFeatureStatus';
 import { FieldComponentProps } from './types';
 
 const MainModelInputFieldComponent = (

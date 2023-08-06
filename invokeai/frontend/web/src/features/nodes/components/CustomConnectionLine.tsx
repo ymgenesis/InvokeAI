@@ -33,7 +33,7 @@ export const CustomConnectionLine = ({
             : 'gray'
         }
         strokeWidth={2}
-        className="react-flow__custom_connection-path"
+        className="react-flow__custom_connection-path animated"
         d={dAttr}
       />
     </g>

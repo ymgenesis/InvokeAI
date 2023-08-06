@@ -4,9 +4,9 @@ import { IAINoContentFallback } from 'common/components/IAIImageFallback';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NodeProps, OnResize } from 'reactflow';
-import { setProgressNodeSize } from '../store/nodesSlice';
-import IAINodeHeader from './IAINode/IAINodeHeader';
-import IAINodeResizer from './IAINode/IAINodeResizer';
+import { setProgressNodeSize } from '../../store/nodesSlice';
+import IAINodeHeader from '../Invocation/NodeHeader';
+import IAINodeResizer from '../Invocation/NodeResizer';
 import NodeWrapper from './NodeWrapper';
 
 const ProgressImageNode = (props: NodeProps) => {

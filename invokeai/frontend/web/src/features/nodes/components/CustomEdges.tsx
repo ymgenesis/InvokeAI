@@ -1,3 +1,5 @@
+import { Badge, Flex } from '@chakra-ui/react';
+import { useChakraThemeTokens } from 'common/hooks/useChakraThemeTokens';
 import { reduce } from 'lodash-es';
 import { ComponentType } from 'react';
 import {
@@ -8,8 +10,6 @@ import {
 } from 'reactflow';
 import { FIELDS } from '../types/constants';
 import { FieldUIConfig } from '../types/types';
-import { Badge, Flex } from '@chakra-ui/react';
-import { useChakraThemeTokens } from 'common/hooks/useChakraThemeTokens';
 
 const buildFieldEdge = (fieldUiConfig: FieldUIConfig) => {
   const CustomEdge = ({
