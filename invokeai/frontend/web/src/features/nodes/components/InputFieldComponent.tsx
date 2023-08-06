@@ -15,7 +15,7 @@ import CollectionItemInputFieldComponent from './fields/CollectionItemInputField
 import LatentsInputFieldComponent from './fields/LatentsInputFieldComponent';
 import LoRAModelInputFieldComponent from './fields/LoRAModelInputFieldComponent';
 import MainModelInputFieldComponent from './fields/MainModelInputFieldComponent';
-import FloatInputFieldComponent from './fields/NumberInputFieldComponent';
+import NumberInputFieldComponent from './fields/NumberInputFieldComponent';
 import StringInputFieldComponent from './fields/StringInputFieldComponent';
 import UnetInputFieldComponent from './fields/UnetInputFieldComponent';
 import VaeInputFieldComponent from './fields/VaeInputFieldComponent';
@@ -56,10 +56,11 @@ const InputFieldComponent = (props: InputFieldComponentProps) => {
 
   if (
     (type === 'integer' && template.type === 'integer') ||
-    (type === 'float' && template.type === 'float')
+    (type === 'float' && template.type === 'float') ||
+    (type === 'Seed' && template.type === 'Seed')
   ) {
     return (
-      <FloatInputFieldComponent
+      <NumberInputFieldComponent
         nodeId={nodeId}
         field={field}
         template={template}

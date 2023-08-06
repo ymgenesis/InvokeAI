@@ -13,20 +13,26 @@ import {
   FloatInputFieldValue,
   IntegerInputFieldTemplate,
   IntegerInputFieldValue,
+  SeedInputFieldTemplate,
+  SeedInputFieldValue,
 } from 'features/nodes/types/types';
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { FieldComponentProps } from './types';
 
 const NumberInputFieldComponent = (
   props: FieldComponentProps<
-    IntegerInputFieldValue | FloatInputFieldValue,
-    IntegerInputFieldTemplate | FloatInputFieldTemplate
+    IntegerInputFieldValue | FloatInputFieldValue | SeedInputFieldValue,
+    IntegerInputFieldTemplate | FloatInputFieldTemplate | SeedInputFieldTemplate
   >
 ) => {
   const { nodeId, field } = props;
   const dispatch = useAppDispatch();
   const [valueAsString, setValueAsString] = useState<string>(
     String(field.value)
+  );
+  const isIntegerField = useMemo(
+    () => props.template.type === 'integer' || props.template.type === 'Seed',
+    [props.template.type]
   );
 
   const handleValueChanged = (v: string) => {
@@ -38,10 +44,7 @@ const NumberInputFieldComponent = (
         fieldNumberValueChanged({
           nodeId,
           fieldName: field.name,
-          value:
-            props.template.type === 'integer'
-              ? Math.floor(Number(v))
-              : Number(v),
+          value: isIntegerField ? Math.floor(Number(v)) : Number(v),
         })
       );
     }
@@ -60,8 +63,8 @@ const NumberInputFieldComponent = (
     <NumberInput
       onChange={handleValueChanged}
       value={valueAsString}
-      step={props.template.type === 'integer' ? 1 : 0.1}
-      precision={props.template.type === 'integer' ? 0 : 3}
+      step={isIntegerField ? 1 : 0.1}
+      precision={isIntegerField ? 0 : 3}
     >
       <NumberInputField />
       <NumberInputStepper>
