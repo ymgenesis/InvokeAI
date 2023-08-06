@@ -1,4 +1,4 @@
-import { RootState } from 'app/store/store';
+import { NodesState } from 'features/nodes/store/types';
 import { InputFieldValue } from 'features/nodes/types/types';
 import { cloneDeep, omit, reduce } from 'lodash-es';
 import { Graph } from 'services/api/types';
@@ -30,8 +30,8 @@ export const parseFieldValue = (field: InputFieldValue) => {
 /**
  * Builds a graph from the node editor state.
  */
-export const buildNodesGraph = (state: RootState): Graph => {
-  const { nodes, edges } = state.nodes;
+export const buildNodesGraph = (nodesState: NodesState): Graph => {
+  const { nodes, edges } = nodesState;
 
   const filteredNodes = nodes.filter((n) => n.type !== 'progress_image');
 

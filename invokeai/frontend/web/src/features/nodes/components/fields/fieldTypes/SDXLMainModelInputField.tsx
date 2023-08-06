@@ -9,6 +9,7 @@ import {
 } from 'features/nodes/types/types';
 import { MODEL_TYPE_MAP } from 'features/parameters/types/constants';
 import { modelIdToMainModelParam } from 'features/parameters/util/modelIdToMainModelParam';
+import { useFeatureStatus } from 'features/system/hooks/useFeatureStatus';
 import SyncModelsButton from 'features/ui/components/tabs/ModelManager/subpanels/ModelManagerSettingsPanel/SyncModelsButton';
 import { forEach } from 'lodash-es';
 import { memo, useCallback, useMemo } from 'react';
@@ -18,7 +19,6 @@ import {
   useGetMainModelsQuery,
   useGetOnnxModelsQuery,
 } from 'services/api/endpoints/models';
-import { useFeatureStatus } from '../../../system/hooks/useFeatureStatus';
 import { FieldComponentProps } from './types';
 
 const ModelInputFieldComponent = (

@@ -16,6 +16,7 @@ type NodeTemplate = {
   label: string;
   value: string;
   description: string;
+  tags: string[];
 };
 
 const selector = createSelector(
@@ -26,6 +27,7 @@ const selector = createSelector(
         label: template.title,
         value: template.type,
         description: template.description,
+        tags: template.tags,
       };
     });
 
@@ -33,6 +35,7 @@ const selector = createSelector(
       label: 'Progress Image',
       value: 'progress_image',
       description: 'Displays the progress image in the Node Editor',
+      tags: ['progress'],
     });
 
     return { data };
@@ -89,11 +92,12 @@ const AddNodeMenu = () => {
         filter={(value, item: NodeTemplate) =>
           item.label.toLowerCase().includes(value.toLowerCase().trim()) ||
           item.value.toLowerCase().includes(value.toLowerCase().trim()) ||
-          item.description.toLowerCase().includes(value.toLowerCase().trim())
+          item.description.toLowerCase().includes(value.toLowerCase().trim()) ||
+          item.tags.includes(value.toLowerCase().trim())
         }
         onChange={handleChange}
         sx={{
-          width: '18rem',
+          width: '24rem',
         }}
       />
     </Flex>

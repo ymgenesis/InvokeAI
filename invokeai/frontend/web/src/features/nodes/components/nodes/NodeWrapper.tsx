@@ -1,8 +1,8 @@
 import { Box, useColorModeValue, useToken } from '@chakra-ui/react';
 import { useAppSelector } from 'app/store/storeHooks';
 import { PropsWithChildren } from 'react';
-import { DRAG_HANDLE_CLASSNAME } from '../hooks/useBuildInvocation';
-import { NODE_WIDTH } from '../types/constants';
+import { DRAG_HANDLE_CLASSNAME } from '../../hooks/useBuildInvocation';
+import { NODE_WIDTH } from '../../types/constants';
 
 type NodeWrapperProps = PropsWithChildren & {
   selected: boolean;

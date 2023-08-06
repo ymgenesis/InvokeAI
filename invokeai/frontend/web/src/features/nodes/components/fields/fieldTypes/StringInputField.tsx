@@ -25,13 +25,6 @@ const StringInputFieldComponent = (
         value: e.target.value,
       })
     );
-    // dispatch(
-    //   fieldValueChanged({
-    //     nodeId,
-    //     fieldName: field.name,
-    //     value: e.target.value,
-    //   })
-    // );
   };
 
   if (template.ui_component === 'textarea') {

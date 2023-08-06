@@ -1,22 +1,24 @@
 import { Flex, Icon } from '@chakra-ui/react';
 import { useAppSelector } from 'app/store/storeHooks';
+import { map } from 'lodash-es';
 import { memo, useMemo } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { NodeProps } from 'reactflow';
-import { makeTemplateSelector } from '../store/util/makeTemplateSelector';
-import { InvocationValue } from '../types/types';
-import IAINodeHeader from './IAINode/IAINodeHeader';
-import IAINodeInputs from './IAINode/IAINodeInputs';
-import IAINodeOutputs from './IAINode/IAINodeOutputs';
+import { makeTemplateSelector } from 'features/nodes/store/util/makeTemplateSelector';
+import { InvocationValue } from 'features/nodes/types/types';
+import IAINodeHeader from '../Invocation/NodeHeader';
+import InputField from '../fields/InputField';
+import OutputField from '../fields/OutputField';
 import NodeWrapper from './NodeWrapper';
 
-export const InvocationComponent = memo((props: NodeProps<InvocationValue>) => {
+export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
   const { id: nodeId, data, selected } = props;
   const { type, inputs, outputs, isOpen } = data;
 
   const templateSelector = useMemo(() => makeTemplateSelector(type), [type]);
-
   const template = useAppSelector(templateSelector);
+  const inputFields = useMemo(() => map(inputs), [inputs]);
+  const outputFields = useMemo(() => map(outputs), [outputs]);
 
   if (!template) {
     return (
@@ -62,16 +64,28 @@ export const InvocationComponent = memo((props: NodeProps<InvocationValue>) => {
             gap: 1,
           }}
         >
-          <IAINodeOutputs
-            nodeId={nodeId}
-            outputs={outputs}
-            template={template}
-          />
-          <IAINodeInputs nodeId={nodeId} inputs={inputs} template={template} />
+          <Flex className="nopan" flexDir="column" px={2}>
+            {outputFields.map((field) => (
+              <OutputField
+                key={`${nodeId}.${field.id}.input-field`}
+                nodeId={nodeId}
+                field={field}
+                template={template}
+              />
+            ))}
+            {inputFields.map((field) => (
+              <InputField
+                key={`${nodeId}.${field.id}.input-field`}
+                nodeId={nodeId}
+                field={field}
+                template={template}
+              />
+            ))}
+          </Flex>
         </Flex>
       )}
     </NodeWrapper>
   );
 });
 
-InvocationComponent.displayName = 'InvocationComponent';
+InvocationNode.displayName = 'InvocationComponent';
