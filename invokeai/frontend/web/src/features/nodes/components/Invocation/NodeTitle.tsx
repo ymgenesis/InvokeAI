@@ -84,7 +84,7 @@ const IAINodeTitle = (props: IAINodeTitleProps) => {
               p: 0,
               textAlign: 'center',
               fontWeight: 600,
-              color: 'base.750',
+              color: 'base.700',
               _dark: { color: 'base.200' },
             }}
             noOfLines={1}

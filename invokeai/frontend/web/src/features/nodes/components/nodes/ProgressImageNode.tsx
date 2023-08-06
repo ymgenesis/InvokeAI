@@ -65,7 +65,6 @@ const ProgressImageNode = (props: NodeProps) => {
           </Flex>
         )}
       </Flex>
-      <IAINodeResizer onResize={handleResize} />
     </NodeWrapper>
   );
 };

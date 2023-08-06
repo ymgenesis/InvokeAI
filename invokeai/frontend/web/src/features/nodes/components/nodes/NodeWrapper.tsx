@@ -9,10 +9,17 @@ type NodeWrapperProps = PropsWithChildren & {
 };
 
 const NodeWrapper = (props: NodeWrapperProps) => {
-  const [nodeSelectedOutlineLight, nodeSelectedOutlineDark] = useToken(
-    'shadows',
-    ['nodeSelectedOutline.light', 'nodeSelectedOutline.dark']
-  );
+  const [
+    nodeSelectedOutlineLight,
+    nodeSelectedOutlineDark,
+    shadowsXl,
+    shadowsBase,
+  ] = useToken('shadows', [
+    'nodeSelectedOutline.light',
+    'nodeSelectedOutline.dark',
+    'shadows.xl',
+    'shadows.base',
+  ]);
 
   const shadow = useColorModeValue(
     nodeSelectedOutlineLight,
@@ -20,6 +27,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   );
 
   const shift = useAppSelector((state) => state.hotkeys.shift);
+  const opacity = useAppSelector((state) => state.nodes.nodeOpacity);
 
   return (
     <Box
@@ -31,6 +39,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
         transitionProperty: 'common',
         transitionDuration: '0.1s',
         shadow: props.selected ? shadow : undefined,
+        opacity,
       }}
     >
       <Box
@@ -42,7 +51,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
           insetInlineStart: 0,
           borderRadius: 'base',
           pointerEvents: 'none',
-          shadow: 'dark-lg',
+          shadow: `${shadowsXl}, ${shadowsBase}, ${shadowsBase}`,
           zIndex: -1,
         }}
       />

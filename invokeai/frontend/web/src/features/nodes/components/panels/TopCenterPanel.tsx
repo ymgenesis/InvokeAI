@@ -7,6 +7,7 @@ import LoadGraphButton from '../ui/LoadGraphButton';
 import NodeInvokeButton from '../ui/NodeInvokeButton';
 import ReloadSchemaButton from '../ui/ReloadSchemaButton';
 import SaveGraphButton from '../ui/SaveGraphButton';
+import NodeEditorSettings from '../NodeEditorSettings';
 
 const TopCenterPanel = () => {
   return (
@@ -18,6 +19,7 @@ const TopCenterPanel = () => {
         <SaveGraphButton />
         <LoadGraphButton />
         <ClearGraphButton />
+        <NodeEditorSettings />
       </HStack>
     </Panel>
   );

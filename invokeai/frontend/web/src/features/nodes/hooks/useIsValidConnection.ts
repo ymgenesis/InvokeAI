@@ -1,14 +1,23 @@
 // TODO: enable this at some point
 import graphlib from '@dagrejs/graphlib';
+import { useAppSelector } from 'app/store/storeHooks';
 import { useCallback } from 'react';
 import { Connection, Edge, Node, useReactFlow } from 'reactflow';
-import { InvocationValue } from '../types/types';
 import { COLLECTION_TYPES } from '../types/constants';
+import { InvocationValue } from '../types/types';
 
 export const useIsValidConnection = () => {
   const flow = useReactFlow();
+  const shouldValidateGraph = useAppSelector(
+    (state) => state.nodes.shouldValidateGraph
+  );
   const isValidConnection = useCallback(
     ({ source, sourceHandle, target, targetHandle }: Connection): boolean => {
+      if (!shouldValidateGraph) {
+        // manual override!
+        return true;
+      }
+
       const edges = flow.getEdges();
       const nodes = flow.getNodes();
       // Connection must have valid targets
@@ -62,7 +71,7 @@ export const useIsValidConnection = () => {
       // Graphs much be acyclic (no loops!)
       return getIsGraphAcyclic(source, target, nodes, edges);
     },
-    [flow]
+    [flow, shouldValidateGraph]
   );
 
   return isValidConnection;
