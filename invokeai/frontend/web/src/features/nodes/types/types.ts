@@ -111,6 +111,7 @@ export const isFieldType = (value: unknown): value is FieldType =>
  */
 export type InputFieldValue =
   | IntegerInputFieldValue
+  | SeedInputFieldValue
   | FloatInputFieldValue
   | StringInputFieldValue
   | BooleanInputFieldValue
@@ -141,6 +142,7 @@ export type InputFieldValue =
  */
 export type InputFieldTemplate =
   | IntegerInputFieldTemplate
+  | SeedInputFieldTemplate
   | FloatInputFieldTemplate
   | StringInputFieldTemplate
   | BooleanInputFieldTemplate
@@ -202,6 +204,11 @@ export type IntegerInputFieldValue = FieldValueBase & {
 
 export type FloatInputFieldValue = FieldValueBase & {
   type: 'float';
+  value?: number;
+};
+
+export type SeedInputFieldValue = FieldValueBase & {
+  type: 'Seed';
   value?: number;
 };
 
@@ -315,6 +322,16 @@ export type InputFieldTemplateBase = {
 
 export type IntegerInputFieldTemplate = InputFieldTemplateBase & {
   type: 'integer';
+  default: number;
+  multipleOf?: number;
+  maximum?: number;
+  exclusiveMaximum?: boolean;
+  minimum?: number;
+  exclusiveMinimum?: boolean;
+};
+
+export type SeedInputFieldTemplate = InputFieldTemplateBase & {
+  type: 'Seed';
   default: number;
   multipleOf?: number;
   maximum?: number;
