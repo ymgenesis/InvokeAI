@@ -122,17 +122,10 @@ const InspectorPanel = () => {
                 />
               </Flex>
             ) : (
-              <Flex
-                sx={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <IAINoContentFallback
-                  label="No node template found"
-                  icon={null}
-                />
-              </Flex>
+              <IAINoContentFallback
+                label="No node template found"
+                icon={null}
+              />
             )}
           </TabPanel>
           <TabPanel>
