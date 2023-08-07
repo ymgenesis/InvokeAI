@@ -53,6 +53,8 @@ export const initialNodesState: NodesState = {
   shouldSnapToGrid: true,
   shouldColorEdges: true,
   nodeOpacity: 1,
+  selectedNodes: [],
+  selectedEdges: [],
 };
 
 type FieldValueAction<T extends InputFieldValue> = PayloadAction<{
@@ -254,6 +256,12 @@ const nodesSlice = createSlice({
         return;
       }
       node.data.userLabel = userLabel;
+    },
+    selectedNodesChanged: (state, action: PayloadAction<string[]>) => {
+      state.selectedNodes = action.payload;
+    },
+    selectedEdgesChanged: (state, action: PayloadAction<string[]>) => {
+      state.selectedEdges = action.payload;
     },
     fieldStringValueChanged: (
       state,
@@ -459,6 +467,8 @@ export const {
   nodeOpacityChanged,
   shouldSnapToGridChanged,
   shouldColorEdgesChanged,
+  selectedNodesChanged,
+  selectedEdgesChanged,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

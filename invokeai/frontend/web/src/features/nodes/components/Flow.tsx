@@ -9,6 +9,8 @@ import {
   OnEdgesDelete,
   OnInit,
   OnNodesChange,
+  OnSelectionChangeFunc,
+  ProOptions,
   ReactFlow,
 } from 'reactflow';
 import { useIsValidConnection } from '../hooks/useIsValidConnection';
@@ -19,16 +21,21 @@ import {
   edgesChanged,
   edgesDeleted,
   nodesChanged,
+  selectedEdgesChanged,
+  selectedNodesChanged,
   setEditorInstance,
 } from '../store/nodesSlice';
 import { CustomConnectionLine } from './CustomConnectionLine';
 import { edgeTypes } from './CustomEdges';
 import { nodeTypes } from './CustomNodes';
-import BottomLeftPanel from './panels/BottomLeftPanel';
-import MinimapPanel from './panels/MinimapPanel';
-import TopCenterPanel from './panels/TopCenterPanel';
-import TopLeftPanel from './panels/TopLeftPanel';
-import TopRightPanel from './panels/TopRightPanel';
+import BottomLeftPanel from './editorPanels/BottomLeftPanel';
+import MinimapPanel from './editorPanels/MinimapPanel';
+import TopCenterPanel from './editorPanels/TopCenterPanel';
+import TopLeftPanel from './editorPanels/TopLeftPanel';
+import TopRightPanel from './editorPanels/TopRightPanel';
+
+// TODO: can we support reactflow? if not, we could style the attribution so it matches the app
+const proOptions: ProOptions = { hideAttribution: true };
 
 export const Flow = () => {
   const dispatch = useAppDispatch();
@@ -86,6 +93,14 @@ export const Flow = () => {
     [dispatch]
   );
 
+  const handleSelectionChange: OnSelectionChangeFunc = useCallback(
+    ({ nodes, edges }) => {
+      dispatch(selectedNodesChanged(nodes ? nodes.map((n) => n.id) : []));
+      dispatch(selectedEdgesChanged(edges ? edges.map((e) => e.id) : []));
+    },
+    [dispatch]
+  );
+
   return (
     <ReactFlow
       nodeTypes={nodeTypes}
@@ -99,12 +114,14 @@ export const Flow = () => {
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}
       connectionLineComponent={CustomConnectionLine}
+      onSelectionChange={handleSelectionChange}
       onInit={onInit}
       isValidConnection={isValidConnection}
       minZoom={0.2}
       snapToGrid={shouldSnapToGrid}
       snapGrid={[50, 50]}
       connectionRadius={30}
+      proOptions={proOptions}
     >
       <TopLeftPanel />
       <TopCenterPanel />

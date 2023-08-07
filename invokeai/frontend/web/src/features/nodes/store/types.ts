@@ -19,4 +19,6 @@ export type NodesState = {
   nodeOpacity: number;
   shouldSnapToGrid: boolean;
   shouldColorEdges: boolean;
+  selectedNodes: string[];
+  selectedEdges: string[];
 };

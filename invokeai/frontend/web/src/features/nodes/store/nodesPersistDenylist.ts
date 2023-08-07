@@ -6,4 +6,8 @@ import { NodesState } from './types';
 export const nodesPersistDenylist: (keyof NodesState)[] = [
   'schema',
   'invocationTemplates',
+  'connectionStartParams',
+  'currentConnectionFieldType',
+  'selectedNodes',
+  'selectedEdges',
 ];

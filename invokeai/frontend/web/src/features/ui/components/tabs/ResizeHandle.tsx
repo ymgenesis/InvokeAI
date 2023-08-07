@@ -5,10 +5,11 @@ import { mode } from 'theme/util/mode';
 
 type ResizeHandleProps = Omit<FlexProps, 'direction'> & {
   direction?: 'horizontal' | 'vertical';
+  collapsedDirection?: 'top' | 'bottom' | 'left' | 'right';
 };
 
 const ResizeHandle = (props: ResizeHandleProps) => {
-  const { direction = 'horizontal', ...rest } = props;
+  const { direction = 'horizontal', collapsedDirection, ...rest } = props;
   const { colorMode } = useColorMode();
 
   if (direction === 'horizontal') {
@@ -16,9 +17,13 @@ const ResizeHandle = (props: ResizeHandleProps) => {
       <PanelResizeHandle>
         <Flex
           sx={{
-            w: 6,
+            w: collapsedDirection ? 2 : 4,
             h: 'full',
-            justifyContent: 'center',
+            justifyContent: collapsedDirection
+              ? collapsedDirection === 'left'
+                ? 'flex-start'
+                : 'flex-end'
+              : 'center',
             alignItems: 'center',
           }}
           {...rest}
@@ -26,8 +31,8 @@ const ResizeHandle = (props: ResizeHandleProps) => {
           <Box
             sx={{
               w: 0.5,
-              h: 'calc(100% - 4px)',
-              bg: mode('base.100', 'base.850')(colorMode),
+              h: 'calc(100% - 1rem)',
+              bg: mode('blackAlpha.100', 'whiteAlpha.100')(colorMode),
             }}
           />
         </Flex>
@@ -40,17 +45,21 @@ const ResizeHandle = (props: ResizeHandleProps) => {
       <Flex
         sx={{
           w: 'full',
-          h: 6,
-          justifyContent: 'center',
+          h: collapsedDirection ? 2 : 4,
+          justifyContent: collapsedDirection
+            ? collapsedDirection === 'left'
+              ? 'flex-start'
+              : 'flex-end'
+            : 'center',
           alignItems: 'center',
         }}
         {...rest}
       >
         <Box
           sx={{
-            w: 'calc(100% - 4px)',
             h: 0.5,
-            bg: mode('base.100', 'base.850')(colorMode),
+            w: 'calc(100% - 1rem)',
+            bg: mode('blackAlpha.100', 'whiteAlpha.100')(colorMode),
           }}
         />
       </Flex>
