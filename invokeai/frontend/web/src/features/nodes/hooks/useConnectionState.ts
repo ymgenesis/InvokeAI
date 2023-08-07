@@ -61,10 +61,12 @@ export const useConnectionState = ({
       createSelector(stateSelector, ({ nodes }) =>
         Boolean(
           nodes.connectionStartParams?.nodeId === nodeId &&
-            nodes.connectionStartParams?.handleId === field.name
+            nodes.connectionStartParams?.handleId === field.name &&
+            nodes.connectionStartParams?.handleType ===
+              { input: 'target', output: 'source' }[kind]
         )
       ),
-    [field.name, nodeId]
+    [field.name, kind, nodeId]
   );
 
   const isConnected = useAppSelector(selectIsConnected);
