@@ -82,7 +82,7 @@ const CollapsedEdge = ({
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          strokeWidth: isSelected ? 2.5 : 2,
+          strokeWidth: isSelected ? 3 : 2,
           stroke: base500,
           opacity: isSelected ? 0.8 : 0.5,
           animation: shouldAnimate
@@ -160,7 +160,7 @@ const DefaultEdge = ({
       markerEnd={markerEnd}
       style={{
         zIndex: 99,
-        strokeWidth: isSelected ? 2.5 : 2,
+        strokeWidth: isSelected ? 3 : 2,
         stroke,
         opacity: isSelected ? 0.8 : 0.5,
         animation: shouldAnimate ? 'dashdraw 0.5s linear infinite' : undefined,

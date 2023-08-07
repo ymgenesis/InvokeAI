@@ -1,6 +1,7 @@
 import {
   Divider,
   Flex,
+  Heading,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -97,6 +98,7 @@ const NodeEditorSettings = () => {
                 py: 4,
               }}
             >
+              <Heading size="sm">General</Heading>
               <IAISwitch
                 onChange={handleChangeShouldAnimate}
                 isChecked={shouldAnimateEdges}
@@ -105,24 +107,26 @@ const NodeEditorSettings = () => {
               />
               <Divider />
               <IAISwitch
-                isChecked={shouldValidateGraph}
-                onChange={handleChangeShouldValidate}
-                label="Validate Connections and Graph"
-                helperText="Prevent invalid connections from being made, and invalid graphs from being invoked"
-              />
-              <Divider />
-              <IAISwitch
                 isChecked={shouldSnapToGrid}
                 onChange={handleChangeShouldSnap}
                 label="Snap to Grid"
-                helperText="Nodes snap to grid when moved"
+                helperText="Snap nodes to grid when moved"
               />
               <Divider />
               <IAISwitch
                 isChecked={shouldColorEdges}
                 onChange={handleChangeShouldColor}
-                label="Color Edges"
-                helperText="Color edges according to their connected nodes"
+                label="Color-Code Edges"
+                helperText="Color-code edges according to their connected fields"
+              />
+              <Heading size="sm" pt={4}>
+                Advanced
+              </Heading>
+              <IAISwitch
+                isChecked={shouldValidateGraph}
+                onChange={handleChangeShouldValidate}
+                label="Validate Connections and Graph"
+                helperText="Prevent invalid connections from being made, and invalid graphs from being invoked"
               />
             </Flex>
           </ModalBody>
