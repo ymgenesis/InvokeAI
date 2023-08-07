@@ -185,6 +185,7 @@ const InvokeTabs = () => {
 
   return (
     <Tabs
+      variant="appTabs"
       defaultIndex={activeTab}
       index={activeTab}
       onChange={handleTabChange}

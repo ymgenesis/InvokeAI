@@ -36,6 +36,7 @@ const ImageMetadataJSON = (props: Props) => {
           bottom: 0,
           overflow: 'auto',
           p: 4,
+          fontSize: 'sm',
         }}
       >
         <OverlayScrollbarsComponent

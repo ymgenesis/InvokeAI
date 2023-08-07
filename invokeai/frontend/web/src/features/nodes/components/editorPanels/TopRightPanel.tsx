@@ -3,7 +3,7 @@ import { useAppSelector } from 'app/store/storeHooks';
 import { memo } from 'react';
 import { Panel } from 'reactflow';
 import FieldTypeLegend from '../FieldTypeLegend';
-import NodeGraphOverlay from '../NodeGraphOverlay';
+import NodeGraph from '../NodeGraphOverlay';
 
 const TopRightPanel = () => {
   const shouldShowGraphOverlay = useAppSelector(
@@ -16,7 +16,7 @@ const TopRightPanel = () => {
   return (
     <Panel position="top-right">
       {shouldShowFieldTypeLegend && <FieldTypeLegend />}
-      {shouldShowGraphOverlay && <NodeGraphOverlay />}
+      {shouldShowGraphOverlay && <NodeGraph />}
     </Panel>
   );
 };
