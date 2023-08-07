@@ -10,6 +10,7 @@ import NodeHeader from '../Invocation/NodeHeader';
 import InputField from '../fields/InputField';
 import OutputField from '../fields/OutputField';
 import NodeWrapper from './NodeWrapper';
+import NodeResizer from '../Invocation/NodeResizer';
 
 export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
   const { id: nodeId, data, selected } = props;
@@ -56,37 +57,40 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
         description={template.description}
       />
       {isOpen && (
-        <Flex
-          className={'nopan'}
-          sx={{
-            cursor: 'auto',
-            flexDirection: 'column',
-            borderBottomRadius: 'base',
-            py: 1,
-            bg: 'base.100',
-            _dark: { bg: 'base.800' },
-            gap: 1,
-          }}
-        >
-          <Flex className="nopan" flexDir="column" px={2}>
-            {outputFields.map((field) => (
-              <OutputField
-                key={`${nodeId}.${field.id}.input-field`}
-                nodeId={nodeId}
-                field={field}
-                template={template}
-              />
-            ))}
-            {inputFields.map((field) => (
-              <InputField
-                key={`${nodeId}.${field.id}.input-field`}
-                nodeId={nodeId}
-                field={field}
-                template={template}
-              />
-            ))}
+        <>
+          <Flex
+            className={'nopan'}
+            sx={{
+              cursor: 'auto',
+              flexDirection: 'column',
+              borderBottomRadius: 'base',
+              py: 1,
+              bg: 'base.100',
+              _dark: { bg: 'base.800' },
+              gap: 1,
+            }}
+          >
+            <Flex className="nopan" flexDir="column" px={2}>
+              {outputFields.map((field) => (
+                <OutputField
+                  key={`${nodeId}.${field.id}.input-field`}
+                  nodeId={nodeId}
+                  field={field}
+                  template={template}
+                />
+              ))}
+              {inputFields.map((field) => (
+                <InputField
+                  key={`${nodeId}.${field.id}.input-field`}
+                  nodeId={nodeId}
+                  field={field}
+                  template={template}
+                />
+              ))}
+            </Flex>
           </Flex>
-        </Flex>
+          <NodeResizer />
+        </>
       )}
     </NodeWrapper>
   );

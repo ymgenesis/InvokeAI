@@ -2,11 +2,12 @@
 
 from typing import Literal
 
-from pydantic import validator
 import torch
-from invokeai.app.invocations.latent import LatentsField
+from pydantic import validator
 
+from invokeai.app.invocations.latent import LatentsField
 from invokeai.app.util.misc import SEED_MAX, get_random_seed
+
 from ...backend.util.devices import choose_torch_device, torch_dtype
 from .baseinvocation import (
     BaseInvocation,
@@ -94,7 +95,6 @@ class NoiseInvocation(BaseInvocation):
         le=SEED_MAX,
         description=FieldDescriptions.seed,
         default_factory=get_random_seed,
-        ui_type_hint=UITypeHint.Seed,
     )
     width: int = InputField(
         default=512,

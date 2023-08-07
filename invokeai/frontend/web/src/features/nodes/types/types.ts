@@ -6,6 +6,7 @@ import {
 } from 'features/parameters/types/parameterSchemas';
 import { OpenAPIV3 } from 'openapi-types';
 import { RgbaColor } from 'react-colorful';
+import { Edge, Node } from 'reactflow';
 import {
   Graph,
   ImageDTO,
@@ -22,10 +23,11 @@ export type NonNullableGraph = O.Required<Graph, 'nodes' | 'edges'>;
 export type InvocationValue = {
   id: string;
   type: AnyInvocationType;
-  userLabel: string;
+  label: string;
   isOpen: boolean;
   inputs: Record<string, InputFieldValue>;
   outputs: Record<string, OutputFieldValue>;
+  notes?: string;
 };
 
 export type InvocationTemplate = {
@@ -509,3 +511,27 @@ export const isInvocationSchemaObject = (
 export const isInvocationFieldSchema = (
   obj: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject
 ): obj is InvocationFieldSchema => !('$ref' in obj);
+
+export type InvocationEdgeExtra = { type: 'default' | 'collapsed' };
+
+export type ExposedField = {
+  nodeId: string;
+  fieldId: string;
+};
+
+export type Workflow = {
+  name: string;
+  author: string;
+  description: string;
+  tags: string;
+  notes: string;
+  exposedFields: ExposedField[];
+  nodes: Pick<
+    Node<InvocationValue>,
+    'id' | 'type' | 'data' | 'width' | 'height' | 'position'
+  >[];
+  edges: Pick<
+    Edge<InvocationEdgeExtra>,
+    'source' | 'sourceHandle' | 'target' | 'targetHandle' | 'id' | 'type'
+  >[];
+};

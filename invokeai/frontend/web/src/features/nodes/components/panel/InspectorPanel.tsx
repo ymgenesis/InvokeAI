@@ -14,20 +14,24 @@ import { useAppSelector } from 'app/store/storeHooks';
 import { defaultSelectorOptions } from 'app/store/util/defaultMemoizeOptions';
 import { IAINoContentFallback } from 'common/components/IAIImageFallback';
 import ImageMetadataJSON from 'features/gallery/components/ImageMetadataViewer/ImageMetadataJSON';
-import { buildNodesGraph } from 'features/nodes/util/graphBuilders/buildNodesGraph';
-import { omit, size } from 'lodash-es';
-import { memo, useMemo, useState } from 'react';
+import { buildWorkflow } from 'features/nodes/util/buildWorkflow';
+import { size } from 'lodash-es';
+import { memo, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 
-const useNodesGraph = () => {
+const useWatchWorkflow = () => {
   const nodes = useAppSelector((state: RootState) => state.nodes);
   const [debouncedNodes] = useDebounce(nodes, 300);
-  const graph = useMemo(
-    () => omit(buildNodesGraph(debouncedNodes), 'id'),
+  const workflow = useMemo(
+    () => buildWorkflow(debouncedNodes),
     [debouncedNodes]
   );
 
-  return { graph, nodeCount: size(graph.nodes), edgeCount: size(graph.edges) };
+  return {
+    workflow,
+    nodeCount: size(workflow.nodes),
+    edgeCount: size(workflow.edges),
+  };
 };
 
 const selector = createSelector(
@@ -54,8 +58,7 @@ const selector = createSelector(
 
 const InspectorPanel = () => {
   const { node, template } = useAppSelector(selector);
-  const { graph, nodeCount, edgeCount } = useNodesGraph();
-  const [tabIndex, setTabIndex] = useState(0);
+  const { workflow, nodeCount, edgeCount } = useWatchWorkflow();
 
   return (
     <Flex
@@ -68,13 +71,11 @@ const InspectorPanel = () => {
       }}
     >
       <Tabs
-        tabIndex={tabIndex}
-        onChange={setTabIndex}
         variant="line"
         sx={{ display: 'flex', flexDir: 'column', w: 'full', h: 'full' }}
       >
         <TabList>
-          <Tab>Graph</Tab>
+          <Tab>Workflow</Tab>
           <Tab>Node Template</Tab>
           <Tab>Node Data</Tab>
         </TabList>
@@ -95,7 +96,10 @@ const InspectorPanel = () => {
                   {edgeCount === 1 ? '' : 's'}
                 </Text>
               </Box>
-              <ImageMetadataJSON jsonObject={graph} copyTooltip="Copy Graph" />
+              <ImageMetadataJSON
+                jsonObject={workflow}
+                copyTooltip="Copy Workflow JSON"
+              />
             </Flex>
           </TabPanel>
           <TabPanel>

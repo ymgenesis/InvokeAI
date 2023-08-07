@@ -20,10 +20,10 @@ interface Props {
 
 const NodeTitle = (props: Props) => {
   const { data, title } = props;
-  const { userLabel } = data;
+  const { label } = data;
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
-  const [localTitle, setLocalTitle] = useState(userLabel || title);
+  const [localTitle, setLocalTitle] = useState(label || title);
 
   const handleSubmit = useCallback(
     async (newTitle: string) => {
@@ -35,7 +35,7 @@ const NodeTitle = (props: Props) => {
       }
 
       // don't updated the board name if it hasn't changed
-      if (newTitle === (userLabel || title)) {
+      if (newTitle === (label || title)) {
         return;
       }
 
@@ -44,7 +44,7 @@ const NodeTitle = (props: Props) => {
       // update local state
       setLocalTitle(newTitle);
     },
-    [data.id, dispatch, title, userLabel]
+    [data.id, dispatch, title, label]
   );
 
   const handleChange = useCallback((newTitle: string) => {

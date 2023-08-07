@@ -1,10 +1,16 @@
 import { OpenAPIV3 } from 'openapi-types';
 import { Edge, Node, OnConnectStartParams, ReactFlowInstance } from 'reactflow';
-import { FieldType, InvocationTemplate, InvocationValue } from '../types/types';
+import {
+  FieldType,
+  InvocationEdgeExtra,
+  InvocationTemplate,
+  InvocationValue,
+  Workflow,
+} from '../types/types';
 
 export type NodesState = {
   nodes: Node<InvocationValue>[];
-  edges: Edge[];
+  edges: Edge<InvocationEdgeExtra>[];
   schema: OpenAPIV3.Document | null;
   invocationTemplates: Record<string, InvocationTemplate>;
   connectionStartParams: OnConnectStartParams | null;
@@ -20,4 +26,5 @@ export type NodesState = {
   shouldColorEdges: boolean;
   selectedNodes: string[];
   selectedEdges: string[];
+  workflow: Omit<Workflow, 'nodes' | 'edges'>;
 };

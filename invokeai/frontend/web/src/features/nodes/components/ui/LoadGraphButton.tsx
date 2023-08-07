@@ -1,7 +1,11 @@
 import { FileButton } from '@mantine/core';
 import { useAppDispatch } from 'app/store/storeHooks';
 import IAIIconButton from 'common/components/IAIIconButton';
-import { loadFileEdges, loadFileNodes } from 'features/nodes/store/nodesSlice';
+import {
+  loadFileEdges,
+  loadFileNodes,
+  workflowLoaded,
+} from 'features/nodes/store/nodesSlice';
 import { addToast } from 'features/system/store/systemSlice';
 import { makeToast } from 'features/system/util/makeToast';
 import i18n from 'i18n';
@@ -94,43 +98,44 @@ const LoadGraphButton = () => {
       reader.onload = async () => {
         const json = reader.result;
 
-        try {
-          const retrievedNodeTree = await JSON.parse(String(json));
-          const { isValid, message } =
-            sanityCheckInvokeAIGraph(retrievedNodeTree);
+        dispatch(workflowLoaded(JSON.parse(json as string)));
+        // try {
+        //   const retrievedNodeTree = await JSON.parse(String(json));
+        //   const { isValid, message } =
+        //     sanityCheckInvokeAIGraph(retrievedNodeTree);
 
-          if (isValid) {
-            dispatch(loadFileNodes(retrievedNodeTree.nodes));
-            dispatch(loadFileEdges(retrievedNodeTree.edges));
-            fitView();
+        //   if (isValid) {
+        //     dispatch(loadFileNodes(retrievedNodeTree.nodes));
+        //     dispatch(loadFileEdges(retrievedNodeTree.edges));
+        //     fitView();
 
-            dispatch(
-              addToast(makeToast({ title: message, status: 'success' }))
-            );
-          } else {
-            dispatch(
-              addToast(
-                makeToast({
-                  title: message,
-                  status: 'error',
-                })
-              )
-            );
-          }
-          // Cleanup
-          reader.abort();
-        } catch (error) {
-          if (error) {
-            dispatch(
-              addToast(
-                makeToast({
-                  title: t('toast.nodesNotValidJSON'),
-                  status: 'error',
-                })
-              )
-            );
-          }
-        }
+        //     dispatch(
+        //       addToast(makeToast({ title: message, status: 'success' }))
+        //     );
+        //   } else {
+        //     dispatch(
+        //       addToast(
+        //         makeToast({
+        //           title: message,
+        //           status: 'error',
+        //         })
+        //       )
+        //     );
+        //   }
+        //   // Cleanup
+        //   reader.abort();
+        // } catch (error) {
+        //   if (error) {
+        //     dispatch(
+        //       addToast(
+        //         makeToast({
+        //           title: t('toast.nodesNotValidJSON'),
+        //           status: 'error',
+        //         })
+        //       )
+        //     );
+        //   }
+        // }
       };
 
       reader.readAsText(v);
@@ -138,7 +143,7 @@ const LoadGraphButton = () => {
       // Cleanup
       uploadedFileRef.current?.();
     },
-    [fitView, dispatch, t]
+    [dispatch]
   );
   return (
     <FileButton

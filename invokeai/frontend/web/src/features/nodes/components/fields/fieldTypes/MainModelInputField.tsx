@@ -130,7 +130,7 @@ const MainModelInputFieldComponent = (
             data.length > 0 ? 'Select a model' : 'No models available'
           }
           data={data}
-          error={data.length === 0}
+          error={!selectedModel}
           disabled={data.length === 0}
           onChange={handleChangeModel}
         />
