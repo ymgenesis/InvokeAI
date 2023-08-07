@@ -2,7 +2,10 @@ import { NODE_MIN_WIDTH } from 'features/nodes/types/constants';
 import { memo } from 'react';
 import { NodeResizeControl, NodeResizerProps } from 'reactflow';
 
-const IAINodeResizer = (props: NodeResizerProps) => {
+// this causes https://github.com/invoke-ai/InvokeAI/issues/4140
+// not using it for now
+
+const NodeResizer = (props: NodeResizerProps) => {
   const { ...rest } = props;
   return (
     <NodeResizeControl
@@ -21,4 +24,4 @@ const IAINodeResizer = (props: NodeResizerProps) => {
   );
 };
 
-export default memo(IAINodeResizer);
+export default memo(NodeResizer);

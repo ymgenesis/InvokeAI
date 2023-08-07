@@ -5,11 +5,11 @@ import { map } from 'lodash-es';
 import { CSSProperties, memo, useMemo } from 'react';
 import { Handle, Position } from 'reactflow';
 
-interface IAINodeCollapsedHandlesProps {
+interface Props {
   data: InvocationValue;
 }
 
-const IAINodeCollapsedHandles = (props: IAINodeCollapsedHandlesProps) => {
+const NodeCollapsedHandles = (props: Props) => {
   const { data } = props;
   const { base400, base600 } = useChakraThemeTokens();
   const backgroundColor = useColorModeValue(base400, base600);
@@ -67,4 +67,4 @@ const IAINodeCollapsedHandles = (props: IAINodeCollapsedHandlesProps) => {
   );
 };
 
-export default memo(IAINodeCollapsedHandles);
+export default memo(NodeCollapsedHandles);

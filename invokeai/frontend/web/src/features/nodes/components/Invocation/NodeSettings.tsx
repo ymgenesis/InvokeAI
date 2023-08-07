@@ -8,11 +8,11 @@ import { InvocationValue } from 'features/nodes/types/types';
 import { ChangeEvent, memo, useCallback } from 'react';
 import { FaBars } from 'react-icons/fa';
 
-interface IAINodeSettingsProps {
+interface Props {
   data: InvocationValue;
 }
 
-const IAINodeSettings = (props: IAINodeSettingsProps) => {
+const NodeSettings = (props: Props) => {
   const { data } = props;
   const dispatch = useAppDispatch();
 
@@ -68,4 +68,4 @@ const IAINodeSettings = (props: IAINodeSettingsProps) => {
   );
 };
 
-export default memo(IAINodeSettings);
+export default memo(NodeSettings);

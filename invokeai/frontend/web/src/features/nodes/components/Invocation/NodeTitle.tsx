@@ -4,7 +4,6 @@ import {
   EditableInput,
   EditablePreview,
   Flex,
-  Tooltip,
   useEditableControls,
 } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
@@ -13,14 +12,14 @@ import { nodeUserLabelChanged } from 'features/nodes/store/nodesSlice';
 import { InvocationValue } from 'features/nodes/types/types';
 import { MouseEvent, memo, useCallback, useState } from 'react';
 
-interface IAINodeTitleProps {
+interface Props {
   data: InvocationValue;
   title: string;
   description: string;
 }
 
-const IAINodeTitle = (props: IAINodeTitleProps) => {
-  const { data, title, description } = props;
+const NodeTitle = (props: Props) => {
+  const { data, title } = props;
   const { userLabel } = data;
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
@@ -63,52 +62,45 @@ const IAINodeTitle = (props: IAINodeTitleProps) => {
         cursor: isEditing ? 'text' : undefined,
       }}
     >
-      <Tooltip
-        label={`${title}: ${description}`}
-        placement="top"
-        hasArrow
-        openDelay={500}
+      <Editable
+        value={localTitle}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        sx={{
+          position: 'relative',
+          w: 'full',
+        }}
       >
-        <Editable
-          value={localTitle}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
+        <EditablePreview
+          fontSize="sm"
           sx={{
-            position: 'relative',
-            w: 'full',
+            p: 0,
+            textAlign: 'center',
+            fontWeight: 600,
+            color: 'base.700',
+            _dark: { color: 'base.200' },
           }}
-        >
-          <EditablePreview
-            fontSize="sm"
-            sx={{
+          noOfLines={1}
+        />
+        <EditableInput
+          fontSize="sm"
+          sx={{
+            p: 0,
+            fontWeight: 600,
+            _focusVisible: {
               p: 0,
               textAlign: 'center',
-              fontWeight: 600,
-              color: 'base.700',
-              _dark: { color: 'base.200' },
-            }}
-            noOfLines={1}
-          />
-          <EditableInput
-            fontSize="sm"
-            sx={{
-              p: 0,
-              fontWeight: 600,
-              _focusVisible: {
-                p: 0,
-                textAlign: 'center',
-                boxShadow: 'none',
-              },
-            }}
-          />
-          <EditableControls setIsEditing={setIsEditing} />
-        </Editable>
-      </Tooltip>
+              boxShadow: 'none',
+            },
+          }}
+        />
+        <EditableControls setIsEditing={setIsEditing} />
+      </Editable>
     </Flex>
   );
 };
 
-export default memo(IAINodeTitle);
+export default memo(NodeTitle);
 
 type EditableControlsProps = {
   setIsEditing: (isEditing: boolean) => void;

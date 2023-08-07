@@ -1,18 +1,18 @@
 import { Flex } from '@chakra-ui/react';
 import { InvocationValue } from 'features/nodes/types/types';
 import { memo } from 'react';
-import IAINodeCollapseButton from './NodeCollapseButton';
-import IAINodeCollapsedHandles from './NodeCollapsedHandles';
-import IAINodeSettings from './NodeSettings';
-import IAINodeTitle from './NodeTitle';
+import NodeCollapseButton from './NodeCollapseButton';
+import NodeCollapsedHandles from './NodeCollapsedHandles';
+import NodeSettings from './NodeSettings';
+import NodeTitle from './NodeTitle';
 
-interface IAINodeHeaderProps {
+interface Props {
   data: InvocationValue;
   title: string;
   description: string;
 }
 
-const IAINodeHeader = (props: IAINodeHeaderProps) => {
+const NodeHeader = (props: Props) => {
   const { data, title, description } = props;
   const { isOpen } = data;
 
@@ -28,12 +28,12 @@ const IAINodeHeader = (props: IAINodeHeaderProps) => {
         _dark: { bg: 'base.750' },
       }}
     >
-      <IAINodeCollapseButton data={data} />
-      <IAINodeTitle data={data} title={title} description={description} />
-      <IAINodeSettings data={data} />
-      {!isOpen && <IAINodeCollapsedHandles data={data} />}
+      <NodeCollapseButton data={data} />
+      <NodeTitle data={data} title={title} description={description} />
+      <NodeSettings data={data} />
+      {!isOpen && <NodeCollapsedHandles data={data} />}
     </Flex>
   );
 };
 
-export default memo(IAINodeHeader);
+export default memo(NodeHeader);
