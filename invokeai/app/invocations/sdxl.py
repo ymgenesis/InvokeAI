@@ -230,7 +230,9 @@ class SDXLTextToLatentsInvocation(BaseInvocation):
         description=FieldDescriptions.cfg_scale,
         ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    scheduler: SAMPLER_NAME_VALUES = InputField(
+        default="euler", description=FieldDescriptions.scheduler, input=Input.Direct
+    )
     unet: UNetField = InputField(description=FieldDescriptions.unet, input=Input.Connection)
     denoising_end: float = InputField(default=1.0, gt=0, le=1, description=FieldDescriptions.denoising_end)
     # control: Union[ControlField, list[ControlField]] = InputField(default=None, description="The control to use")
@@ -482,7 +484,9 @@ class SDXLLatentsToLatentsInvocation(BaseInvocation):
         description=FieldDescriptions.cfg_scale,
         ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    scheduler: SAMPLER_NAME_VALUES = InputField(
+        default="euler", description=FieldDescriptions.scheduler, input=Input.Direct
+    )
     unet: UNetField = InputField(
         description=FieldDescriptions.unet,
         input=Input.Connection,

@@ -170,7 +170,9 @@ class ONNXTextToLatentsInvocation(BaseInvocation):
         description=FieldDescriptions.cfg_scale,
         ui_type_hint=UITypeHint.Float,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    scheduler: SAMPLER_NAME_VALUES = InputField(
+        default="euler", description=FieldDescriptions.scheduler, input=Input.Direct
+    )
     precision: PRECISION_VALUES = InputField(default="tensor(float16)", description=FieldDescriptions.precision)
     unet: UNetField = InputField(
         description=FieldDescriptions.unet,
