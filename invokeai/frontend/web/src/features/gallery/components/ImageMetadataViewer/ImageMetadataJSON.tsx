@@ -19,8 +19,8 @@ const ImageMetadataJSON = (props: Props) => {
     <Flex
       sx={{
         borderRadius: 'base',
-        bg: 'whiteAlpha.500',
-        _dark: { bg: 'blackAlpha.500' },
+        bg: 'base.200',
+        _dark: { bg: 'base.800' },
         flexGrow: 1,
         w: 'full',
         h: 'full',

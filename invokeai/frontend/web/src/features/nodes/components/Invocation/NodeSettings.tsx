@@ -3,12 +3,9 @@ import { useAppDispatch } from 'app/store/storeHooks';
 import IAIIconButton from 'common/components/IAIIconButton';
 import IAIPopover from 'common/components/IAIPopover';
 import IAISwitch from 'common/components/IAISwitch';
-import {
-  fieldBooleanValueChanged,
-  nodeSelected,
-} from 'features/nodes/store/nodesSlice';
+import { fieldBooleanValueChanged } from 'features/nodes/store/nodesSlice';
 import { InvocationValue } from 'features/nodes/types/types';
-import { memo, useCallback, useMemo } from 'react';
+import { ChangeEvent, memo, useCallback } from 'react';
 import { FaBars } from 'react-icons/fa';
 
 interface IAINodeSettingsProps {
@@ -19,34 +16,27 @@ const IAINodeSettings = (props: IAINodeSettingsProps) => {
   const { data } = props;
   const dispatch = useAppDispatch();
 
-  const is_intermediate = useMemo(
-    () =>
-      (data.inputs['is_intermediate']?.value as boolean | undefined) ?? false,
-    [data.inputs]
+  const handleChangeIsIntermediate = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      dispatch(
+        fieldBooleanValueChanged({
+          nodeId: data.id,
+          fieldName: 'is_intermediate',
+          value: e.target.checked,
+        })
+      );
+    },
+    [data.id, dispatch]
   );
-
-  const handleClick = useCallback(() => {
-    dispatch(nodeSelected(data.id));
-  }, [data.id, dispatch]);
-
-  const handleChangeIsIntermediate = useCallback(() => {
-    dispatch(
-      fieldBooleanValueChanged({
-        nodeId: data.id,
-        fieldName: 'is_intermediate',
-        value: !is_intermediate,
-      })
-    );
-  }, [data.id, dispatch, is_intermediate]);
 
   return (
     <IAIPopover
+      isLazy={false}
       triggerComponent={
         <IAIIconButton
           className="nopan"
           aria-label="Node Settings"
           variant="link"
-          onClick={handleClick}
           sx={{
             minW: 8,
             w: 8,
@@ -66,11 +56,12 @@ const IAINodeSettings = (props: IAINodeSettingsProps) => {
         />
       }
     >
-      <Flex>
+      <Flex sx={{ flexDir: 'column', gap: 4, w: 64 }}>
         <IAISwitch
-          label="Save Output"
-          isChecked={!is_intermediate}
+          label="Intermediate"
+          isChecked={Boolean(data.inputs['is_intermediate']?.value)}
           onChange={handleChangeIsIntermediate}
+          helperText="The outputs of intermediate nodes are considered temporary objects. Intermediate images are not added to the gallery."
         />
       </Flex>
     </IAIPopover>

@@ -1,10 +1,24 @@
 import { Box, useColorModeValue, useToken } from '@chakra-ui/react';
-import { useAppSelector } from 'app/store/storeHooks';
-import { PropsWithChildren } from 'react';
+import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
+import { nodeClicked } from 'features/nodes/store/nodesSlice';
+import { PropsWithChildren, useCallback } from 'react';
 import { DRAG_HANDLE_CLASSNAME } from '../../hooks/useBuildInvocation';
 import { NODE_WIDTH } from '../../types/constants';
 
+const useNodeSelect = (nodeId: string) => {
+  const dispatch = useAppDispatch();
+  const ctrl = useAppSelector((state) => state.hotkeys.ctrl);
+  const meta = useAppSelector((state) => state.hotkeys.meta);
+
+  const selectNode = useCallback(() => {
+    dispatch(nodeClicked({ nodeId, ctrlOrMeta: ctrl || meta }));
+  }, [ctrl, dispatch, meta, nodeId]);
+
+  return selectNode;
+};
+
 type NodeWrapperProps = PropsWithChildren & {
+  nodeId: string;
   selected: boolean;
 };
 
@@ -21,6 +35,8 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     'shadows.base',
   ]);
 
+  const selectNode = useNodeSelect(props.nodeId);
+
   const shadow = useColorModeValue(
     nodeSelectedOutlineLight,
     nodeSelectedOutlineDark
@@ -31,6 +47,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
 
   return (
     <Box
+      onClickCapture={selectNode}
       className={shift ? DRAG_HANDLE_CLASSNAME : 'nopan'}
       sx={{
         position: 'relative',

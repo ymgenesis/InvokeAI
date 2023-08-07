@@ -44,17 +44,13 @@ const ImageMetadataViewer = ({ image }: ImageMetadataViewerProps) => {
 
   return (
     <Flex
+      layerStyle="first"
       sx={{
         padding: 4,
         gap: 1,
         flexDirection: 'column',
         width: 'full',
         height: 'full',
-        backdropFilter: 'blur(20px)',
-        bg: 'baseAlpha.200',
-        _dark: {
-          bg: 'blackAlpha.600',
-        },
         borderRadius: 'base',
         position: 'absolute',
         overflow: 'hidden',
