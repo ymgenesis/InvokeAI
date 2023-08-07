@@ -159,7 +159,6 @@ const DefaultEdge = ({
       path={edgePath}
       markerEnd={markerEnd}
       style={{
-        zIndex: 99,
         strokeWidth: isSelected ? 3 : 2,
         stroke,
         opacity: isSelected ? 0.8 : 0.5,

@@ -22,6 +22,7 @@ import {
   ColorInputFieldValue,
   ControlNetModelInputFieldValue,
   EnumInputFieldValue,
+  ExposedField,
   FloatInputFieldValue,
   ImageInputFieldValue,
   InputFieldValue,
@@ -33,8 +34,10 @@ import {
   RefinerModelInputFieldValue,
   StringInputFieldValue,
   VaeModelInputFieldValue,
+  Workflow,
 } from '../types/types';
 import { NodesState } from './types';
+import { DRAG_HANDLE_CLASSNAME } from '../hooks/useBuildInvocation';
 
 export const initialNodesState: NodesState = {
   nodes: [],
@@ -54,6 +57,14 @@ export const initialNodesState: NodesState = {
   nodeOpacity: 1,
   selectedNodes: [],
   selectedEdges: [],
+  workflow: {
+    name: '',
+    author: '',
+    description: '',
+    notes: '',
+    tags: '',
+    exposedFields: [],
+  },
 };
 
 type FieldValueAction<T extends InputFieldValue> = PayloadAction<{
@@ -224,9 +235,7 @@ const nodesSlice = createSlice({
     },
     edgesDeleted: (state, action: PayloadAction<Edge[]>) => {
       const edges = action.payload;
-      console.log('edges', edges);
       const collapsedEdges = edges.filter((e) => e.type === 'collapsed');
-      console.log('collapsedEdges', collapsedEdges);
 
       // if we delete a collapsed edge, we need to delete all collapsed edges between the same nodes
       if (collapsedEdges.length) {
@@ -254,7 +263,7 @@ const nodesSlice = createSlice({
       if (!node) {
         return;
       }
-      node.data.userLabel = userLabel;
+      node.data.label = userLabel;
     },
     selectedNodesChanged: (state, action: PayloadAction<string[]>) => {
       state.selectedNodes = action.payload;
@@ -422,6 +431,49 @@ const nodesSlice = createSlice({
     ) => {
       state.progressNodeSize = action.payload;
     },
+    workflowNameChanged: (state, action: PayloadAction<string>) => {
+      state.workflow.name = action.payload;
+    },
+    workflowDescriptionChanged: (state, action: PayloadAction<string>) => {
+      state.workflow.description = action.payload;
+    },
+    workflowTagsChanged: (state, action: PayloadAction<string>) => {
+      state.workflow.tags = action.payload;
+    },
+    workflowAuthorChanged: (state, action: PayloadAction<string>) => {
+      state.workflow.author = action.payload;
+    },
+    workflowNotesChanged: (state, action: PayloadAction<string>) => {
+      state.workflow.notes = action.payload;
+    },
+    workflowExposedFieldAdded: (state, action: PayloadAction<ExposedField>) => {
+      state.workflow.exposedFields.push(action.payload);
+    },
+    workflowExposedFieldRemoved: (
+      state,
+      action: PayloadAction<ExposedField>
+    ) => {
+      state.workflow.exposedFields = state.workflow.exposedFields.filter(
+        (field) =>
+          field.nodeId !== action.payload.nodeId &&
+          field.fieldId !== action.payload.fieldId
+      );
+    },
+    workflowLoaded: (state, action: PayloadAction<Workflow>) => {
+      const { nodes, edges, ...workflow } = action.payload;
+      state.workflow = workflow;
+      state.nodes = applyNodeChanges(
+        nodes.map((node) => ({
+          item: { ...node, dragHandle: `.${DRAG_HANDLE_CLASSNAME}` },
+          type: 'add',
+        })),
+        []
+      );
+      state.edges = applyEdgeChanges(
+        edges.map((edge) => ({ item: edge, type: 'add' })),
+        []
+      );
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(receivedOpenAPISchema.fulfilled, (state, action) => {
@@ -468,6 +520,14 @@ export const {
   shouldColorEdgesChanged,
   selectedNodesChanged,
   selectedEdgesChanged,
+  workflowNameChanged,
+  workflowDescriptionChanged,
+  workflowTagsChanged,
+  workflowAuthorChanged,
+  workflowNotesChanged,
+  workflowExposedFieldAdded,
+  workflowExposedFieldRemoved,
+  workflowLoaded,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

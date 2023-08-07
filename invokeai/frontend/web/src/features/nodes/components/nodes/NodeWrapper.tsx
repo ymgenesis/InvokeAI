@@ -57,6 +57,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
         transitionDuration: '0.1s',
         shadow: props.selected ? shadow : undefined,
         opacity,
+        zIndex: '-999 !important',
       }}
     >
       <Box

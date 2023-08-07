@@ -16,6 +16,7 @@ const ResizeHandle = (props: ResizeHandleProps) => {
     return (
       <PanelResizeHandle>
         <Flex
+          className="resize-handle-horizontal"
           sx={{
             w: collapsedDirection ? 2 : 4,
             h: 'full',
@@ -43,6 +44,7 @@ const ResizeHandle = (props: ResizeHandleProps) => {
   return (
     <PanelResizeHandle>
       <Flex
+        className="resize-handle-vertical"
         sx={{
           w: 'full',
           h: collapsedDirection ? 2 : 4,

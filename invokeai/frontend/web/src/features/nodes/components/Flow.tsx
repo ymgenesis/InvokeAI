@@ -119,7 +119,7 @@ export const Flow = () => {
       isValidConnection={isValidConnection}
       minZoom={0.2}
       snapToGrid={shouldSnapToGrid}
-      snapGrid={[50, 50]}
+      snapGrid={[25, 25]}
       connectionRadius={30}
       proOptions={proOptions}
     >

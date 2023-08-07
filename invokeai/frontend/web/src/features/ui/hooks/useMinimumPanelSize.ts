@@ -31,7 +31,9 @@ export const useMinimumPanelSize = (
       `[data-panel-group-id="${groupId}"]`
     );
     const resizeHandles = document.querySelectorAll(
-      '[data-panel-resize-handle-id]'
+      orientation === 'horizontal'
+        ? '.resize-handle-horizontal'
+        : '.resize-handle-vertical'
     );
 
     if (!panelGroup) {
