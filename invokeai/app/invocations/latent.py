@@ -143,7 +143,9 @@ class TextToLatentsInvocation(BaseInvocation):
         ui_type_hint=UITypeHint.Float,
         title="CFG Scale",
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    scheduler: SAMPLER_NAME_VALUES = InputField(
+        default="euler", description=FieldDescriptions.scheduler, input=Input.Direct
+    )
     unet: UNetField = InputField(description=FieldDescriptions.unet, input=Input.Connection, title="UNet")
     control: Union[ControlField, list[ControlField]] = InputField(
         default=None,

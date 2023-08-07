@@ -16,6 +16,7 @@ from ..util.step_callback import stable_diffusion_step_callback
 from .baseinvocation import (
     BaseInvocation,
     FieldDescriptions,
+    Input,
     InputField,
     InvocationContext,
     title,
@@ -91,7 +92,9 @@ class InpaintInvocation(BaseInvocation):
         ge=1,
         description=FieldDescriptions.cfg_scale,
     )
-    scheduler: SAMPLER_NAME_VALUES = InputField(default="euler", description=FieldDescriptions.scheduler)
+    scheduler: SAMPLER_NAME_VALUES = InputField(
+        default="euler", description=FieldDescriptions.scheduler, input=Input.Direct
+    )
     unet: UNetField = InputField(description=FieldDescriptions.unet)
     vae: VaeField = InputField(description=FieldDescriptions.vae)
     image: ImageField = InputField(description="The input image")
