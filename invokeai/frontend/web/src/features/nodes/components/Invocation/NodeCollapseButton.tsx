@@ -6,11 +6,11 @@ import { InvocationValue } from 'features/nodes/types/types';
 import { memo, useCallback } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
 
-interface IAINodeCollapseButtonProps {
+interface Props {
   data: InvocationValue;
 }
 
-const IAINodeCollapseButton = (props: IAINodeCollapseButtonProps) => {
+const NodeCollapseButton = (props: Props) => {
   const { data } = props;
   const { isOpen } = data;
   const dispatch = useAppDispatch();
@@ -55,4 +55,4 @@ const IAINodeCollapseButton = (props: IAINodeCollapseButtonProps) => {
   );
 };
 
-export default memo(IAINodeCollapseButton);
+export default memo(NodeCollapseButton);

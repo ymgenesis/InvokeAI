@@ -6,7 +6,7 @@ import { map } from 'lodash-es';
 import { memo, useMemo } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { NodeProps } from 'reactflow';
-import IAINodeHeader from '../Invocation/NodeHeader';
+import NodeHeader from '../Invocation/NodeHeader';
 import InputField from '../fields/InputField';
 import OutputField from '../fields/OutputField';
 import NodeWrapper from './NodeWrapper';
@@ -50,7 +50,7 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
 
   return (
     <NodeWrapper nodeId={nodeId} selected={selected}>
-      <IAINodeHeader
+      <NodeHeader
         data={data}
         title={template.title}
         description={template.description}

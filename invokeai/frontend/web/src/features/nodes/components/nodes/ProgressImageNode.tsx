@@ -5,8 +5,8 @@ import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NodeProps, OnResize } from 'reactflow';
 import { setProgressNodeSize } from '../../store/nodesSlice';
-import IAINodeHeader from '../Invocation/NodeHeader';
-import IAINodeResizer from '../Invocation/NodeResizer';
+import NodeHeader from '../Invocation/NodeHeader';
+import NodeResizer from '../Invocation/NodeResizer';
 import NodeWrapper from './NodeWrapper';
 
 const ProgressImageNode = (props: NodeProps) => {
@@ -25,7 +25,7 @@ const ProgressImageNode = (props: NodeProps) => {
 
   return (
     <NodeWrapper selected={selected}>
-      <IAINodeHeader
+      <NodeHeader
         title="Progress Image"
         description="Displays the progress image in the Node Editor"
       />
