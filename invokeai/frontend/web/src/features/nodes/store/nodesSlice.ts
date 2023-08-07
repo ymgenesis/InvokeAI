@@ -43,7 +43,6 @@ export const initialNodesState: NodesState = {
   invocationTemplates: {},
   connectionStartParams: null,
   currentConnectionFieldType: null,
-  shouldShowGraphOverlay: false,
   shouldShowFieldTypeLegend: false,
   shouldShowMinimapPanel: true,
   editorInstance: undefined,
@@ -361,17 +360,18 @@ const nodesSlice = createSlice({
         'image_name'
       );
     },
-    nodeSelected: (state, action: PayloadAction<string>) => {
+    nodeClicked: (
+      state,
+      action: PayloadAction<{ nodeId: string; ctrlOrMeta?: boolean }>
+    ) => {
+      const { nodeId, ctrlOrMeta } = action.payload;
       state.nodes.forEach((node) => {
-        if (node.id === action.payload) {
+        if (node.id === nodeId) {
           node.selected = true;
-        } else {
+        } else if (!ctrlOrMeta) {
           node.selected = false;
         }
       });
-    },
-    shouldShowGraphOverlayChanged: (state, action: PayloadAction<boolean>) => {
-      state.shouldShowGraphOverlay = action.payload;
     },
     shouldShowFieldTypeLegendChanged: (
       state,
@@ -437,8 +437,7 @@ export const {
   connectionMade,
   connectionStarted,
   connectionEnded,
-  nodeSelected,
-  shouldShowGraphOverlayChanged,
+  nodeClicked,
   shouldShowFieldTypeLegendChanged,
   shouldShowMinimapPanelChanged,
   nodeTemplatesBuilt,

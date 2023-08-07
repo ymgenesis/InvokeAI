@@ -10,7 +10,7 @@ import {
   EdgeProps,
   getBezierPath,
 } from 'reactflow';
-import { FIELDS } from '../types/constants';
+import { FIELDS, colorTokenToCssVar } from '../types/constants';
 
 const makeEdgeSelector = (
   source: string,
@@ -26,8 +26,8 @@ const makeEdgeSelector = (
     const sourceType = sourceNode?.data?.outputs[sourceHandleId || '']?.type;
     const stroke =
       sourceType && nodes.shouldColorEdges
-        ? FIELDS[sourceType].colorCssVar
-        : 'base.500';
+        ? colorTokenToCssVar(FIELDS[sourceType].color)
+        : colorTokenToCssVar('base.500');
 
     return {
       isSelected,

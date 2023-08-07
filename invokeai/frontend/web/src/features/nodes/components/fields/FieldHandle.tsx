@@ -1,7 +1,11 @@
 import { Tooltip } from '@chakra-ui/react';
 import { CSSProperties, memo, useMemo } from 'react';
 import { Handle, HandleType, Position } from 'reactflow';
-import { FIELDS, HANDLE_TOOLTIP_OPEN_DELAY } from '../../types/constants';
+import {
+  FIELDS,
+  HANDLE_TOOLTIP_OPEN_DELAY,
+  colorTokenToCssVar,
+} from '../../types/constants';
 import { InputFieldTemplate, OutputFieldTemplate } from '../../types/types';
 
 export const handleBaseStyles: CSSProperties = {
@@ -38,10 +42,11 @@ const FieldHandle = (props: FieldHandleProps) => {
     connectionError,
   } = props;
   const { name, type } = fieldTemplate;
+  const { color, title } = FIELDS[type];
 
   const styles: CSSProperties = useMemo(() => {
     const s: CSSProperties = {
-      backgroundColor: FIELDS[type].colorCssVar,
+      backgroundColor: colorTokenToCssVar(color),
       position: 'absolute',
       width: '1rem',
       height: '1rem',
@@ -71,22 +76,22 @@ const FieldHandle = (props: FieldHandleProps) => {
 
     return s;
   }, [
+    color,
     connectionError,
     handleType,
     isConnectionInProgress,
     isConnectionStartField,
-    type,
   ]);
 
   const tooltip = useMemo(() => {
     if (isConnectionInProgress && isConnectionStartField) {
-      return type;
+      return title;
     }
     if (isConnectionInProgress && connectionError) {
-      return connectionError ?? type;
+      return connectionError ?? title;
     }
-    return type;
-  }, [connectionError, isConnectionInProgress, isConnectionStartField, type]);
+    return title;
+  }, [connectionError, isConnectionInProgress, isConnectionStartField, title]);
 
   return (
     <Tooltip

@@ -56,10 +56,9 @@ export type InvocationTemplate = {
 };
 
 export type FieldUIConfig = {
-  color: string;
-  colorCssVar: string;
   title: string;
   description: string;
+  color: string;
 };
 
 // TODO: Get this from the OpenAPI schema? may be tricky...

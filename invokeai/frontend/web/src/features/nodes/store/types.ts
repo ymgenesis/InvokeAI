@@ -9,7 +9,6 @@ export type NodesState = {
   invocationTemplates: Record<string, InvocationTemplate>;
   connectionStartParams: OnConnectStartParams | null;
   currentConnectionFieldType: FieldType | null;
-  shouldShowGraphOverlay: boolean;
   shouldShowFieldTypeLegend: boolean;
   shouldShowMinimapPanel: boolean;
   editorInstance: ReactFlowInstance | undefined;

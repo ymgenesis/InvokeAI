@@ -21,6 +21,7 @@ import { tabsTheme } from './components/tabs';
 import { textTheme } from './components/text';
 import { textareaTheme } from './components/textarea';
 import { tooltipTheme } from './components/tooltip';
+import { reactflowStyles } from './custom/reactflow';
 
 export const theme: ThemeOverride = {
   config: {
@@ -49,6 +50,7 @@ export const theme: ThemeOverride = {
     global: () => ({
       layerStyle: 'body',
       '*': { ...no_scrollbar },
+      ...reactflowStyles,
     }),
   },
   direction: 'ltr',

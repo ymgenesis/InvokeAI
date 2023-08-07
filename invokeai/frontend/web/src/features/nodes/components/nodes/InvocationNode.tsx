@@ -1,11 +1,11 @@
 import { Flex, Icon } from '@chakra-ui/react';
 import { useAppSelector } from 'app/store/storeHooks';
+import { makeTemplateSelector } from 'features/nodes/store/util/makeTemplateSelector';
+import { InvocationValue } from 'features/nodes/types/types';
 import { map } from 'lodash-es';
 import { memo, useMemo } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { NodeProps } from 'reactflow';
-import { makeTemplateSelector } from 'features/nodes/store/util/makeTemplateSelector';
-import { InvocationValue } from 'features/nodes/types/types';
 import IAINodeHeader from '../Invocation/NodeHeader';
 import InputField from '../fields/InputField';
 import OutputField from '../fields/OutputField';
@@ -17,13 +17,17 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
 
   const templateSelector = useMemo(() => makeTemplateSelector(type), [type]);
   const template = useAppSelector(templateSelector);
-  const inputFields = useMemo(() => map(inputs), [inputs]);
+  const inputFields = useMemo(
+    () => map(inputs).filter((i) => i.name !== 'is_intermediate'),
+    [inputs]
+  );
   const outputFields = useMemo(() => map(outputs), [outputs]);
 
   if (!template) {
     return (
-      <NodeWrapper selected={selected}>
+      <NodeWrapper nodeId={nodeId} selected={selected}>
         <Flex
+          layerStyle="second"
           className="nopan"
           sx={{
             alignItems: 'center',
@@ -45,7 +49,7 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
   }
 
   return (
-    <NodeWrapper selected={selected}>
+    <NodeWrapper nodeId={nodeId} selected={selected}>
       <IAINodeHeader
         data={data}
         title={template.title}

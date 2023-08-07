@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import InspectorPanel from 'features/nodes/components/panel/InspectorPanel';
 import ResizeHandle from 'features/ui/components/tabs/ResizeHandle';
 import { memo, useState } from 'react';
@@ -22,26 +22,7 @@ const NodeEditor = () => {
         onCollapse={setIsPanelCollapsed}
         minSize={25}
       >
-        <PanelGroup
-          id="node-editor-panel_group"
-          autoSaveId="node-editor-panel_gropu"
-          direction="vertical"
-        >
-          <Panel id="node-editor-panel_bottom" minSize={25}>
-            <Flex
-              layerStyle="first"
-              sx={{
-                w: 'full',
-                h: 'full',
-                borderRadius: 'base',
-              }}
-            ></Flex>
-          </Panel>
-          <ResizeHandle direction="vertical" />
-          <Panel id="node-editor-panel_top" minSize={25}>
-            <InspectorPanel />
-          </Panel>
-        </PanelGroup>
+        <InspectorPanel />
       </Panel>
       <ResizeHandle
         collapsedDirection={isPanelCollapsed ? 'left' : undefined}
