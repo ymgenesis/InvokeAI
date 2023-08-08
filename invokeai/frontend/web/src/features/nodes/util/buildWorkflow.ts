@@ -1,8 +1,8 @@
-import { pick } from 'lodash-es';
-import { NodesState } from '../store/types';
-import { Workflow } from '../types/types';
 import { createSelector } from '@reduxjs/toolkit';
 import { stateSelector } from 'app/store/store';
+import { pick } from 'lodash-es';
+import { NodesState } from '../store/types';
+import { Workflow, isInvocationNode, isNotesNode } from '../types/types';
 
 export const buildWorkflow = (nodesState: NodesState): Workflow => {
   const { workflow: workflowMeta, nodes, edges } = nodesState;
@@ -13,6 +13,9 @@ export const buildWorkflow = (nodesState: NodesState): Workflow => {
   };
 
   nodes.forEach((node) => {
+    if (!isInvocationNode(node) && !isNotesNode(node)) {
+      return;
+    }
     workflow.nodes.push(
       pick(node, ['id', 'type', 'position', 'width', 'height', 'data'])
     );

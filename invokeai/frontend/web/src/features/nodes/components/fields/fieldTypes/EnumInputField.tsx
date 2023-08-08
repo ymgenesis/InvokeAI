@@ -26,7 +26,11 @@ const EnumInputFieldComponent = (
   };
 
   return (
-    <Select onChange={handleValueChanged} value={field.value}>
+    <Select
+      className="nowheel"
+      onChange={handleValueChanged}
+      value={field.value}
+    >
       {template.options.map((option) => (
         <option key={option}>{option}</option>
       ))}

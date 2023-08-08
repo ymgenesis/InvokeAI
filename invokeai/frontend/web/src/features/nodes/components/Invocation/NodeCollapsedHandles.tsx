@@ -1,12 +1,12 @@
 import { useColorModeValue } from '@chakra-ui/react';
 import { useChakraThemeTokens } from 'common/hooks/useChakraThemeTokens';
-import { InvocationValue } from 'features/nodes/types/types';
+import { InvocationNodeData } from 'features/nodes/types/types';
 import { map } from 'lodash-es';
 import { CSSProperties, memo, useMemo } from 'react';
 import { Handle, Position } from 'reactflow';
 
 interface Props {
-  data: InvocationValue;
+  data: InvocationNodeData;
 }
 
 const NodeCollapsedHandles = (props: Props) => {

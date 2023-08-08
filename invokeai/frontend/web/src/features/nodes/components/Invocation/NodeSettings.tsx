@@ -4,12 +4,12 @@ import IAIIconButton from 'common/components/IAIIconButton';
 import IAIPopover from 'common/components/IAIPopover';
 import IAISwitch from 'common/components/IAISwitch';
 import { fieldBooleanValueChanged } from 'features/nodes/store/nodesSlice';
-import { InvocationValue } from 'features/nodes/types/types';
+import { InvocationNodeData } from 'features/nodes/types/types';
 import { ChangeEvent, memo, useCallback } from 'react';
 import { FaBars } from 'react-icons/fa';
 
 interface Props {
-  data: InvocationValue;
+  data: InvocationNodeData;
 }
 
 const NodeSettings = (props: Props) => {
@@ -39,8 +39,6 @@ const NodeSettings = (props: Props) => {
           variant="link"
           sx={{
             minW: 8,
-            w: 8,
-            h: 8,
             color: 'base.500',
             _dark: {
               color: 'base.500',

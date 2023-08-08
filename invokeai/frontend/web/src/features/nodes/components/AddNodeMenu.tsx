@@ -22,7 +22,7 @@ type NodeTemplate = {
 const selector = createSelector(
   [stateSelector],
   ({ nodes }) => {
-    const data: NodeTemplate[] = map(nodes.invocationTemplates, (template) => {
+    const data: NodeTemplate[] = map(nodes.nodeTemplates, (template) => {
       return {
         label: template.title,
         value: template.type,
@@ -33,9 +33,16 @@ const selector = createSelector(
 
     data.push({
       label: 'Progress Image',
-      value: 'progress_image',
-      description: 'Displays the progress image in the Node Editor',
+      value: 'current_image',
+      description: 'Displays the current image in the Node Editor',
       tags: ['progress'],
+    });
+
+    data.push({
+      label: 'Notes',
+      value: 'notes',
+      description: 'Add notes about your workflow',
+      tags: ['notes'],
     });
 
     return { data };

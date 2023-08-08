@@ -1,5 +1,5 @@
 import { NodesState } from 'features/nodes/store/types';
-import { InputFieldValue } from 'features/nodes/types/types';
+import { InputFieldValue, isInvocationNode } from 'features/nodes/types/types';
 import { cloneDeep, omit, reduce } from 'lodash-es';
 import { Graph } from 'services/api/types';
 import { AnyInvocation } from 'services/events/types';
@@ -33,7 +33,7 @@ export const parseFieldValue = (field: InputFieldValue) => {
 export const buildNodesGraph = (nodesState: NodesState): Graph => {
   const { nodes, edges } = nodesState;
 
-  const filteredNodes = nodes.filter((n) => n.type !== 'progress_image');
+  const filteredNodes = nodes.filter(isInvocationNode);
 
   // Reduce the node editor nodes into invocation graph nodes
   const parsedNodes = filteredNodes.reduce<NonNullable<Graph['nodes']>>(

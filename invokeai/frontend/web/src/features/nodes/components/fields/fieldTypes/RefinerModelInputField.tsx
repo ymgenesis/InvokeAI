@@ -97,10 +97,8 @@ const RefinerModelInputFieldComponent = (
   ) : (
     <Flex w="100%" alignItems="center" gap={2}>
       <IAIMantineSearchableSelect
+        className="nowheel"
         tooltip={selectedModel?.description}
-        label={
-          selectedModel?.base_model && MODEL_TYPE_MAP[selectedModel?.base_model]
-        }
         value={selectedModel?.id}
         placeholder={data.length > 0 ? 'Select a model' : 'No models available'}
         data={data}

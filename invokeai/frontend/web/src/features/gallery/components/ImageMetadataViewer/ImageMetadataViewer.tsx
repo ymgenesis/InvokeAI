@@ -79,27 +79,21 @@ const ImageMetadataViewer = ({ image }: ImageMetadataViewerProps) => {
         <TabPanels>
           <TabPanel>
             {metadata ? (
-              <ImageMetadataJSON
-                jsonObject={metadata}
-                copyTooltip="Copy Core Metadata"
-              />
+              <ImageMetadataJSON jsonObject={metadata} label="Core Metadata" />
             ) : (
               <IAINoContentFallback label="No core metadata found" />
             )}
           </TabPanel>
           <TabPanel>
             {image ? (
-              <ImageMetadataJSON
-                jsonObject={image}
-                copyTooltip="Copy Image Details"
-              />
+              <ImageMetadataJSON jsonObject={image} label="Image Details" />
             ) : (
               <IAINoContentFallback label="No image details found" />
             )}
           </TabPanel>
           <TabPanel>
             {graph ? (
-              <ImageMetadataJSON jsonObject={graph} copyTooltip="Copy Graph" />
+              <ImageMetadataJSON jsonObject={graph} label="Graph" />
             ) : (
               <IAINoContentFallback label="No graph found" />
             )}

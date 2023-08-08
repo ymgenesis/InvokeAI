@@ -1,7 +1,9 @@
-import { InvocationNode } from './nodes/InvocationNode';
-import ProgressImageNode from './nodes/ProgressImageNode';
+import InvocationNode from './nodes/InvocationNode';
+import CurrentImageNode from './nodes/CurrentImageNode';
+import NotesNode from './nodes/NotesNode';
 
 export const nodeTypes = {
   invocation: InvocationNode,
-  progress_image: ProgressImageNode,
+  current_image: CurrentImageNode,
+  notes: NotesNode,
 };

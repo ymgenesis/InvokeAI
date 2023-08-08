@@ -1,18 +1,24 @@
-import { Box, useColorModeValue, useToken } from '@chakra-ui/react';
+import {
+  Box,
+  ChakraProps,
+  useColorModeValue,
+  useToken,
+} from '@chakra-ui/react';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { nodeClicked } from 'features/nodes/store/nodesSlice';
-import { PropsWithChildren, useCallback } from 'react';
+import { MouseEvent, PropsWithChildren, useCallback, useMemo } from 'react';
 import { DRAG_HANDLE_CLASSNAME } from '../../hooks/useBuildInvocation';
 import { NODE_WIDTH } from '../../types/constants';
 
 const useNodeSelect = (nodeId: string) => {
   const dispatch = useAppDispatch();
-  const ctrl = useAppSelector((state) => state.hotkeys.ctrl);
-  const meta = useAppSelector((state) => state.hotkeys.meta);
 
-  const selectNode = useCallback(() => {
-    dispatch(nodeClicked({ nodeId, ctrlOrMeta: ctrl || meta }));
-  }, [ctrl, dispatch, meta, nodeId]);
+  const selectNode = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      dispatch(nodeClicked({ nodeId, ctrlOrMeta: e.ctrlKey || e.metaKey }));
+    },
+    [dispatch, nodeId]
+  );
 
   return selectNode;
 };
@@ -20,6 +26,7 @@ const useNodeSelect = (nodeId: string) => {
 type NodeWrapperProps = PropsWithChildren & {
   nodeId: string;
   selected: boolean;
+  width?: NonNullable<ChakraProps['sx']>['w'];
 };
 
 const NodeWrapper = (props: NodeWrapperProps) => {
@@ -44,20 +51,24 @@ const NodeWrapper = (props: NodeWrapperProps) => {
 
   const shift = useAppSelector((state) => state.hotkeys.shift);
   const opacity = useAppSelector((state) => state.nodes.nodeOpacity);
+  const className = useMemo(
+    () => (shift ? DRAG_HANDLE_CLASSNAME : 'nopan'),
+    [shift]
+  );
 
   return (
     <Box
       onClickCapture={selectNode}
-      className={shift ? DRAG_HANDLE_CLASSNAME : 'nopan'}
+      className={className}
       sx={{
+        h: 'full',
         position: 'relative',
         borderRadius: 'base',
-        w: NODE_WIDTH,
+        w: props.width ?? NODE_WIDTH,
         transitionProperty: 'common',
         transitionDuration: '0.1s',
         shadow: props.selected ? shadow : undefined,
         opacity,
-        zIndex: '-999 !important',
       }}
     >
       <Box

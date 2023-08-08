@@ -23,7 +23,6 @@ import {
   nodesChanged,
   selectedEdgesChanged,
   selectedNodesChanged,
-  setEditorInstance,
 } from '../store/nodesSlice';
 import { CustomConnectionLine } from './CustomConnectionLine';
 import { edgeTypes } from './CustomEdges';
@@ -46,6 +45,7 @@ export const Flow = () => {
   );
 
   const isValidConnection = useIsValidConnection();
+
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
       dispatch(nodesChanged(changes));
@@ -78,13 +78,9 @@ export const Flow = () => {
     dispatch(connectionEnded());
   }, [dispatch]);
 
-  const onInit: OnInit = useCallback(
-    (v) => {
-      dispatch(setEditorInstance(v));
-      if (v) v.fitView();
-    },
-    [dispatch]
-  );
+  const onInit: OnInit = useCallback((v) => {
+    v.fitView();
+  }, []);
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
     (edges) => {

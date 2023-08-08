@@ -1,19 +1,21 @@
 import { Flex } from '@chakra-ui/react';
-import { InvocationValue } from 'features/nodes/types/types';
+import {
+  InvocationNodeData,
+  InvocationTemplate,
+} from 'features/nodes/types/types';
 import { memo } from 'react';
 import NodeCollapseButton from './NodeCollapseButton';
 import NodeCollapsedHandles from './NodeCollapsedHandles';
-import NodeSettings from './NodeSettings';
+import NodeNotesEdit from './NodeNotesEdit';
 import NodeTitle from './NodeTitle';
 
 interface Props {
-  data: InvocationValue;
-  title: string;
-  description: string;
+  data: InvocationNodeData;
+  template: InvocationTemplate;
 }
 
 const NodeHeader = (props: Props) => {
-  const { data, title, description } = props;
+  const { data, template } = props;
   const { isOpen } = data;
 
   return (
@@ -29,8 +31,8 @@ const NodeHeader = (props: Props) => {
       }}
     >
       <NodeCollapseButton data={data} />
-      <NodeTitle data={data} title={title} description={description} />
-      <NodeSettings data={data} />
+      <NodeTitle data={data} title={template.title} />
+      <NodeNotesEdit data={data} template={template} />
       {!isOpen && <NodeCollapsedHandles data={data} />}
     </Flex>
   );

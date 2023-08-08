@@ -90,11 +90,8 @@ const LoRAModelInputFieldComponent = (
 
   return (
     <IAIMantineSearchableSelect
+      className="nowheel"
       value={selectedLoRAModel?.id ?? null}
-      label={
-        selectedLoRAModel?.base_model &&
-        MODEL_TYPE_MAP[selectedLoRAModel?.base_model]
-      }
       placeholder={data.length > 0 ? 'Select a LoRA' : 'No LoRAs available'}
       data={data}
       nothingFound="No matching LoRAs"

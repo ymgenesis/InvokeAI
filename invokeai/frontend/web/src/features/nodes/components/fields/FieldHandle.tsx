@@ -55,9 +55,9 @@ const FieldHandle = (props: FieldHandleProps) => {
     };
 
     if (handleType === 'target') {
-      s.left = '-1rem';
+      s.insetInlineStart = '-1rem';
     } else {
-      s.right = '-1rem';
+      s.insetInlineEnd = '-1rem';
     }
 
     if (isConnectionInProgress && !isConnectionStartField && connectionError) {
