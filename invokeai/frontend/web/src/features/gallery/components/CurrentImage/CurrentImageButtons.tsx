@@ -231,6 +231,16 @@ const CurrentImageButtons = (props: CurrentImageButtonsProps) => {
     dispatch(setShouldShowProgressInViewer(!shouldShowProgressInViewer));
   }, [dispatch, shouldShowProgressInViewer]);
 
+  useHotkeys(
+    'Shift+P',
+    () => {
+      if (imageDTO) {
+        handleClickProgressImagesToggle();
+      }
+    },
+    [imageDTO, shouldShowProgressInViewer]
+  );
+
   return (
     <>
       <Flex
@@ -305,7 +315,7 @@ const CurrentImageButtons = (props: CurrentImageButtonsProps) => {
         <ButtonGroup isAttached={true}>
           <IAIIconButton
             aria-label={t('settings.displayInProgress')}
-            tooltip={t('settings.displayInProgress')}
+            tooltip={`${t('settings.displayInProgress')} (Shift+P)`}
             icon={<FaHourglassHalf />}
             isChecked={shouldShowProgressInViewer}
             onClick={handleClickProgressImagesToggle}
