@@ -4,7 +4,7 @@ import { useAppSelector } from 'app/store/storeHooks';
 import { useCallback } from 'react';
 import { Connection, Edge, Node, useReactFlow } from 'reactflow';
 import { COLLECTION_TYPES } from '../types/constants';
-import { InvocationValue } from '../types/types';
+import { InvocationNodeData } from '../types/types';
 
 export const useIsValidConnection = () => {
   const flow = useReactFlow();
@@ -26,8 +26,8 @@ export const useIsValidConnection = () => {
       }
 
       // Find the source and target nodes
-      const sourceNode = flow.getNode(source) as Node<InvocationValue>;
-      const targetNode = flow.getNode(target) as Node<InvocationValue>;
+      const sourceNode = flow.getNode(source) as Node<InvocationNodeData>;
+      const targetNode = flow.getNode(target) as Node<InvocationNodeData>;
 
       // Conditional guards against undefined nodes/handles
       if (!(sourceNode && targetNode && sourceNode.data && targetNode.data)) {

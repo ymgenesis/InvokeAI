@@ -20,7 +20,7 @@ const useNodesGraph = () => {
 const NodeGraph = () => {
   const graph = useNodesGraph();
 
-  return <ImageMetadataJSON jsonObject={graph} copyTooltip="Copy Graph" />;
+  return <ImageMetadataJSON jsonObject={graph} label="Graph" />;
 };
 
 export default NodeGraph;

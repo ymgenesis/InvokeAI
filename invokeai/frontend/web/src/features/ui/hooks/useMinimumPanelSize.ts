@@ -14,7 +14,10 @@ export const useMinimumPanelSize = (
   defaultSizePct: number,
   groupId: string,
   orientation: 'horizontal' | 'vertical' = 'horizontal'
-): { ref: RefObject<ImperativePanelHandle>; minSizePct: number } => {
+): {
+  ref: RefObject<ImperativePanelHandle>;
+  minSizePct: number;
+} => {
   const ref = useRef<ImperativePanelHandle>(null);
   const [minSizePct, setMinSizePct] = useState(defaultSizePct);
 

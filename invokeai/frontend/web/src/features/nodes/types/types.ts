@@ -20,16 +20,6 @@ import { z } from 'zod';
 
 export type NonNullableGraph = O.Required<Graph, 'nodes' | 'edges'>;
 
-export type InvocationValue = {
-  id: string;
-  type: AnyInvocationType;
-  label: string;
-  isOpen: boolean;
-  inputs: Record<string, InputFieldValue>;
-  outputs: Record<string, OutputFieldValue>;
-  notes?: string;
-};
-
 export type InvocationTemplate = {
   /**
    * Unique type of the invocation
@@ -523,11 +513,13 @@ export type Workflow = {
   name: string;
   author: string;
   description: string;
+  version: string;
+  contact: string;
   tags: string;
   notes: string;
   exposedFields: ExposedField[];
   nodes: Pick<
-    Node<InvocationValue>,
+    Node<InvocationNodeData | NotesNodeData>,
     'id' | 'type' | 'data' | 'width' | 'height' | 'position'
   >[];
   edges: Pick<
@@ -535,3 +527,43 @@ export type Workflow = {
     'source' | 'sourceHandle' | 'target' | 'targetHandle' | 'id' | 'type'
   >[];
 };
+
+export type InvocationNodeData = {
+  id: string;
+  type: AnyInvocationType;
+  label: string;
+  isOpen: boolean;
+  inputs: Record<string, InputFieldValue>;
+  outputs: Record<string, OutputFieldValue>;
+  notes?: string;
+};
+
+export type NotesNodeData = {
+  id: string;
+  type: 'notes';
+  label: string;
+  notes: string;
+  isOpen: boolean;
+};
+
+export type CurrentImageNodeData = {
+  id: string;
+  type: 'current_image';
+};
+
+export const isInvocationNode = (
+  node?: Node<InvocationNodeData | NotesNodeData | CurrentImageNodeData>
+): node is Node<InvocationNodeData> => node?.type === 'invocation';
+
+export const isInvocationNodeData = (
+  node?: InvocationNodeData | NotesNodeData | CurrentImageNodeData
+): node is InvocationNodeData =>
+  !['notes', 'current_image'].includes(node?.type ?? '');
+
+export const isNotesNode = (
+  node?: Node<InvocationNodeData | NotesNodeData | CurrentImageNodeData>
+): node is Node<NotesNodeData> => node?.type === 'notes';
+
+export const isProgressImageNode = (
+  node?: Node<InvocationNodeData | NotesNodeData | CurrentImageNodeData>
+): node is Node<CurrentImageNodeData> => node?.type === 'current_image';

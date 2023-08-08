@@ -8,14 +8,13 @@ import {
 } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
 import { DRAG_HANDLE_CLASSNAME } from 'features/nodes/hooks/useBuildInvocation';
-import { nodeUserLabelChanged } from 'features/nodes/store/nodesSlice';
-import { InvocationValue } from 'features/nodes/types/types';
+import { nodeLabelChanged } from 'features/nodes/store/nodesSlice';
+import { InvocationNodeData, NotesNodeData } from 'features/nodes/types/types';
 import { MouseEvent, memo, useCallback, useState } from 'react';
 
 interface Props {
-  data: InvocationValue;
+  data: InvocationNodeData | NotesNodeData;
   title: string;
-  description: string;
 }
 
 const NodeTitle = (props: Props) => {
@@ -39,7 +38,7 @@ const NodeTitle = (props: Props) => {
         return;
       }
 
-      dispatch(nodeUserLabelChanged({ nodeId: data.id, userLabel: newTitle }));
+      dispatch(nodeLabelChanged({ nodeId: data.id, label: newTitle }));
 
       // update local state
       setLocalTitle(newTitle);

@@ -11,6 +11,7 @@ import {
   getBezierPath,
 } from 'reactflow';
 import { FIELDS, colorTokenToCssVar } from '../types/constants';
+import { isInvocationNode } from '../types/types';
 
 const makeEdgeSelector = (
   source: string,
@@ -22,8 +23,15 @@ const makeEdgeSelector = (
   createSelector(stateSelector, ({ nodes }) => {
     const sourceNode = nodes.nodes.find((node) => node.id === source);
     const targetNode = nodes.nodes.find((node) => node.id === target);
+
+    const isInvocationToInvocationEdge =
+      isInvocationNode(sourceNode) && isInvocationNode(targetNode);
+
     const isSelected = sourceNode?.selected || targetNode?.selected || selected;
-    const sourceType = sourceNode?.data?.outputs[sourceHandleId || '']?.type;
+    const sourceType = isInvocationToInvocationEdge
+      ? sourceNode?.data?.outputs[sourceHandleId || '']?.type
+      : undefined;
+
     const stroke =
       sourceType && nodes.shouldColorEdges
         ? colorTokenToCssVar(FIELDS[sourceType].color)

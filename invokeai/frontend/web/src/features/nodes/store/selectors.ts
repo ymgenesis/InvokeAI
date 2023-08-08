@@ -4,6 +4,7 @@ import { defaultSelectorOptions } from 'app/store/util/defaultMemoizeOptions';
 // import { validateSeedWeights } from 'common/util/seedWeightPairs';
 import { every } from 'lodash-es';
 import { getConnectedEdges } from 'reactflow';
+import { isInvocationNode } from '../types/types';
 
 export const selectIsReadyNodes = createSelector(
   [stateSelector],
@@ -21,11 +22,14 @@ export const selectIsReadyNodes = createSelector(
     }
 
     const isGraphReady = every(nodes.nodes, (node) => {
-      const nodeTemplate = nodes.invocationTemplates[node.data.type];
+      if (!isInvocationNode(node)) {
+        return true;
+      }
+
+      const nodeTemplate = nodes.nodeTemplates[node.data.type];
 
       if (!nodeTemplate) {
         // Node type not found
-        console.log('node template not found');
         return false;
       }
 
@@ -39,13 +43,11 @@ export const selectIsReadyNodes = createSelector(
 
         if (!fieldTemplate) {
           // Field type not found
-          console.log('field template not found');
           return false;
         }
 
         if (fieldTemplate.required && !field.value && !hasConnection) {
           // Required field is empty or does not have a connection
-          console.log('missing connection:', node.id, field.name);
           return false;
         }
 

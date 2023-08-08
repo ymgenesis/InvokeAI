@@ -7,7 +7,7 @@ export const makeTemplateSelector = (type: AnyInvocationType) =>
   createSelector(
     [(state: RootState) => state.nodes],
     (nodes) => {
-      const template = nodes.invocationTemplates[type];
+      const template = nodes.nodeTemplates[type];
       if (!template) {
         return;
       }

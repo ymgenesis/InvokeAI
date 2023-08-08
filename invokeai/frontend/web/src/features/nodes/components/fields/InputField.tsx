@@ -129,6 +129,8 @@ const InputFieldWrapper = ({ shouldDim, children }: InputFieldWrapperProps) => (
       opacity: shouldDim ? 0.5 : 1,
       transitionProperty: 'opacity',
       transitionDuration: '0.1s',
+      w: 'full',
+      h: 'full',
     }}
   >
     {children}

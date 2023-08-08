@@ -85,10 +85,8 @@ const ControlNetModelInputFieldComponent = (
 
   return (
     <IAIMantineSelect
+      className="nowheel"
       tooltip={selectedModel?.description}
-      label={
-        selectedModel?.base_model && MODEL_TYPE_MAP[selectedModel?.base_model]
-      }
       value={selectedModel?.id ?? null}
       placeholder="Pick one"
       error={!selectedModel}

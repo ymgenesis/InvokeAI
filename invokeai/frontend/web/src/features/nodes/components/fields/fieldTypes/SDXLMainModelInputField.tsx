@@ -124,6 +124,7 @@ const ModelInputFieldComponent = (
   ) : (
     <Flex w="100%" alignItems="center" gap={2}>
       <IAIMantineSearchableSelect
+        className="nowheel"
         tooltip={selectedModel?.description}
         value={selectedModel?.id}
         placeholder={data.length > 0 ? 'Select a model' : 'No models available'}

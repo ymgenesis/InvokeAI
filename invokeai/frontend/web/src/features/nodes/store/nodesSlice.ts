@@ -17,6 +17,7 @@ import {
 } from 'reactflow';
 import { receivedOpenAPISchema } from 'services/api/thunks/schema';
 import { ImageField } from 'services/api/types';
+import { DRAG_HANDLE_CLASSNAME } from '../hooks/useBuildInvocation';
 import {
   BooleanInputFieldValue,
   ColorInputFieldValue,
@@ -28,28 +29,29 @@ import {
   InputFieldValue,
   IntegerInputFieldValue,
   InvocationTemplate,
-  InvocationValue,
+  InvocationNodeData,
+  isInvocationNode,
   LoRAModelInputFieldValue,
   MainModelInputFieldValue,
+  NotesNodeData,
+  CurrentImageNodeData,
   RefinerModelInputFieldValue,
   StringInputFieldValue,
   VaeModelInputFieldValue,
   Workflow,
+  isNotesNode,
 } from '../types/types';
 import { NodesState } from './types';
-import { DRAG_HANDLE_CLASSNAME } from '../hooks/useBuildInvocation';
 
 export const initialNodesState: NodesState = {
   nodes: [],
   edges: [],
   schema: null,
-  invocationTemplates: {},
+  nodeTemplates: {},
   connectionStartParams: null,
   currentConnectionFieldType: null,
   shouldShowFieldTypeLegend: false,
   shouldShowMinimapPanel: true,
-  editorInstance: undefined,
-  progressNodeSize: { width: 512, height: 512 },
   shouldValidateGraph: true,
   shouldAnimateEdges: true,
   shouldSnapToGrid: true,
@@ -63,6 +65,8 @@ export const initialNodesState: NodesState = {
     description: '',
     notes: '',
     tags: '',
+    contact: '',
+    version: '',
     exposedFields: [],
   },
 };
@@ -79,7 +83,11 @@ const fieldValueReducer = <T extends InputFieldValue>(
 ) => {
   const { nodeId, fieldName, value } = action.payload;
   const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
-  const input = state.nodes?.[nodeIndex]?.data?.inputs[fieldName];
+  const node = state.nodes?.[nodeIndex];
+  if (!isInvocationNode(node)) {
+    return;
+  }
+  const input = node.data?.inputs[fieldName];
   if (!input) {
     return;
   }
@@ -95,7 +103,12 @@ const nodesSlice = createSlice({
     nodesChanged: (state, action: PayloadAction<NodeChange[]>) => {
       state.nodes = applyNodeChanges(action.payload, state.nodes);
     },
-    nodeAdded: (state, action: PayloadAction<Node<InvocationValue>>) => {
+    nodeAdded: (
+      state,
+      action: PayloadAction<
+        Node<InvocationNodeData | CurrentImageNodeData | NotesNodeData>
+      >
+    ) => {
       state.nodes.push(action.payload);
     },
     edgesChanged: (state, action: PayloadAction<EdgeChange[]>) => {
@@ -109,7 +122,7 @@ const nodesSlice = createSlice({
       }
       const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
       const node = state.nodes?.[nodeIndex];
-      if (!node) {
+      if (!isInvocationNode(node)) {
         return;
       }
       const field =
@@ -140,11 +153,15 @@ const nodesSlice = createSlice({
       const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
 
       const node = state.nodes?.[nodeIndex];
-      if (!node) {
+      if (!isInvocationNode(node) && !isNotesNode(node)) {
         return;
       }
 
       node.data.isOpen = isOpen;
+
+      if (!isInvocationNode(node)) {
+        return;
+      }
 
       // edges between two closed nodes should not be visible:
       // - if the node was just opened, we need to make all its edges visible
@@ -168,13 +185,17 @@ const nodesSlice = createSlice({
           node,
           state.nodes,
           state.edges
-        ).filter((node) => node.data.isOpen === false);
+        ).filter(
+          (node) => isInvocationNode(node) && node.data.isOpen === false
+        );
 
         const closedOutgoers = getOutgoers(
           node,
           state.nodes,
           state.edges
-        ).filter((node) => node.data.isOpen === false);
+        ).filter(
+          (node) => isInvocationNode(node) && node.data.isOpen === false
+        );
 
         const collapsedEdgesToCreate: Edge<{ count: number }>[] = [];
 
@@ -253,17 +274,29 @@ const nodesSlice = createSlice({
         state.edges = applyEdgeChanges(edgeChanges, state.edges);
       }
     },
-    nodeUserLabelChanged: (
+    nodeLabelChanged: (
       state,
-      action: PayloadAction<{ nodeId: string; userLabel: string }>
+      action: PayloadAction<{ nodeId: string; label: string }>
     ) => {
-      const { nodeId, userLabel } = action.payload;
+      const { nodeId, label } = action.payload;
       const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
       const node = state.nodes?.[nodeIndex];
-      if (!node) {
+      if (!isInvocationNode(node)) {
         return;
       }
-      node.data.label = userLabel;
+      node.data.label = label;
+    },
+    nodeNotesChanged: (
+      state,
+      action: PayloadAction<{ nodeId: string; notes: string }>
+    ) => {
+      const { nodeId, notes } = action.payload;
+      const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
+      const node = state.nodes?.[nodeIndex];
+      if (!isInvocationNode(node)) {
+        return;
+      }
+      node.data.notes = notes;
     },
     selectedNodesChanged: (state, action: PayloadAction<string[]>) => {
       state.selectedNodes = action.payload;
@@ -352,7 +385,13 @@ const nodesSlice = createSlice({
         return;
       }
 
-      const input = state.nodes?.[nodeIndex]?.data?.inputs[fieldName];
+      const node = state.nodes?.[nodeIndex];
+
+      if (!isInvocationNode(node)) {
+        return;
+      }
+
+      const input = node.data?.inputs[fieldName];
       if (!input) {
         return;
       }
@@ -382,6 +421,18 @@ const nodesSlice = createSlice({
         }
       });
     },
+    notesNodeValueChanged: (
+      state,
+      action: PayloadAction<{ nodeId: string; value: string }>
+    ) => {
+      const { nodeId, value } = action.payload;
+      const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
+      const node = state.nodes?.[nodeIndex];
+      if (!isNotesNode(node)) {
+        return;
+      }
+      node.data.notes = value;
+    },
     shouldShowFieldTypeLegendChanged: (
       state,
       action: PayloadAction<boolean>
@@ -395,7 +446,7 @@ const nodesSlice = createSlice({
       state,
       action: PayloadAction<Record<string, InvocationTemplate>>
     ) => {
-      state.invocationTemplates = action.payload;
+      state.nodeTemplates = action.payload;
     },
     nodeEditorReset: (state) => {
       state.nodes = [];
@@ -416,20 +467,14 @@ const nodesSlice = createSlice({
     nodeOpacityChanged: (state, action: PayloadAction<number>) => {
       state.nodeOpacity = action.payload;
     },
-    setEditorInstance: (state, action) => {
-      state.editorInstance = action.payload;
-    },
-    loadFileNodes: (state, action: PayloadAction<Node<InvocationValue>[]>) => {
+    loadFileNodes: (
+      state,
+      action: PayloadAction<Node<InvocationNodeData>[]>
+    ) => {
       state.nodes = action.payload;
     },
     loadFileEdges: (state, action: PayloadAction<Edge[]>) => {
       state.edges = action.payload;
-    },
-    setProgressNodeSize: (
-      state,
-      action: PayloadAction<{ width: number; height: number }>
-    ) => {
-      state.progressNodeSize = action.payload;
     },
     workflowNameChanged: (state, action: PayloadAction<string>) => {
       state.workflow.name = action.payload;
@@ -445,6 +490,12 @@ const nodesSlice = createSlice({
     },
     workflowNotesChanged: (state, action: PayloadAction<string>) => {
       state.workflow.notes = action.payload;
+    },
+    workflowVersionChanged: (state, action: PayloadAction<string>) => {
+      state.workflow.version = action.payload;
+    },
+    workflowContactChanged: (state, action: PayloadAction<string>) => {
+      state.workflow.contact = action.payload;
     },
     workflowExposedFieldAdded: (state, action: PayloadAction<ExposedField>) => {
       state.workflow.exposedFields.push(action.payload);
@@ -495,10 +546,8 @@ export const {
   nodeTemplatesBuilt,
   nodeEditorReset,
   imageCollectionFieldValueChanged,
-  setEditorInstance,
   loadFileNodes,
   loadFileEdges,
-  setProgressNodeSize,
   fieldStringValueChanged,
   fieldNumberValueChanged,
   fieldBooleanValueChanged,
@@ -511,7 +560,8 @@ export const {
   fieldControlNetModelValueChanged,
   fieldRefinerModelValueChanged,
   nodeIsOpenChanged,
-  nodeUserLabelChanged,
+  nodeLabelChanged,
+  nodeNotesChanged,
   edgesDeleted,
   shouldValidateGraphChanged,
   shouldAnimateEdgesChanged,
@@ -525,9 +575,12 @@ export const {
   workflowTagsChanged,
   workflowAuthorChanged,
   workflowNotesChanged,
+  workflowVersionChanged,
+  workflowContactChanged,
   workflowExposedFieldAdded,
   workflowExposedFieldRemoved,
   workflowLoaded,
+  notesNodeValueChanged,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

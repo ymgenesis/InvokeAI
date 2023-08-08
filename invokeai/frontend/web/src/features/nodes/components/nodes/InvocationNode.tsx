@@ -1,18 +1,18 @@
 import { Flex, Icon } from '@chakra-ui/react';
 import { useAppSelector } from 'app/store/storeHooks';
 import { makeTemplateSelector } from 'features/nodes/store/util/makeTemplateSelector';
-import { InvocationValue } from 'features/nodes/types/types';
+import { InvocationNodeData } from 'features/nodes/types/types';
 import { map } from 'lodash-es';
 import { memo, useMemo } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { NodeProps } from 'reactflow';
+import NodeFooter from '../Invocation/NodeFooter';
 import NodeHeader from '../Invocation/NodeHeader';
 import InputField from '../fields/InputField';
 import OutputField from '../fields/OutputField';
-import NodeWrapper from './NodeWrapper';
-import NodeResizer from '../Invocation/NodeResizer';
+import NodeWrapper from '../Invocation/NodeWrapper';
 
-export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
+const InvocationNode = (props: NodeProps<InvocationNodeData>) => {
   const { id: nodeId, data, selected } = props;
   const { type, inputs, outputs, isOpen } = data;
 
@@ -34,6 +34,8 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'auto',
+            w: 'full',
+            h: 'full',
           }}
         >
           <Icon
@@ -51,11 +53,7 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
 
   return (
     <NodeWrapper nodeId={nodeId} selected={selected}>
-      <NodeHeader
-        data={data}
-        title={template.title}
-        description={template.description}
-      />
+      <NodeHeader data={data} template={template} />
       {isOpen && (
         <>
           <Flex
@@ -63,14 +61,18 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
             sx={{
               cursor: 'auto',
               flexDirection: 'column',
-              borderBottomRadius: 'base',
+              w: 'full',
+              h: 'full',
               py: 1,
               bg: 'base.100',
               _dark: { bg: 'base.800' },
               gap: 1,
             }}
           >
-            <Flex className="nopan" flexDir="column" px={2}>
+            <Flex
+              className="nopan"
+              sx={{ flexDir: 'column', px: 2, w: 'full', h: 'full' }}
+            >
               {outputFields.map((field) => (
                 <OutputField
                   key={`${nodeId}.${field.id}.input-field`}
@@ -89,11 +91,11 @@ export const InvocationNode = memo((props: NodeProps<InvocationValue>) => {
               ))}
             </Flex>
           </Flex>
-          <NodeResizer />
+          <NodeFooter data={data} />
         </>
       )}
     </NodeWrapper>
   );
-});
+};
 
-InvocationNode.displayName = 'InvocationComponent';
+export default memo(InvocationNode);

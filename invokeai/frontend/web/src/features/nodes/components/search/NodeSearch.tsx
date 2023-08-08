@@ -1,7 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { useAppToaster } from 'app/components/Toaster';
-import { RootState } from 'app/store/store';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import IAIInput from 'common/components/IAIInput';
 import { useBuildInvocation } from 'features/nodes/hooks/useBuildInvocation';
@@ -51,11 +50,10 @@ const NodeListItem = (props: NodeListItemProps) => {
 NodeListItem.displayName = 'NodeListItem';
 
 const NodeSearch = () => {
-  const invocationTemplates = useAppSelector(
-    (state: RootState) => state.nodes.invocationTemplates
+  const nodeTemplates = useAppSelector((state) =>
+    map(state.nodes.nodeTemplates)
   );
 
-  const nodes = map(invocationTemplates);
   const [filteredNodes, setFilteredNodes] = useState<
     Fuse.FuseResult<InvocationTemplate>[]
   >([]);
@@ -76,7 +74,7 @@ const NodeSearch = () => {
     keys: ['title', 'type', 'tags'],
   };
 
-  const fuse = new Fuse(nodes, fuseOptions);
+  const fuse = new Fuse(nodeTemplates, fuseOptions);
 
   const findNode = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -121,7 +119,7 @@ const NodeSearch = () => {
         }
       });
     } else {
-      nodes.forEach(({ title, description, type }, index) => {
+      nodeTemplates.forEach(({ title, description, type }, index) => {
         nodeListToRender.push(
           <NodeListItem
             key={index}
@@ -151,7 +149,7 @@ const NodeSearch = () => {
       if (searchText.length > 0) {
         nextIndex = (focusedIndex + 1) % filteredNodes.length;
       } else {
-        nextIndex = (focusedIndex + 1) % nodes.length;
+        nextIndex = (focusedIndex + 1) % nodeTemplates.length;
       }
     }
 
@@ -161,7 +159,8 @@ const NodeSearch = () => {
         nextIndex =
           (focusedIndex + filteredNodes.length - 1) % filteredNodes.length;
       } else {
-        nextIndex = (focusedIndex + nodes.length - 1) % nodes.length;
+        nextIndex =
+          (focusedIndex + nodeTemplates.length - 1) % nodeTemplates.length;
       }
     }
 
@@ -175,7 +174,7 @@ const NodeSearch = () => {
       if (searchText.length > 0) {
         selectedNodeType = filteredNodes[focusedIndex]?.item.type;
       } else {
-        selectedNodeType = nodes[focusedIndex]?.type;
+        selectedNodeType = nodeTemplates[focusedIndex]?.type;
       }
 
       if (selectedNodeType) {

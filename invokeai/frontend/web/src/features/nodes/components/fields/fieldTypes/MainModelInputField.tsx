@@ -124,6 +124,7 @@ const MainModelInputFieldComponent = (
         <Text variant="subtext">Loading...</Text>
       ) : (
         <IAIMantineSearchableSelect
+          className="nowheel"
           tooltip={selectedModel?.description}
           value={selectedModel?.id}
           placeholder={

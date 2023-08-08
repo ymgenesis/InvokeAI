@@ -43,7 +43,7 @@ function sanityCheckInvokeAIGraph(jsonFile: JsonFile): {
 
   // Check if data is present in nodes
   const nodeKeys = ['data', 'type'];
-  const nodeTypes = ['invocation', 'progress_image'];
+  const nodeTypes = ['invocation', 'current_image'];
   if (jsonFile.nodes.length > 0) {
     for (const node of jsonFile.nodes) {
       for (const nodeKey of nodeKeys) {

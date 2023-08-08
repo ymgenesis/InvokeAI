@@ -29,7 +29,12 @@ const StringInputFieldComponent = (
 
   if (template.ui_component === 'textarea') {
     return (
-      <IAITextarea onChange={handleValueChanged} value={field.value} rows={2} />
+      <IAITextarea
+        onChange={handleValueChanged}
+        value={field.value}
+        rows={5}
+        resize="both"
+      />
     );
   }
 

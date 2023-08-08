@@ -8,9 +8,9 @@ import { FaSave } from 'react-icons/fa';
 
 const SaveGraphButton = () => {
   const { t } = useTranslation();
-  const editorInstance = useAppSelector(
-    (state: RootState) => state.nodes.editorInstance
-  );
+  // const editorInstance = useAppSelector(
+  //   (state: RootState) => state.nodes.editorInstance
+  // );
 
   const nodesState = useAppSelector((state) => state.nodes);
   const nodes = useAppSelector((state: RootState) => state.nodes.nodes);

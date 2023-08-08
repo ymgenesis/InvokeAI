@@ -41,9 +41,8 @@ const NodeEditor = () => {
             id="node-editor-panel_group_workflow"
             minSize={minSizePct}
             defaultSize={
-              minSizePct > 25 && minSizePct < 100 // prevent this error https://github.com/bvaughn/react-resizable-panels/blob/main/packages/react-resizable-panels/src/Panel.ts#L96
-                ? minSizePct
-                : 25
+              // prevent this error https://github.com/bvaughn/react-resizable-panels/blob/main/packages/react-resizable-panels/src/Panel.ts#L96
+              minSizePct > 25 && minSizePct < 100 ? minSizePct : 25
             }
           >
             <WorkflowPanel />
