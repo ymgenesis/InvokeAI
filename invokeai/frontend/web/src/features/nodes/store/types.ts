@@ -8,6 +8,7 @@ import {
   NotesNodeData,
   CurrentImageNodeData,
   Workflow,
+  NodeExecutionState,
 } from '../types/types';
 
 export type NodesState = {
@@ -27,4 +28,5 @@ export type NodesState = {
   selectedNodes: string[];
   selectedEdges: string[];
   workflow: Omit<Workflow, 'nodes' | 'edges'>;
+  nodeExecutionStates: Record<string, NodeExecutionState>;
 };

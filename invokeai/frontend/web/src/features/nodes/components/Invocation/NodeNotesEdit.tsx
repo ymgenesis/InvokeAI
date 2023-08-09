@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
 import IAITextarea from 'common/components/IAITextarea';
+import { DRAG_HANDLE_CLASSNAME } from 'features/nodes/hooks/useBuildInvocation';
 import { nodeNotesChanged } from 'features/nodes/store/nodesSlice';
 import {
   InvocationNodeData,
@@ -49,6 +50,7 @@ const NodeNotesEdit = (props: Props) => {
         shouldWrapChildren
       >
         <Flex
+          className={DRAG_HANDLE_CLASSNAME}
           onClick={onOpen}
           sx={{
             alignItems: 'center',

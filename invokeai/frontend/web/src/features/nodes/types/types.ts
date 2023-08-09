@@ -14,7 +14,7 @@ import {
   _InputField,
   _OutputField,
 } from 'services/api/types';
-import { AnyInvocationType } from 'services/events/types';
+import { AnyInvocationType, ProgressImage } from 'services/events/types';
 import { O } from 'ts-toolbelt';
 import { z } from 'zod';
 
@@ -567,3 +567,17 @@ export const isNotesNode = (
 export const isProgressImageNode = (
   node?: Node<InvocationNodeData | NotesNodeData | CurrentImageNodeData>
 ): node is Node<CurrentImageNodeData> => node?.type === 'current_image';
+
+export enum NodeStatus {
+  PENDING,
+  IN_PROGRESS,
+  COMPLETED,
+  FAILED,
+}
+
+export type NodeExecutionState = {
+  status: NodeStatus;
+  progress: number | null;
+  progressImage: ProgressImage | null;
+  error: string | null;
+};

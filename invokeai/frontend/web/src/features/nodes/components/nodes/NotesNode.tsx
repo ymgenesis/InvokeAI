@@ -23,14 +23,13 @@ const NotesNode = (props: NodeProps<NotesNodeData>) => {
   return (
     <NodeWrapper nodeId={nodeId} selected={selected}>
       <Flex
+        layerStyle="nodeHeader"
         sx={{
           borderTopRadius: 'base',
           borderBottomRadius: isOpen ? 0 : 'base',
           alignItems: 'center',
           justifyContent: 'space-between',
           h: 8,
-          bg: 'base.200',
-          _dark: { bg: 'base.750' },
         }}
       >
         <NodeCollapseButton data={data} />
@@ -40,6 +39,7 @@ const NotesNode = (props: NodeProps<NotesNodeData>) => {
       {isOpen && (
         <>
           <Flex
+            layerStyle="nodeBody"
             className={'nopan'}
             sx={{
               cursor: 'auto',
@@ -48,8 +48,6 @@ const NotesNode = (props: NodeProps<NotesNodeData>) => {
               w: 'full',
               h: 'full',
               p: 2,
-              bg: 'base.100',
-              _dark: { bg: 'base.800' },
               gap: 1,
             }}
           >
