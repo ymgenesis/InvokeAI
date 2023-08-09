@@ -50,7 +50,7 @@ class StringOutput(BaseInvocationOutput):
     """A string output"""
 
     type: Literal["string_output"] = "string_output"
-    text: str = OutputField(default=None, description="The output string")
+    text: str = OutputField(description="The output string")
 
 
 @title("String Parameter")

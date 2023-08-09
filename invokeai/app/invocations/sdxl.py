@@ -30,10 +30,10 @@ class SDXLModelLoaderOutput(BaseInvocationOutput):
 
     type: Literal["sdxl_model_loader_output"] = "sdxl_model_loader_output"
 
-    unet: UNetField = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
-    clip: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 1")
-    clip2: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 2")
-    vae: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE")
+    unet: UNetField = OutputField(description=FieldDescriptions.unet, title="UNet")
+    clip: ClipField = OutputField(description=FieldDescriptions.clip, title="CLIP 1")
+    clip2: ClipField = OutputField(description=FieldDescriptions.clip, title="CLIP 2")
+    vae: VaeField = OutputField(description=FieldDescriptions.vae, title="VAE")
 
 
 class SDXLRefinerModelLoaderOutput(BaseInvocationOutput):
@@ -41,9 +41,9 @@ class SDXLRefinerModelLoaderOutput(BaseInvocationOutput):
 
     type: Literal["sdxl_refiner_model_loader_output"] = "sdxl_refiner_model_loader_output"
 
-    unet: UNetField = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
-    clip2: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP 2")
-    vae: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE")
+    unet: UNetField = OutputField(description=FieldDescriptions.unet, title="UNet")
+    clip2: ClipField = OutputField(description=FieldDescriptions.clip, title="CLIP 2")
+    vae: VaeField = OutputField(description=FieldDescriptions.vae, title="VAE")
 
 
 @title("SDXL Main Model Loader")

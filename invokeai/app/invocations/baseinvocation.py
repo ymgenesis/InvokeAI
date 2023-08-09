@@ -5,7 +5,19 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 from inspect import signature
-from typing import TYPE_CHECKING, AbstractSet, Any, Mapping, Optional, Type, Union, get_args, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    AbstractSet,
+    Any,
+    Callable,
+    Mapping,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    get_args,
+    get_type_hints,
+)
 
 from pydantic import BaseModel, Field
 from pydantic.fields import Undefined
@@ -33,7 +45,8 @@ class UITypeHint(str, Enum):
     """
     Type hints for the UI.
     If a field should be provided a data type that does not exactly match the python type of the field, \
-    use this to provide the type that should be used instead.
+    use this to provide the type that should be used instead. See the node development docs for detail \
+    on adding a new field type, which involves client-side changes.
     """
 
     Integer = "integer"
@@ -82,7 +95,9 @@ class UIComponent(str, Enum):
 class _InputField(BaseModel):
     """
     *DO NOT USE*
-    Helper class to generate Typescript types for the client.
+    This helper class is used to tell the client about our custom field attributes via OpenAPI
+    schema generation, and Typescript type generation from that schema. It serves no functional
+    purpose in the backend.
     """
 
     input: Input
@@ -94,7 +109,9 @@ class _InputField(BaseModel):
 class _OutputField(BaseModel):
     """
     *DO NOT USE*
-    Helper class to generate Typescript types for the client.
+    This helper class is used to tell the client about our custom field attributes via OpenAPI
+    schema generation, and Typescript type generation from that schema. It serves no functional
+    purpose in the backend.
     """
 
     ui_hidden: bool
@@ -147,9 +164,10 @@ def InputField(
 
     :param UITypeHint ui_type_hint: [None] Optionally provides an extra type hint for the UI. \
       In some situations, the field's type is not enough to infer the correct UI type. \
-      For example, an `integer` field may be a seed, which is a constrained version integer, \
-      which does not accept *any* integer. For this case, you could use `UITypeHint.Seed` to \
-      indicate that the field is a seed.
+      For example, model selection fields should render a dropdown UI component to select a model. \
+      Internally, there is no difference between SD-1, SD-2 and SDXL model fields, they all use \
+      `MainModelField`. So to ensure the base-model-specific UI is rendered, you can use \
+      `UITypeHint.SDXLMainModelField` to indicate that the field is an SDXL main model field.
       
     :param UIComponent ui_component: [None] Optionally specifies a specific component to use in the UI. \
       The UI will always render a suitable component, but sometimes you want something different than the default. \
@@ -232,8 +250,10 @@ def OutputField(
 
     :param UITypeHint ui_type_hint: [None] Optionally provides an extra type hint for the UI. \
       In some situations, the field's type is not enough to infer the correct UI type. \
-      For example, an `integer` field may be "any" integer, or a seed, which has built-in constraints. \
-      For this case, you could use `UITypeHint.Seed` to indicate that the field is a seed. \
+      For example, model selection fields should render a dropdown UI component to select a model. \
+      Internally, there is no difference between SD-1, SD-2 and SDXL model fields, they all use \
+      `MainModelField`. So to ensure the base-model-specific UI is rendered, you can use \
+      `UITypeHint.SDXLMainModelField` to indicate that the field is an SDXL main model field.
 
     : param bool ui_hidden: [False] Specifies whether or not this field should be hidden in the UI. \
     """
@@ -270,17 +290,18 @@ def OutputField(
     )
 
 
-InputField.__doc__ = str(InputField.__doc__) + str(Field.__doc__)
-
-
 class UIConfigBase(BaseModel):
-    """Provides additional node configuration to the UI."""
+    """
+    Provides additional node configuration to the UI.
+    This is used internally by the @tags and @title decorator logic. You probably want to use those
+    decorators, though you may add this class to a node definition to specify the title and tags.
+    """
 
     tags: Optional[list[str]] = Field(default_factory=None, description="The tags to display in the UI")
     title: Optional[str] = Field(default=None, description="The display name of the node")
 
 
-def title(title):
+def title(title: str):
     """Adds a title to the invocation. Use this to override the default title generation, which is based on the class name."""
 
     def wrapper(cls):
@@ -386,7 +407,7 @@ class BaseInvocation(ABC, BaseModel):
 
     class Config:
         @staticmethod
-        def schema_extra(schema: dict[str, Any], model_class: Type[BaseModel]):
+        def schema_extra(schema: dict[str, Any], model_class: Type[BaseModel]) -> None:
             uiconfig = getattr(model_class, "UIConfig", None)
             if uiconfig and hasattr(uiconfig, "title"):
                 schema["title"] = uiconfig.title
@@ -418,7 +439,7 @@ class BaseInvocation(ABC, BaseModel):
             for field_name, field in restore.items():
                 self.__fields__[field_name] = field
 
-    def __invoke__(self, context: InvocationContext) -> BaseInvocationOutput:
+    def invoke_internal(self, context: InvocationContext) -> BaseInvocationOutput:
         for field_name, field in self.__fields__.items():
             _input = field.field_info.extra.get("input", None)
             if field.required and not hasattr(self, field_name):

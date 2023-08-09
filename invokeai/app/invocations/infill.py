@@ -162,7 +162,6 @@ class InfillTileInvocation(BaseInvocation):
         le=SEED_MAX,
         description="The seed to use for tile generation (omit for random)",
         default_factory=get_random_seed,
-        ui_type_hint=UITypeHint.Seed,
     )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
