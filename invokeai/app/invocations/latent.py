@@ -69,8 +69,6 @@ class LatentsOutput(BaseInvocationOutput):
     # Inputs
     latents: LatentsField = OutputField(
         description=FieldDescriptions.latents,
-        title="Latents",
-        ui_hidden=False,
     )
     width: int = OutputField(description=FieldDescriptions.width)
     height: int = OutputField(description=FieldDescriptions.height)

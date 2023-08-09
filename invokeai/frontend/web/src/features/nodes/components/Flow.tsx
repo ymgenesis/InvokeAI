@@ -9,6 +9,7 @@ import {
   OnEdgesDelete,
   OnInit,
   OnNodesChange,
+  OnNodesDelete,
   OnSelectionChangeFunc,
   ProOptions,
   ReactFlow,
@@ -21,6 +22,7 @@ import {
   edgesChanged,
   edgesDeleted,
   nodesChanged,
+  nodesDeleted,
   selectedEdgesChanged,
   selectedNodesChanged,
 } from '../store/nodesSlice';
@@ -89,6 +91,13 @@ export const Flow = () => {
     [dispatch]
   );
 
+  const onNodesDelete: OnNodesDelete = useCallback(
+    (nodes) => {
+      dispatch(nodesDeleted(nodes));
+    },
+    [dispatch]
+  );
+
   const handleSelectionChange: OnSelectionChangeFunc = useCallback(
     ({ nodes, edges }) => {
       dispatch(selectedNodesChanged(nodes ? nodes.map((n) => n.id) : []));
@@ -106,6 +115,7 @@ export const Flow = () => {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onEdgesDelete={onEdgesDelete}
+      onNodesDelete={onNodesDelete}
       onConnectStart={onConnectStart}
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}

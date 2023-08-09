@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react';
+import { Box, Flex, HStack, Spacer } from '@chakra-ui/react';
 import {
   InvocationNodeData,
   InvocationTemplate,
@@ -7,6 +7,7 @@ import { memo } from 'react';
 import NodeCollapseButton from './NodeCollapseButton';
 import NodeCollapsedHandles from './NodeCollapsedHandles';
 import NodeNotesEdit from './NodeNotesEdit';
+import NodeStatusIndicator from './NodeStatusIndicator';
 import NodeTitle from './NodeTitle';
 
 interface Props {
@@ -20,19 +21,21 @@ const NodeHeader = (props: Props) => {
 
   return (
     <Flex
+      layerStyle="nodeHeader"
       sx={{
         borderTopRadius: 'base',
         borderBottomRadius: isOpen ? 0 : 'base',
         alignItems: 'center',
         justifyContent: 'space-between',
         h: 8,
-        bg: 'base.200',
-        _dark: { bg: 'base.750' },
       }}
     >
       <NodeCollapseButton data={data} />
       <NodeTitle data={data} title={template.title} />
-      <NodeNotesEdit data={data} template={template} />
+      <Flex alignItems="center">
+        <NodeStatusIndicator data={data} template={template} />
+        <NodeNotesEdit data={data} template={template} />
+      </Flex>
       {!isOpen && <NodeCollapsedHandles data={data} />}
     </Flex>
   );

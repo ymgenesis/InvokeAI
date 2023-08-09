@@ -66,13 +66,12 @@ const Wrapper = (
       }}
     >
       <Flex
+        layerStyle="nodeHeader"
         sx={{
           borderTopRadius: 'base',
           alignItems: 'center',
           justifyContent: 'center',
           h: 8,
-          bg: 'base.200',
-          _dark: { bg: 'base.750' },
         }}
       >
         <Text
@@ -87,7 +86,7 @@ const Wrapper = (
         </Text>
       </Flex>
       <Flex
-        layerStyle="second"
+        layerStyle="nodeBody"
         sx={{ w: 'full', h: 'full', borderBottomRadius: 'base', p: 2 }}
       >
         {props.children}

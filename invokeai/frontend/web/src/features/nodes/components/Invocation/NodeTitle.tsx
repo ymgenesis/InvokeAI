@@ -54,6 +54,7 @@ const NodeTitle = (props: Props) => {
     <Flex
       className={isEditing ? 'nopan' : DRAG_HANDLE_CLASSNAME}
       sx={{
+        overflow: 'hidden',
         w: 'full',
         h: 'full',
         alignItems: 'center',

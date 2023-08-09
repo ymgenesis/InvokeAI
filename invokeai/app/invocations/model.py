@@ -52,9 +52,9 @@ class ModelLoaderOutput(BaseInvocationOutput):
 
     type: Literal["model_loader_output"] = "model_loader_output"
 
-    unet: UNetField = OutputField(default=None, description=FieldDescriptions.unet, title="UNet")
-    clip: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP")
-    vae: VaeField = OutputField(default=None, description=FieldDescriptions.vae, title="VAE")
+    unet: UNetField = OutputField(description=FieldDescriptions.unet, title="UNet")
+    clip: ClipField = OutputField(description=FieldDescriptions.clip, title="CLIP")
+    vae: VaeField = OutputField(description=FieldDescriptions.vae, title="VAE")
 
 
 class MainModelField(BaseModel):

@@ -13,7 +13,7 @@ const invokeAIControl = defineStyle((props) => {
 
   return {
     bg: mode('base.200', 'base.700')(props),
-    borderColor: mode('base.200', 'base.700')(props),
+    borderColor: mode('base.300', 'base.600')(props),
     color: mode('base.900', 'base.100')(props),
 
     _checked: {

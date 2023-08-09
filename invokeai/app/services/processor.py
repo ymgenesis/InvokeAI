@@ -87,10 +87,10 @@ class DefaultInvocationProcessor(InvocationProcessorABC):
                 # Invoke
                 try:
                     with statistics.collect_stats(invocation, graph_execution_state.id):
-                        # use the internal __invoke__(), which wraps the node's invoke() method in
+                        # use the internal invoke_internal(), which wraps the node's invoke() method in
                         # this accomodates nodes which require a value, but get it only from a
                         # connection
-                        outputs = invocation.__invoke__(
+                        outputs = invocation.invoke_internal(
                             InvocationContext(
                                 services=self.__invoker.services,
                                 graph_execution_state_id=graph_execution_state.id,

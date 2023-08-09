@@ -28,7 +28,7 @@ const InvocationNode = (props: NodeProps<InvocationNodeData>) => {
     return (
       <NodeWrapper nodeId={nodeId} selected={selected}>
         <Flex
-          layerStyle="second"
+          layerStyle="nodeBody"
           className="nopan"
           sx={{
             alignItems: 'center',
@@ -57,6 +57,7 @@ const InvocationNode = (props: NodeProps<InvocationNodeData>) => {
       {isOpen && (
         <>
           <Flex
+            layerStyle="nodeBody"
             className={'nopan'}
             sx={{
               cursor: 'auto',
@@ -64,8 +65,6 @@ const InvocationNode = (props: NodeProps<InvocationNodeData>) => {
               w: 'full',
               h: 'full',
               py: 1,
-              bg: 'base.100',
-              _dark: { bg: 'base.800' },
               gap: 1,
             }}
           >
@@ -91,7 +90,7 @@ const InvocationNode = (props: NodeProps<InvocationNodeData>) => {
               ))}
             </Flex>
           </Flex>
-          <NodeFooter data={data} />
+          <NodeFooter data={data} template={template} />
         </>
       )}
     </NodeWrapper>

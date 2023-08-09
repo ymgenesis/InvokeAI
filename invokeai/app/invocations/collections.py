@@ -86,9 +86,6 @@ class RangeInvocation(BaseInvocation):
         return IntCollectionOutput(collection=list(range(self.start, self.stop, self.step)))
 
 
-t = "range_of_size"
-
-
 @title("Integer Range of Size")
 @tags("range", "integer", "size", "collection")
 class RangeOfSizeInvocation(BaseInvocation):
@@ -121,7 +118,6 @@ class RandomRangeInvocation(BaseInvocation):
         le=SEED_MAX,
         description="The seed for the RNG (omit for random)",
         default_factory=get_random_seed,
-        ui_type_hint=UITypeHint.Seed,
     )
 
     def invoke(self, context: InvocationContext) -> IntCollectionOutput:

@@ -126,6 +126,9 @@ export type ONNXTextToLatentsInvocation = TypeReq<
 export type LatentsToLatentsInvocation = TypeReq<
   s['LatentsToLatentsInvocation']
 >;
+export type SDXLLoraLoaderInvocation = TypeReq<
+  components['schemas']['SDXLLoraLoaderInvocation']
+>;
 export type ImageToLatentsInvocation = TypeReq<s['ImageToLatentsInvocation']>;
 export type LatentsToImageInvocation = TypeReq<s['LatentsToImageInvocation']>;
 export type ImageCollectionInvocation = TypeReq<s['ImageCollectionInvocation']>;

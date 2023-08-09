@@ -60,9 +60,8 @@ class ControlNetModelField(BaseModel):
 
 
 class ControlField(BaseModel):
-    image: ImageField = Field(default=None, description="The control image")
-    control_model: Optional[ControlNetModelField] = Field(default=None, description="The ControlNet model to use")
-    # control_weight: Optional[float] = Field(default=1, description="weight given to controlnet")
+    image: ImageField = Field(description="The control image")
+    control_model: ControlNetModelField = Field(description="The ControlNet model to use")
     control_weight: Union[float, List[float]] = Field(default=1, description="The weight given to the ControlNet")
     begin_step_percent: float = Field(
         default=0, ge=0, le=1, description="When the ControlNet is first applied (% of total steps)"

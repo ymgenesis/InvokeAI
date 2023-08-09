@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { cloneDeep, uniqBy } from 'lodash-es';
+import { cloneDeep, forEach, uniqBy } from 'lodash-es';
 import {
   addEdge,
   applyEdgeChanges,
@@ -16,30 +16,38 @@ import {
   OnConnectStartParams,
 } from 'reactflow';
 import { receivedOpenAPISchema } from 'services/api/thunks/schema';
+import { sessionInvoked } from 'services/api/thunks/session';
 import { ImageField } from 'services/api/types';
+import {
+  appSocketGeneratorProgress,
+  appSocketInvocationComplete,
+  appSocketInvocationError,
+  appSocketInvocationStarted,
+} from 'services/events/actions';
 import { DRAG_HANDLE_CLASSNAME } from '../hooks/useBuildInvocation';
 import {
   BooleanInputFieldValue,
   ColorInputFieldValue,
   ControlNetModelInputFieldValue,
+  CurrentImageNodeData,
   EnumInputFieldValue,
   ExposedField,
   FloatInputFieldValue,
   ImageInputFieldValue,
   InputFieldValue,
   IntegerInputFieldValue,
-  InvocationTemplate,
   InvocationNodeData,
+  InvocationTemplate,
   isInvocationNode,
+  isNotesNode,
   LoRAModelInputFieldValue,
   MainModelInputFieldValue,
+  NodeStatus,
   NotesNodeData,
-  CurrentImageNodeData,
   RefinerModelInputFieldValue,
   StringInputFieldValue,
   VaeModelInputFieldValue,
   Workflow,
-  isNotesNode,
 } from '../types/types';
 import { NodesState } from './types';
 
@@ -69,6 +77,7 @@ export const initialNodesState: NodesState = {
     version: '',
     exposedFields: [],
   },
+  nodeExecutionStates: {},
 };
 
 type FieldValueAction<T extends InputFieldValue> = PayloadAction<{
@@ -109,7 +118,19 @@ const nodesSlice = createSlice({
         Node<InvocationNodeData | CurrentImageNodeData | NotesNodeData>
       >
     ) => {
-      state.nodes.push(action.payload);
+      const node = action.payload;
+      state.nodes.push(node);
+
+      if (!isInvocationNode(node)) {
+        return;
+      }
+
+      state.nodeExecutionStates[node.id] = {
+        status: NodeStatus.PENDING,
+        error: null,
+        progress: null,
+        progressImage: null,
+      };
     },
     edgesChanged: (state, action: PayloadAction<EdgeChange[]>) => {
       state.edges = applyEdgeChanges(action.payload, state.edges);
@@ -273,6 +294,19 @@ const nodesSlice = createSlice({
         });
         state.edges = applyEdgeChanges(edgeChanges, state.edges);
       }
+    },
+    nodesDeleted: (
+      state,
+      action: PayloadAction<
+        Node<InvocationNodeData | NotesNodeData | CurrentImageNodeData>[]
+      >
+    ) => {
+      action.payload.forEach((node) => {
+        if (!isInvocationNode(node)) {
+          return;
+        }
+        delete state.nodeExecutionStates[node.id];
+      });
     },
     nodeLabelChanged: (
       state,
@@ -530,6 +564,51 @@ const nodesSlice = createSlice({
     builder.addCase(receivedOpenAPISchema.fulfilled, (state, action) => {
       state.schema = action.payload;
     });
+    builder.addCase(appSocketInvocationStarted, (state, action) => {
+      const { source_node_id } = action.payload.data;
+      const node = state.nodeExecutionStates[source_node_id];
+      if (node) {
+        node.status = NodeStatus.IN_PROGRESS;
+      }
+    });
+    builder.addCase(appSocketInvocationComplete, (state, action) => {
+      const { source_node_id } = action.payload.data;
+      const node = state.nodeExecutionStates[source_node_id];
+      if (node) {
+        node.status = NodeStatus.COMPLETED;
+        if (node.progress !== null) {
+          node.progress = 1;
+        }
+      }
+    });
+    builder.addCase(appSocketInvocationError, (state, action) => {
+      const { source_node_id } = action.payload.data;
+      const node = state.nodeExecutionStates[source_node_id];
+      if (node) {
+        node.status = NodeStatus.FAILED;
+        node.error = action.payload.data.error;
+        node.progress = null;
+        node.progressImage = null;
+      }
+    });
+    builder.addCase(appSocketGeneratorProgress, (state, action) => {
+      const { source_node_id, step, total_steps, progress_image } =
+        action.payload.data;
+      const node = state.nodeExecutionStates[source_node_id];
+      if (node) {
+        node.status = NodeStatus.IN_PROGRESS;
+        node.progress = (step + 1) / total_steps;
+        node.progressImage = progress_image ?? null;
+      }
+    });
+    builder.addCase(sessionInvoked.fulfilled, (state, action) => {
+      forEach(state.nodeExecutionStates, (nes) => {
+        nes.status = NodeStatus.PENDING;
+        nes.error = null;
+        nes.progress = null;
+        nes.progressImage = null;
+      });
+    });
   },
 });
 
@@ -537,6 +616,7 @@ export const {
   nodesChanged,
   edgesChanged,
   nodeAdded,
+  nodesDeleted,
   connectionMade,
   connectionStarted,
   connectionEnded,
