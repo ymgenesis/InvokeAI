@@ -7,6 +7,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 import 'reactflow/dist/style.css';
 import { Flow } from './Flow';
 import WorkflowPanel from './panel/WorkflowPanel';
+import NodeDndContext from './NodeDndContext';
 
 const NodeEditor = () => {
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
@@ -18,58 +19,60 @@ const NodeEditor = () => {
   );
 
   return (
-    <PanelGroup
-      id="node-editor"
-      autoSaveId="node-editor"
-      direction="horizontal"
-      style={{ height: '100%', width: '100%' }}
-    >
-      <Panel
-        id="node-editor-panel"
-        collapsible
-        onCollapse={setIsPanelCollapsed}
-        minSize={25}
+    <NodeDndContext>
+      <PanelGroup
+        id="node-editor"
+        autoSaveId="node-editor"
+        direction="horizontal"
+        style={{ height: '100%', width: '100%' }}
       >
-        <PanelGroup
-          id="node-editor-panel_group"
-          autoSaveId="node-editor-panel_group"
-          direction="vertical"
-          style={{ height: '100%', width: '100%' }}
+        <Panel
+          id="node-editor-panel"
+          collapsible
+          onCollapse={setIsPanelCollapsed}
+          minSize={25}
         >
-          <Panel
-            ref={ref}
-            id="node-editor-panel_group_workflow"
-            minSize={minSizePct}
-            defaultSize={
-              // prevent this error https://github.com/bvaughn/react-resizable-panels/blob/main/packages/react-resizable-panels/src/Panel.ts#L96
-              minSizePct > 25 && minSizePct < 100 ? minSizePct : 25
-            }
+          <PanelGroup
+            id="node-editor-panel_group"
+            autoSaveId="node-editor-panel_group"
+            direction="vertical"
+            style={{ height: '100%', width: '100%' }}
           >
-            <WorkflowPanel />
-          </Panel>
-          <ResizeHandle direction="vertical" />
-          <Panel id="node-editor-panel_group_inspector" minSize={25}>
-            <InspectorPanel />
-          </Panel>
-        </PanelGroup>
-      </Panel>
-      <ResizeHandle
-        collapsedDirection={isPanelCollapsed ? 'left' : undefined}
-      />
-      <Panel id="node-editor-content">
-        <Box
-          layerStyle={'first'}
-          sx={{
-            position: 'relative',
-            width: 'full',
-            height: 'full',
-            borderRadius: 'base',
-          }}
-        >
-          <Flow />
-        </Box>
-      </Panel>
-    </PanelGroup>
+            <Panel
+              ref={ref}
+              id="node-editor-panel_group_workflow"
+              minSize={minSizePct}
+              defaultSize={
+                // prevent this error https://github.com/bvaughn/react-resizable-panels/blob/main/packages/react-resizable-panels/src/Panel.ts#L96
+                minSizePct > 25 && minSizePct < 100 ? minSizePct : 25
+              }
+            >
+              <WorkflowPanel />
+            </Panel>
+            <ResizeHandle direction="vertical" />
+            <Panel id="node-editor-panel_group_inspector" minSize={25}>
+              <InspectorPanel />
+            </Panel>
+          </PanelGroup>
+        </Panel>
+        <ResizeHandle
+          collapsedDirection={isPanelCollapsed ? 'left' : undefined}
+        />
+        <Panel id="node-editor-content">
+          <Box
+            layerStyle={'first'}
+            sx={{
+              position: 'relative',
+              width: 'full',
+              height: 'full',
+              borderRadius: 'base',
+            }}
+          >
+            <Flow />
+          </Box>
+        </Panel>
+      </PanelGroup>
+    </NodeDndContext>
   );
 };
 

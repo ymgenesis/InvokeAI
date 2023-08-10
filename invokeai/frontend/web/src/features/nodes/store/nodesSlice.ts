@@ -568,6 +568,7 @@ const nodesSlice = createSlice({
       state.workflow.contact = action.payload;
     },
     workflowLoaded: (state, action: PayloadAction<Workflow>) => {
+      // TODO: validation
       const { nodes, edges, ...workflow } = action.payload;
       state.workflow = workflow;
       state.nodes = applyNodeChanges(

@@ -509,6 +509,65 @@ export const isInvocationFieldSchema = (
 
 export type InvocationEdgeExtra = { type: 'default' | 'collapsed' };
 
+export const zInputFieldValue = z.object({
+  id: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  type: zFieldType,
+  label: z.string(),
+  isExposed: z.boolean(),
+});
+
+export const zInvocationNodeData = z.object({
+  id: z.string().trim().min(1),
+  type: z.string().trim().min(1),
+  inputs: z.record(z.any()),
+  outputs: z.record(z.any()),
+  label: z.string(),
+  isOpen: z.boolean(),
+  notes: z.string(),
+});
+
+export const zNotesNodeData = z.object({
+  id: z.string().trim().min(1),
+  type: z.literal('notes'),
+  label: z.string(),
+  isOpen: z.boolean(),
+  notes: z.string(),
+});
+
+export const zWorkflow = z.object({
+  name: z.string().trim().min(1),
+  author: z.string(),
+  description: z.string(),
+  version: z.string(),
+  contact: z.string(),
+  tags: z.string(),
+  notes: z.string(),
+  nodes: z.array(
+    z.object({
+      id: z.string().trim().min(1),
+      type: z.string().trim().min(1),
+      data: z.union([zInvocationNodeData, zNotesNodeData]),
+      width: z.number().gt(0),
+      height: z.number().gt(0),
+      position: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+    })
+  ),
+  edges: z.array(
+    z.object({
+      source: z.string().trim().min(1),
+      sourceHandle: z.string().trim().min(1),
+      target: z.string().trim().min(1),
+      targetHandle: z.string().trim().min(1),
+      id: z.string().trim().min(1),
+      type: z.string().trim().min(1),
+    })
+  ),
+});
+
 export type Workflow = {
   name: string;
   author: string;

@@ -1,4 +1,4 @@
-import { Flex, FormControl, FormLabel, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, FormControl, FormLabel, Tooltip } from '@chakra-ui/react';
 import { createSelector } from '@reduxjs/toolkit';
 import { stateSelector } from 'app/store/store';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
@@ -12,6 +12,10 @@ import {
 import { forEach } from 'lodash-es';
 import { memo } from 'react';
 import InputFieldRenderer from '../../fields/InputFieldRenderer';
+import { useDroppable } from '@dnd-kit/core';
+import { IAIDropOverlay } from 'common/components/IAIDropOverlay';
+import { AnimatePresence } from 'framer-motion';
+import ScrollableContent from '../ScrollableContent';
 
 const selector = createSelector(
   stateSelector,
@@ -48,40 +52,68 @@ const selector = createSelector(
 const WorkflowPanel = () => {
   const { fields } = useAppSelector(selector);
 
+  const { setNodeRef, isOver, active, over } = useDroppable({
+    id: 'nodes-linear-drop',
+  });
+  console.log(isOver, active, over);
   return (
-    <Flex
+    <Box
       sx={{
-        flexDir: 'column',
-        alignItems: 'flex-start',
-        gap: 2,
+        position: 'relative',
+        w: 'full',
         h: 'full',
       }}
     >
-      {fields.map(({ field, fieldTemplate, nodeId }) => (
-        <FormControl key={field.id}>
-          <Tooltip
-            label={fieldTemplate.description}
-            openDelay={HANDLE_TOOLTIP_OPEN_DELAY}
-            placement="top"
-            shouldWrapChildren
-            hasArrow
-          >
-            <FormLabel
-              sx={{
-                mb: 0,
-              }}
-            >
-              {field.label || fieldTemplate.title}
-            </FormLabel>
-          </Tooltip>
-          <InputFieldRenderer
-            nodeId={nodeId}
-            field={field}
-            template={fieldTemplate}
-          />
-        </FormControl>
-      ))}
-    </Flex>
+      <ScrollableContent>
+        <Flex
+          sx={{
+            position: 'relative',
+            flexDir: 'column',
+            alignItems: 'flex-start',
+            gap: 2,
+            h: 'full',
+          }}
+        >
+          {fields.map(({ field, fieldTemplate, nodeId }) => (
+            <FormControl key={field.id}>
+              <Tooltip
+                label={fieldTemplate.description}
+                openDelay={HANDLE_TOOLTIP_OPEN_DELAY}
+                placement="top"
+                shouldWrapChildren
+                hasArrow
+              >
+                <FormLabel
+                  sx={{
+                    mb: 0,
+                  }}
+                >
+                  {field.label || fieldTemplate.title}
+                </FormLabel>
+              </Tooltip>
+              <InputFieldRenderer
+                nodeId={nodeId}
+                field={field}
+                template={fieldTemplate}
+              />
+            </FormControl>
+          ))}
+        </Flex>
+      </ScrollableContent>
+      <Box
+        ref={setNodeRef}
+        position="absolute"
+        top={0}
+        insetInlineStart={0}
+        w="full"
+        h="full"
+        pointerEvents="none"
+      >
+        <AnimatePresence>
+          {active && <IAIDropOverlay isOver={isOver} />}
+        </AnimatePresence>
+      </Box>
+    </Box>
   );
 };
 

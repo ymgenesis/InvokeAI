@@ -5,6 +5,7 @@ import {
   EditablePreview,
   Flex,
   useEditableControls,
+  useOutsideClick,
 } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
 import { DRAG_HANDLE_CLASSNAME } from 'features/nodes/hooks/useBuildInvocation';
@@ -14,6 +15,8 @@ import {
   InputFieldValue,
 } from 'features/nodes/types/types';
 import { MouseEvent, memo, useCallback, useState } from 'react';
+import FieldContextMenu from './FieldContextMenu';
+import { useDraggable } from '@dnd-kit/core';
 
 interface Props {
   nodeId: string;
@@ -28,6 +31,11 @@ const FieldTitle = (props: Props) => {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [localTitle, setLocalTitle] = useState(label || title);
+
+  const { setNodeRef, attributes, listeners } = useDraggable({
+    id: `${nodeId}-${field.name}`,
+    data: { nodeId, fieldName: field.name },
+  });
 
   const handleSubmit = useCallback(
     async (newTitle: string) => {
@@ -46,7 +54,11 @@ const FieldTitle = (props: Props) => {
 
   return (
     <Flex
-      className={isEditing ? 'nopan' : DRAG_HANDLE_CLASSNAME}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      // className={isEditing ? 'nopan' : DRAG_HANDLE_CLASSNAME}
+      className="nopan"
       sx={{
         overflow: 'hidden',
         w: 'full',
