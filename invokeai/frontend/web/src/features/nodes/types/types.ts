@@ -188,117 +188,122 @@ export type FieldValueBase = {
   type: FieldType;
 };
 
-export type IntegerInputFieldValue = FieldValueBase & {
+export type InputFieldValueBase = FieldValueBase & {
+  label: string;
+  isExposed: boolean;
+};
+
+export type IntegerInputFieldValue = InputFieldValueBase & {
   type: 'integer';
   value?: number;
 };
 
-export type FloatInputFieldValue = FieldValueBase & {
+export type FloatInputFieldValue = InputFieldValueBase & {
   type: 'float';
   value?: number;
 };
 
-export type SeedInputFieldValue = FieldValueBase & {
+export type SeedInputFieldValue = InputFieldValueBase & {
   type: 'Seed';
   value?: number;
 };
 
-export type StringInputFieldValue = FieldValueBase & {
+export type StringInputFieldValue = InputFieldValueBase & {
   type: 'string';
   value?: string;
 };
 
-export type BooleanInputFieldValue = FieldValueBase & {
+export type BooleanInputFieldValue = InputFieldValueBase & {
   type: 'boolean';
   value?: boolean;
 };
 
-export type EnumInputFieldValue = FieldValueBase & {
+export type EnumInputFieldValue = InputFieldValueBase & {
   type: 'enum';
   value?: number | string;
 };
 
-export type LatentsInputFieldValue = FieldValueBase & {
+export type LatentsInputFieldValue = InputFieldValueBase & {
   type: 'LatentsField';
   value?: undefined;
 };
 
-export type ConditioningInputFieldValue = FieldValueBase & {
+export type ConditioningInputFieldValue = InputFieldValueBase & {
   type: 'ConditioningField';
   value?: string;
 };
 
-export type ControlInputFieldValue = FieldValueBase & {
+export type ControlInputFieldValue = InputFieldValueBase & {
   type: 'ControlField';
   value?: undefined;
 };
 
-export type UNetInputFieldValue = FieldValueBase & {
+export type UNetInputFieldValue = InputFieldValueBase & {
   type: 'UNetField';
   value?: undefined;
 };
 
-export type ClipInputFieldValue = FieldValueBase & {
+export type ClipInputFieldValue = InputFieldValueBase & {
   type: 'ClipField';
   value?: undefined;
 };
 
-export type VaeInputFieldValue = FieldValueBase & {
+export type VaeInputFieldValue = InputFieldValueBase & {
   type: 'VaeField';
   value?: undefined;
 };
 
-export type ImageInputFieldValue = FieldValueBase & {
+export type ImageInputFieldValue = InputFieldValueBase & {
   type: 'ImageField';
   value?: ImageField;
 };
 
-export type ImageCollectionInputFieldValue = FieldValueBase & {
+export type ImageCollectionInputFieldValue = InputFieldValueBase & {
   type: 'ImageCollection';
   value?: ImageField[];
 };
 
-export type MainModelInputFieldValue = FieldValueBase & {
+export type MainModelInputFieldValue = InputFieldValueBase & {
   type: 'MainModelField';
   value?: MainModelParam;
 };
 
-export type SDXLMainModelInputFieldValue = FieldValueBase & {
+export type SDXLMainModelInputFieldValue = InputFieldValueBase & {
   type: 'SDXLMainModelField';
   value?: MainModelParam;
 };
 
-export type RefinerModelInputFieldValue = FieldValueBase & {
+export type RefinerModelInputFieldValue = InputFieldValueBase & {
   type: 'SDXLRefinerModelField';
   value?: MainModelParam;
 };
 
-export type VaeModelInputFieldValue = FieldValueBase & {
+export type VaeModelInputFieldValue = InputFieldValueBase & {
   type: 'VaeModelField';
   value?: VaeModelParam;
 };
 
-export type LoRAModelInputFieldValue = FieldValueBase & {
+export type LoRAModelInputFieldValue = InputFieldValueBase & {
   type: 'LoRAModelField';
   value?: LoRAModelParam;
 };
 
-export type ControlNetModelInputFieldValue = FieldValueBase & {
+export type ControlNetModelInputFieldValue = InputFieldValueBase & {
   type: 'ControlNetModelField';
   value?: ControlNetModelParam;
 };
 
-export type CollectionInputFieldValue = FieldValueBase & {
+export type CollectionInputFieldValue = InputFieldValueBase & {
   type: 'Collection';
   value?: (string | number)[];
 };
 
-export type CollectionItemInputFieldValue = FieldValueBase & {
+export type CollectionItemInputFieldValue = InputFieldValueBase & {
   type: 'CollectionItem';
   value?: undefined;
 };
 
-export type ColorInputFieldValue = FieldValueBase & {
+export type ColorInputFieldValue = InputFieldValueBase & {
   type: 'ColorField';
   value?: RgbaColor;
 };
@@ -504,10 +509,64 @@ export const isInvocationFieldSchema = (
 
 export type InvocationEdgeExtra = { type: 'default' | 'collapsed' };
 
-export type ExposedField = {
-  nodeId: string;
-  fieldId: string;
-};
+export const zInputFieldValue = z.object({
+  id: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  type: zFieldType,
+  label: z.string(),
+  isExposed: z.boolean(),
+});
+
+export const zInvocationNodeData = z.object({
+  id: z.string().trim().min(1),
+  type: z.string().trim().min(1),
+  inputs: z.record(z.any()),
+  outputs: z.record(z.any()),
+  label: z.string(),
+  isOpen: z.boolean(),
+  notes: z.string(),
+});
+
+export const zNotesNodeData = z.object({
+  id: z.string().trim().min(1),
+  type: z.literal('notes'),
+  label: z.string(),
+  isOpen: z.boolean(),
+  notes: z.string(),
+});
+
+export const zWorkflow = z.object({
+  name: z.string().trim().min(1),
+  author: z.string(),
+  description: z.string(),
+  version: z.string(),
+  contact: z.string(),
+  tags: z.string(),
+  notes: z.string(),
+  nodes: z.array(
+    z.object({
+      id: z.string().trim().min(1),
+      type: z.string().trim().min(1),
+      data: z.union([zInvocationNodeData, zNotesNodeData]),
+      width: z.number().gt(0),
+      height: z.number().gt(0),
+      position: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+    })
+  ),
+  edges: z.array(
+    z.object({
+      source: z.string().trim().min(1),
+      sourceHandle: z.string().trim().min(1),
+      target: z.string().trim().min(1),
+      targetHandle: z.string().trim().min(1),
+      id: z.string().trim().min(1),
+      type: z.string().trim().min(1),
+    })
+  ),
+});
 
 export type Workflow = {
   name: string;
@@ -517,7 +576,6 @@ export type Workflow = {
   contact: string;
   tags: string;
   notes: string;
-  exposedFields: ExposedField[];
   nodes: Pick<
     Node<InvocationNodeData | NotesNodeData>,
     'id' | 'type' | 'data' | 'width' | 'height' | 'position'
@@ -531,11 +589,11 @@ export type Workflow = {
 export type InvocationNodeData = {
   id: string;
   type: AnyInvocationType;
-  label: string;
-  isOpen: boolean;
   inputs: Record<string, InputFieldValue>;
   outputs: Record<string, OutputFieldValue>;
-  notes?: string;
+  label: string;
+  isOpen: boolean;
+  notes: string;
 };
 
 export type NotesNodeData = {

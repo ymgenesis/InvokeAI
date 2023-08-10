@@ -123,6 +123,7 @@ export const useBuildInvocation = () => {
           outputs,
           isOpen: true,
           label: '',
+          notes: '',
         },
       };
 

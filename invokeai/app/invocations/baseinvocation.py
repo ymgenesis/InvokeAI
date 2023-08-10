@@ -10,6 +10,7 @@ from typing import (
     AbstractSet,
     Any,
     Callable,
+    ClassVar,
     Mapping,
     Optional,
     Type,
@@ -25,6 +26,53 @@ from pydantic.typing import NoArgAnyCallable
 
 if TYPE_CHECKING:
     from ..services.invocation_services import InvocationServices
+
+
+class FieldDescriptions:
+    denoising_start = "When to start denoising, expressed a percentage of total steps"
+    denoising_end = "When to stop denoising, expressed a percentage of total steps"
+    cfg_scale = "Classifier-Free Guidance scale"
+    scheduler = "Scheduler to use during inference"
+    positive_cond = "Positive conditioning tensor"
+    negative_cond = "Negative conditioning tensor"
+    noise = "Noise tensor"
+    clip = "CLIP (tokenizer, text encoder, LoRAs) and skipped layer count"
+    unet = "UNet (scheduler, LoRAs)"
+    vae = "VAE"
+    cond = "Conditioning tensor"
+    controlnet_model = "ControlNet model to load"
+    vae_model = "VAE model to load"
+    lora_model = "LoRA model to load"
+    main_model = "Main model (UNet, VAE, CLIP) to load"
+    sdxl_main_model = "SDXL Main model (UNet, VAE, CLIP1, CLIP2) to load"
+    sdxl_refiner_model = "SDXL Refiner Main Modde (UNet, VAE, CLIP2) to load"
+    onnx_main_model = "ONNX Main model (UNet, VAE, CLIP) to load"
+    lora_weight = "The weight at which the LoRA is applied to each model"
+    compel_prompt = "Prompt to be parsed by Compel to create a conditioning tensor"
+    raw_prompt = "Raw prompt text (no parsing)"
+    sdxl_aesthetic = "The aesthetic score to apply to the conditioning tensor"
+    skipped_layers = "Number of layers to skip in text encoder"
+    seed = "Seed for random number generation"
+    steps = "Number of steps to run"
+    width = "Width of output (px)"
+    height = "Height of output (px)"
+    control = "ControlNet(s) to apply"
+    denoised_latents = "Denoised latents tensor"
+    latents = "Latents tensor"
+    strength = "Strength of denoising (proportional to steps)"
+    core_metadata = "Optional core metadata to be written to image"
+    interp_mode = "Interpolation mode"
+    torch_antialias = "Whether or not to apply antialiasing (bilinear or bicubic only)"
+    fp32 = "Whether or not to use full float32 precision"
+    precision = "Precision to use"
+    tiled = "Processing using overlapping tiles (reduce memory consumption)"
+    detect_res = "Pixel resolution for detection"
+    image_res = "Pixel resolution for output image"
+    safe_mode = "Whether or not to use safe mode"
+    scribble_mode = "Whether or not to use scribble mode"
+    scale_factor = "The factor by which to scale"
+    num_1 = "The first number"
+    num_2 = "The second number"
 
 
 class Input(str, Enum):
@@ -301,32 +349,6 @@ class UIConfigBase(BaseModel):
     title: Optional[str] = Field(default=None, description="The display name of the node")
 
 
-def title(title: str):
-    """Adds a title to the invocation. Use this to override the default title generation, which is based on the class name."""
-
-    def wrapper(cls):
-        uiconf_name = cls.__qualname__ + ".UIConfig"
-        if not hasattr(cls, "UIConfig") or cls.UIConfig.__qualname__ != uiconf_name:
-            cls.UIConfig = type(uiconf_name, (UIConfigBase,), dict())
-        cls.UIConfig.title = title
-        return cls
-
-    return wrapper
-
-
-def tags(*tags: str):
-    """Adds tags to the invocation. Use this to improve the streamline finding the invocation in the UI."""
-
-    def wrapper(cls):
-        uiconf_name = cls.__qualname__ + ".UIConfig"
-        if not hasattr(cls, "UIConfig") or cls.UIConfig.__qualname__ != uiconf_name:
-            cls.UIConfig = type(uiconf_name, (UIConfigBase,), dict())
-        cls.UIConfig.tags = list(tags)
-        return cls
-
-    return wrapper
-
-
 class InvocationContext:
     services: InvocationServices
     graph_execution_state_id: str
@@ -453,50 +475,33 @@ class BaseInvocation(ABC, BaseModel):
     is_intermediate: bool = InputField(
         default=False, description="Whether or not this node is an intermediate node.", input=Input.Direct
     )
+    UIConfig: ClassVar[Type[UIConfigBase]]
 
 
-class FieldDescriptions:
-    denoising_start = "When to start denoising, expressed a percentage of total steps"
-    denoising_end = "When to stop denoising, expressed a percentage of total steps"
-    cfg_scale = "Classifier-Free Guidance scale"
-    scheduler = "Scheduler to use during inference"
-    positive_cond = "Positive conditioning tensor"
-    negative_cond = "Negative conditioning tensor"
-    noise = "Noise tensor"
-    clip = "CLIP (tokenizer, text encoder, LoRAs) and skipped layer count"
-    unet = "UNet (scheduler, LoRAs)"
-    vae = "VAE"
-    cond = "Conditioning tensor"
-    controlnet_model = "ControlNet model to load"
-    vae_model = "VAE model to load"
-    lora_model = "LoRA model to load"
-    main_model = "Main model (UNet, VAE, CLIP) to load"
-    sdxl_main_model = "SDXL Main model (UNet, VAE, CLIP1, CLIP2) to load"
-    sdxl_refiner_model = "SDXL Refiner Main Modde (UNet, VAE, CLIP2) to load"
-    onnx_main_model = "ONNX Main model (UNet, VAE, CLIP) to load"
-    lora_weight = "The weight at which the LoRA is applied to each model"
-    compel_prompt = "Prompt to be parsed by Compel to create a conditioning tensor"
-    raw_prompt = "Raw prompt text (no parsing)"
-    sdxl_aesthetic = "The aesthetic score to apply to the conditioning tensor"
-    skipped_layers = "Number of layers to skip in text encoder"
-    seed = "Seed for random number generation"
-    steps = "Number of steps to run"
-    width = "Width of output (px)"
-    height = "Height of output (px)"
-    control = "ControlNet(s) to apply"
-    denoised_latents = "Denoised latents tensor"
-    latents = "Latents tensor"
-    strength = "Strength of denoising (proportional to steps)"
-    core_metadata = "Optional core metadata to be written to image"
-    interp_mode = "Interpolation mode"
-    torch_antialias = "Whether or not to apply antialiasing (bilinear or bicubic only)"
-    fp32 = "Whether or not to use full float32 precision"
-    precision = "Precision to use"
-    tiled = "Processing using overlapping tiles (reduce memory consumption)"
-    detect_res = "Pixel resolution for detection"
-    image_res = "Pixel resolution for output image"
-    safe_mode = "Whether or not to use safe mode"
-    scribble_mode = "Whether or not to use scribble mode"
-    scale_factor = "The factor by which to scale"
-    num_1 = "The first number"
-    num_2 = "The second number"
+T = TypeVar("T", bound=BaseInvocation)
+
+
+def title(title: str) -> Callable[[Type[T]], Type[T]]:
+    """Adds a title to the invocation. Use this to override the default title generation, which is based on the class name."""
+
+    def wrapper(cls: Type[T]) -> Type[T]:
+        uiconf_name = cls.__qualname__ + ".UIConfig"
+        if not hasattr(cls, "UIConfig") or cls.UIConfig.__qualname__ != uiconf_name:
+            cls.UIConfig = type(uiconf_name, (UIConfigBase,), dict())
+        cls.UIConfig.title = title
+        return cls
+
+    return wrapper
+
+
+def tags(*tags: str) -> Callable[[Type[T]], Type[T]]:
+    """Adds tags to the invocation. Use this to improve the streamline finding the invocation in the UI."""
+
+    def wrapper(cls: Type[T]) -> Type[T]:
+        uiconf_name = cls.__qualname__ + ".UIConfig"
+        if not hasattr(cls, "UIConfig") or cls.UIConfig.__qualname__ != uiconf_name:
+            cls.UIConfig = type(uiconf_name, (UIConfigBase,), dict())
+        cls.UIConfig.tags = list(tags)
+        return cls
+
+    return wrapper

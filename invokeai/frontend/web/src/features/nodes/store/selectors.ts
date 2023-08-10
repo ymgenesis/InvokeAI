@@ -5,6 +5,7 @@ import { defaultSelectorOptions } from 'app/store/util/defaultMemoizeOptions';
 import { every } from 'lodash-es';
 import { getConnectedEdges } from 'reactflow';
 import { isInvocationNode } from '../types/types';
+import { NodesState } from './types';
 
 export const selectIsReadyNodes = createSelector(
   [stateSelector],
@@ -62,3 +63,30 @@ export const selectIsReadyNodes = createSelector(
   },
   defaultSelectorOptions
 );
+
+export const getNodeAndTemplate = (nodeId: string, nodes: NodesState) => {
+  const node = nodes.nodes.find((node) => node.id === nodeId);
+  const nodeTemplate = nodes.nodeTemplates[node?.data.type ?? ''];
+
+  return { node, nodeTemplate };
+};
+
+export const getInputFieldAndTemplate = (
+  nodeId: string,
+  fieldName: string,
+  nodes: NodesState
+) => {
+  const node = nodes.nodes
+    .filter(isInvocationNode)
+    .find((node) => node.id === nodeId);
+  const nodeTemplate = nodes.nodeTemplates[node?.data.type ?? ''];
+
+  if (!node || !nodeTemplate) {
+    return;
+  }
+
+  const field = node.data.inputs[fieldName];
+  const fieldTemplate = nodeTemplate.inputs[fieldName];
+
+  return { field, fieldTemplate };
+};

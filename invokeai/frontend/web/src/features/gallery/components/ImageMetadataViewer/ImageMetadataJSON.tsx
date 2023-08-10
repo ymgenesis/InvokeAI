@@ -60,7 +60,7 @@ const ImageMetadataJSON = (props: Props) => {
           options={{
             scrollbars: {
               visibility: 'auto',
-              autoHide: 'move',
+              autoHide: 'scroll',
               autoHideDelay: 1300,
               theme: 'os-theme-dark',
             },
