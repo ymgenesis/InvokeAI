@@ -44,6 +44,7 @@ const NodeFooter = (props: Props) => {
     },
     [data.id, dispatch]
   );
+
   return (
     <Flex
       className={DRAG_HANDLE_CLASSNAME}

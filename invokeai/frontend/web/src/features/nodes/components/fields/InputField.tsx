@@ -94,7 +94,6 @@ const InputField = (props: Props) => {
           <FormLabel
             sx={{
               mb: 0,
-              fontWeight: 500,
               color: isMissingInput ? 'error.500' : 'base.800',
               _dark: { color: isMissingInput ? 'error.300' : 'base.200' },
             }}

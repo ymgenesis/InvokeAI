@@ -70,9 +70,6 @@ const FieldTitle = (props: Props) => {
           sx={{
             p: 0,
             textAlign: 'left',
-            fontWeight: 600,
-            color: 'base.700',
-            _dark: { color: 'base.200' },
           }}
           noOfLines={1}
         />
@@ -80,7 +77,6 @@ const FieldTitle = (props: Props) => {
           fontSize="sm"
           sx={{
             p: 0,
-            fontWeight: 600,
             _focusVisible: {
               p: 0,
               textAlign: 'left',
