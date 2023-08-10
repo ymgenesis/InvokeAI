@@ -5,9 +5,12 @@ import {
   InputFieldValue,
   InvocationTemplate,
 } from 'features/nodes/types/types';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren, useCallback, useMemo } from 'react';
 import FieldHandle from './FieldHandle';
 import InputFieldRenderer from './InputFieldRenderer';
+import { useAppDispatch } from 'app/store/storeHooks';
+import { fieldIsExposedChanged } from 'features/nodes/store/nodesSlice';
+import FieldName from './FieldTitle';
 
 interface Props {
   nodeId: string;
@@ -17,6 +20,7 @@ interface Props {
 
 const InputField = (props: Props) => {
   const { nodeId, field, template } = props;
+  const dispatch = useAppDispatch();
 
   const {
     isConnected,
@@ -25,6 +29,12 @@ const InputField = (props: Props) => {
     connectionError,
     shouldDim,
   } = useConnectionState({ nodeId, field, kind: 'input' });
+
+  const handleClick = useCallback(() => {
+    dispatch(
+      fieldIsExposedChanged({ nodeId, fieldName: field.name, isExposed: true })
+    );
+  }, [dispatch, field.name, nodeId]);
 
   const fieldTemplate = useMemo(
     () => template.inputs[field.name],
@@ -65,6 +75,7 @@ const InputField = (props: Props) => {
     <InputFieldWrapper shouldDim={shouldDim}>
       <FormControl
         as={Flex}
+        onClick={handleClick}
         isDisabled={isConnected}
         sx={{
           alignItems: 'center',
@@ -88,7 +99,11 @@ const InputField = (props: Props) => {
               _dark: { color: isMissingInput ? 'error.300' : 'base.200' },
             }}
           >
-            {fieldTemplate.title}
+            <FieldName
+              nodeId={nodeId}
+              field={field}
+              fieldTemplate={fieldTemplate}
+            />
           </FormLabel>
         </Tooltip>
         <InputFieldRenderer

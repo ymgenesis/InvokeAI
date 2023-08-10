@@ -31,7 +31,6 @@ import {
   ControlNetModelInputFieldValue,
   CurrentImageNodeData,
   EnumInputFieldValue,
-  ExposedField,
   FloatInputFieldValue,
   ImageInputFieldValue,
   InputFieldValue,
@@ -75,7 +74,6 @@ export const initialNodesState: NodesState = {
     tags: '',
     contact: '',
     version: '',
-    exposedFields: [],
   },
   nodeExecutionStates: {},
 };
@@ -165,6 +163,44 @@ const nodesSlice = createSlice({
     connectionEnded: (state) => {
       state.connectionStartParams = null;
       state.currentConnectionFieldType = null;
+    },
+    fieldIsExposedChanged: (
+      state,
+      action: PayloadAction<{
+        nodeId: string;
+        fieldName: string;
+        isExposed: boolean;
+      }>
+    ) => {
+      const { nodeId, fieldName, isExposed } = action.payload;
+      const node = state.nodes.find((n) => n.id === nodeId);
+      if (!isInvocationNode(node)) {
+        return;
+      }
+      const field = node.data.inputs[fieldName];
+      if (!field) {
+        return;
+      }
+      field.isExposed = isExposed;
+    },
+    fieldLabelChanged: (
+      state,
+      action: PayloadAction<{
+        nodeId: string;
+        fieldName: string;
+        label: string;
+      }>
+    ) => {
+      const { nodeId, fieldName, label } = action.payload;
+      const node = state.nodes.find((n) => n.id === nodeId);
+      if (!isInvocationNode(node)) {
+        return;
+      }
+      const field = node.data.inputs[fieldName];
+      if (!field) {
+        return;
+      }
+      field.label = label;
     },
     nodeIsOpenChanged: (
       state,
@@ -531,19 +567,6 @@ const nodesSlice = createSlice({
     workflowContactChanged: (state, action: PayloadAction<string>) => {
       state.workflow.contact = action.payload;
     },
-    workflowExposedFieldAdded: (state, action: PayloadAction<ExposedField>) => {
-      state.workflow.exposedFields.push(action.payload);
-    },
-    workflowExposedFieldRemoved: (
-      state,
-      action: PayloadAction<ExposedField>
-    ) => {
-      state.workflow.exposedFields = state.workflow.exposedFields.filter(
-        (field) =>
-          field.nodeId !== action.payload.nodeId &&
-          field.fieldId !== action.payload.fieldId
-      );
-    },
     workflowLoaded: (state, action: PayloadAction<Workflow>) => {
       const { nodes, edges, ...workflow } = action.payload;
       state.workflow = workflow;
@@ -657,10 +680,10 @@ export const {
   workflowNotesChanged,
   workflowVersionChanged,
   workflowContactChanged,
-  workflowExposedFieldAdded,
-  workflowExposedFieldRemoved,
   workflowLoaded,
   notesNodeValueChanged,
+  fieldIsExposedChanged,
+  fieldLabelChanged,
 } = nodesSlice.actions;
 
 export default nodesSlice.reducer;

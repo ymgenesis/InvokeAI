@@ -8,18 +8,23 @@ import {
 } from '@chakra-ui/react';
 import { useAppDispatch } from 'app/store/storeHooks';
 import { DRAG_HANDLE_CLASSNAME } from 'features/nodes/hooks/useBuildInvocation';
-import { nodeLabelChanged } from 'features/nodes/store/nodesSlice';
-import { InvocationNodeData, NotesNodeData } from 'features/nodes/types/types';
+import { fieldLabelChanged } from 'features/nodes/store/nodesSlice';
+import {
+  InputFieldTemplate,
+  InputFieldValue,
+} from 'features/nodes/types/types';
 import { MouseEvent, memo, useCallback, useState } from 'react';
 
 interface Props {
-  data: InvocationNodeData | NotesNodeData;
-  title: string;
+  nodeId: string;
+  field: InputFieldValue;
+  fieldTemplate: InputFieldTemplate;
 }
 
-const NodeTitle = (props: Props) => {
-  const { data, title } = props;
-  const { label } = data;
+const FieldTitle = (props: Props) => {
+  const { nodeId, field, fieldTemplate } = props;
+  const { label } = field;
+  const { title } = fieldTemplate;
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [localTitle, setLocalTitle] = useState(label || title);
@@ -27,10 +32,12 @@ const NodeTitle = (props: Props) => {
   const handleSubmit = useCallback(
     async (newTitle: string) => {
       setIsEditing(false);
-      dispatch(nodeLabelChanged({ nodeId: data.id, label: newTitle }));
+      dispatch(
+        fieldLabelChanged({ nodeId, fieldName: field.name, label: newTitle })
+      );
       setLocalTitle(newTitle || title);
     },
-    [data.id, dispatch, title]
+    [dispatch, nodeId, field.name, title]
   );
 
   const handleChange = useCallback((newTitle: string) => {
@@ -44,8 +51,8 @@ const NodeTitle = (props: Props) => {
         overflow: 'hidden',
         w: 'full',
         h: 'full',
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
         cursor: isEditing ? 'text' : undefined,
       }}
     >
@@ -62,7 +69,7 @@ const NodeTitle = (props: Props) => {
           fontSize="sm"
           sx={{
             p: 0,
-            textAlign: 'center',
+            textAlign: 'left',
             fontWeight: 600,
             color: 'base.700',
             _dark: { color: 'base.200' },
@@ -76,7 +83,7 @@ const NodeTitle = (props: Props) => {
             fontWeight: 600,
             _focusVisible: {
               p: 0,
-              textAlign: 'center',
+              textAlign: 'left',
               boxShadow: 'none',
             },
           }}
@@ -87,7 +94,7 @@ const NodeTitle = (props: Props) => {
   );
 };
 
-export default memo(NodeTitle);
+export default memo(FieldTitle);
 
 type EditableControlsProps = {
   setIsEditing: (isEditing: boolean) => void;
