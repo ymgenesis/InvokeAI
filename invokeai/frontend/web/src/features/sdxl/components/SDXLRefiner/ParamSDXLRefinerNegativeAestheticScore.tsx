@@ -3,44 +3,51 @@ import { stateSelector } from 'app/store/store';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { defaultSelectorOptions } from 'app/store/util/defaultMemoizeOptions';
 import IAISlider from 'common/components/IAISlider';
-import { setRefinerStart } from 'features/sdxl/store/sdxlSlice';
+import { setRefinerNegativeAestheticScore } from 'features/sdxl/store/sdxlSlice';
 import { memo, useCallback } from 'react';
 import { useIsRefinerAvailable } from 'services/api/hooks/useIsRefinerAvailable';
 
 const selector = createSelector(
   [stateSelector],
-  ({ sdxl }) => {
-    const { refinerStart } = sdxl;
+  ({ sdxl, hotkeys }) => {
+    const { refinerNegativeAestheticScore } = sdxl;
+    const { shift } = hotkeys;
+
     return {
-      refinerStart,
+      refinerNegativeAestheticScore,
+      shift,
     };
   },
   defaultSelectorOptions
 );
 
-const ParamSDXLRefinerStart = () => {
-  const { refinerStart } = useAppSelector(selector);
-  const dispatch = useAppDispatch();
+const ParamSDXLRefinerNegativeAestheticScore = () => {
+  const { refinerNegativeAestheticScore, shift } = useAppSelector(selector);
+
   const isRefinerAvailable = useIsRefinerAvailable();
+
+  const dispatch = useAppDispatch();
+
   const handleChange = useCallback(
-    (v: number) => dispatch(setRefinerStart(v)),
+    (v: number) => dispatch(setRefinerNegativeAestheticScore(v)),
     [dispatch]
   );
 
   const handleReset = useCallback(
-    () => dispatch(setRefinerStart(0.8)),
+    () => dispatch(setRefinerNegativeAestheticScore(2.5)),
     [dispatch]
   );
 
   return (
     <IAISlider
-      label="Refiner Start"
-      step={0.01}
-      min={0}
-      max={1}
+      label="Negative Aesthetic Score"
+      step={shift ? 0.1 : 0.5}
+      min={1}
+      max={10}
       onChange={handleChange}
       handleReset={handleReset}
-      value={refinerStart}
+      value={refinerNegativeAestheticScore}
+      sliderNumberInputProps={{ max: 10 }}
       withInput
       withReset
       withSliderMarks
@@ -50,4 +57,4 @@ const ParamSDXLRefinerStart = () => {
   );
 };
 
-export default memo(ParamSDXLRefinerStart);
+export default memo(ParamSDXLRefinerNegativeAestheticScore);
