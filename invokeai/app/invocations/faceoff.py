@@ -7,24 +7,16 @@ import numpy as np
 import mediapipe as mp
 from PIL import Image
 import cv2
-from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
+from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
+from invokeai.app.invocations.primitives import ImageField
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
-    InvocationConfig,
-)
-
-
-class PILInvocationConfig(BaseModel):
-    """Helper class to provide all PIL invocations with additional config"""
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["PIL", "image"],
-            },
-        }
+    FieldDescriptions,
+    InputField,
+    tags,
+    title)
 
 
 class FaceOffOutput(BaseInvocationOutput):
@@ -44,7 +36,9 @@ class FaceOffOutput(BaseInvocationOutput):
         schema_extra = {"required": ["type", "bounded_image", "width", "height", "mask", "x", "y"]}
 
 
-class FaceOffInvocation(BaseInvocation, PILInvocationConfig):
+@title("FaceOff")
+@tags("image", "faceoff", "face", "mask")
+class FaceOffInvocation(BaseInvocation):
     """bound, extract, and mask a face from an image using MediaPipe detection"""
 
     # fmt: off
@@ -61,13 +55,6 @@ class FaceOffInvocation(BaseInvocation, PILInvocationConfig):
     scale_factor:        int = Field(default=2, description="Factor to scale the bounding box by before outputting")
     # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "FaceOff",
-                "tags": ["image", "faceoff", "face", "mask"]
-            },
-        }
 
     def generate_face_box_mask(self, pil_image):
         # Convert the PIL image to a NumPy array.

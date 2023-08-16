@@ -6,28 +6,21 @@ import numpy
 from PIL import Image
 from pydantic import BaseModel, Field
 
-from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
-from invokeai.app.invocations.image import ImageOutput
+from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
+from invokeai.app.invocations.primitives import ImageField, ImageOutput
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
-    InvocationConfig,
-)
+    FieldDescriptions,
+    InputField,
+    tags,
+    title)
 
 
-class PILInvocationConfig(BaseModel):
-    """Helper class to provide all PIL invocations with additional config"""
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["PIL", "image"],
-            },
-        }
-
-
-class CenterPadCropInvocation(BaseInvocation, PILInvocationConfig):
+@title("Center Pad Crop")
+@tags("image", "center", "pad", "crop")
+class CenterPadCropInvocation(BaseInvocation):
     """Pad or crop an image's sides from the center by specified pixels. Positive values are outside of the image."""
 
     # fmt: off
@@ -41,13 +34,6 @@ class CenterPadCropInvocation(BaseInvocation, PILInvocationConfig):
     bottom: int = Field(default=0, description="Number of pixels to pad/crop from the bottom (negative values crop inwards, positive values pad outwards)")
     # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "Center Pad Crop",
-                "tags": ["image", "center", "pad", "crop"]
-            },
-        }
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)

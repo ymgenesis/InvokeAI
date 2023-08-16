@@ -5,28 +5,21 @@ from typing import Literal, Optional
 from PIL import Image
 from pydantic import BaseModel, Field
 import cv2
-from invokeai.app.invocations.image import ImageOutput
-from invokeai.app.models.image import ImageCategory, ImageField, ResourceOrigin
+from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
+from invokeai.app.invocations.primitives import ImageField, ImageOutput
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
-    InvocationConfig,
-)
+    FieldDescriptions,
+    InputField,
+    tags,
+    title)
 
 
-class PILInvocationConfig(BaseModel):
-    """Helper class to provide all PIL invocations with additional config"""
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["PIL", "image"],
-            },
-        }
-
-
-class FacePlaceInvocation(BaseInvocation, PILInvocationConfig):
+@title("FacePlace")
+@tags("image", "face", "place")
+class FacePlaceInvocation(BaseInvocation):
     """FacePlace node to place the a bounded face from FaceOff back onto the original image"""
 
     # fmt: off
@@ -40,13 +33,6 @@ class FacePlaceInvocation(BaseInvocation, PILInvocationConfig):
     y:                 int = Field(default=0, description="The y coordinate (top left corner) to place on the original image")
     # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "FacePlace",
-                "tags": ["image", "face", "place"],
-            },
-        }
 
     def create_alpha_mask(self, image):
         # Check the image mode to determine if it has an alpha channel.

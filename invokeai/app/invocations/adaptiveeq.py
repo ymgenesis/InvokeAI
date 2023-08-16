@@ -10,25 +10,17 @@ from PIL import Image
 
 from invokeai.app.invocations.baseinvocation import (BaseInvocation,
                                                      BaseInvocationOutput,
-                                                     InvocationConfig,
-                                                     InvocationContext)
-from invokeai.app.models.image import (ImageCategory, ImageField,
-                                            ResourceOrigin)
-from invokeai.app.invocations.image import ImageOutput
+                                                     InvocationContext,
+                                                     FieldDescriptions,
+                                                     InputField,
+                                                     tags,
+                                                     title)
+from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
+from invokeai.app.invocations.primitives import ImageField, ImageOutput
 
-
-class PILInvocationConfig(BaseModel):
-    """Helper class to provide all PIL invocations with additional config"""
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["PIL", "image"],
-            },
-        }
-
-
-class AdaptiveEQInvocation(BaseInvocation, PILInvocationConfig):
+@title("Adaptive EQ")
+@tags("eq", "adaptive")
+class AdaptiveEQInvocation(BaseInvocation):
     """Adaptive Histogram Equalization using skimage."""
 
     # fmt: off
@@ -38,14 +30,6 @@ class AdaptiveEQInvocation(BaseInvocation, PILInvocationConfig):
     image:       Optional[ImageField]  = Field(default=None, description="Input image")
     strength:    float = Field(default=1.5, description="Adaptive EQ strength")
     # fmt: on
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "Adaptive EQ",
-                "tags": ["eq", "adaptive"]
-            },
-        }
 
 
     def invoke(self, context: InvocationContext) -> ImageOutput:

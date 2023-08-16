@@ -9,21 +9,13 @@ import mediapipe as mp
 import numpy as np
 from invokeai.app.invocations.baseinvocation import (BaseInvocation,
                                                      BaseInvocationOutput,
-                                                     InvocationConfig,
-                                                     InvocationContext)
-from invokeai.app.models.image import (ImageCategory, ImageField,
-                                            ResourceOrigin)
-
-
-class PILInvocationConfig(BaseModel):
-    """Helper class to provide all PIL invocations with additional config"""
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["PIL", "image"],
-            },
-        }
+                                                     InvocationContext,
+                                                     FieldDescriptions,
+                                                     InputField,
+                                                     tags,
+                                                     title)
+from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
+from invokeai.app.invocations.primitives import ImageField
 
 
 class FaceMaskOutput(BaseInvocationOutput):
@@ -40,8 +32,9 @@ class FaceMaskOutput(BaseInvocationOutput):
     class Config:
         schema_extra = {"required": ["type", "image", "width", "height", "mask"]}
 
-
-class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
+@title("FaceMask")
+@tags("image", "face", "mask")
+class FaceMaskInvocation(BaseInvocation):
     """Face mask creation using mediapipe face detection"""
 
     # fmt: off
@@ -56,14 +49,6 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
     y_offset:             float = Field(default=0.0, description="Offset for the Y-axis of the face mask")
     invert_mask:          bool = Field(default=False, description="Toggle to invert the mask")
     # fmt: on
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "FaceMask",
-                "tags": ["image", "face", "mask"]
-            },
-        }
 
 
     def scale_and_convex(self, np_image, face_landmark_points):
@@ -135,7 +120,9 @@ class FaceMaskInvocation(BaseInvocation, PILInvocationConfig):
             return mask_pil
 
         else:
-            raise ValueError("Failed to detect 1 or more faces in the image")
+            raise ValueError("Failed to detect 1 or more faces in the image.")
+            context.services.logger.warning('Failed to detect 1 or more faces in the image.')
+
 
     def invoke(self, context: InvocationContext) -> FaceMaskOutput:
         image = context.services.images.get_pil_image(self.image.image_name)

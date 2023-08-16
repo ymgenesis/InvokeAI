@@ -9,24 +9,18 @@ import mediapipe as mp
 import numpy as np
 from invokeai.app.invocations.baseinvocation import (BaseInvocation,
                                                      BaseInvocationOutput,
-                                                     InvocationConfig,
-                                                     InvocationContext)
-from invokeai.app.models.image import (ImageCategory, ImageField,
-                                            ResourceOrigin, ImageOutput)
+                                                     InvocationContext,
+                                                     FieldDescriptions,
+                                                     InputField,
+                                                     tags,
+                                                     title)
+from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
+from invokeai.app.invocations.primitives import ImageField, ImageOutput
 
 
-class PILInvocationConfig(BaseModel):
-    """Helper class to provide all PIL invocations with additional config"""
-
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "tags": ["PIL", "image"],
-            },
-        }
-
-
-class FaceIdentifierInvocation(BaseInvocation, PILInvocationConfig):
+@title("FaceIdentifier")
+@tags("image", "face", "identifier")
+class FaceIdentifierInvocation(BaseInvocation):
     """Outputs an image with detected face IDs printed on each face. For use with other FaceTools."""
 
     # fmt: off
@@ -38,13 +32,6 @@ class FaceIdentifierInvocation(BaseInvocation, PILInvocationConfig):
     minimum_confidence:   float = Field(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
     # fmt: on
 
-    class Config(InvocationConfig):
-        schema_extra = {
-            "ui": {
-                "title": "FaceIdentifier",
-                "tags": ["image", "face", "identifier"]
-            },
-        }
 
     def generate_face_masks(self, pil_image):
         # Convert the PIL image to a NumPy array.
