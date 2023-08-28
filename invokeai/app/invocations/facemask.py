@@ -1,4 +1,4 @@
-## FaceMask 3.3
+## FaceMask 3.6
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
 from typing import Literal, Optional, Union
@@ -12,6 +12,7 @@ from invokeai.app.invocations.baseinvocation import (BaseInvocation,
                                                      InvocationContext,
                                                      FieldDescriptions,
                                                      InputField,
+                                                     OutputField,
                                                      tags,
                                                      title)
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
@@ -23,10 +24,10 @@ class FaceMaskOutput(BaseInvocationOutput):
 
     # fmt: off
     type:       Literal["face_mask_output"] = "face_mask_output"
-    image:      ImageField = Field(default=None, description="The output image")
-    width:      int = Field(description="The width of the image in pixels")
-    height:     int = Field(description="The height of the image in pixels")
-    mask:       ImageField = Field(default=None, description="The output mask")
+    image:      ImageField = OutputField(default=None, description="The output image")
+    width:      int = OutputField(description="The width of the image in pixels")
+    height:     int = OutputField(description="The height of the image in pixels")
+    mask:       ImageField = OutputField(default=None, description="The output mask")
     # fmt: on
 
     class Config:
@@ -41,13 +42,13 @@ class FaceMaskInvocation(BaseInvocation):
     type: Literal["face_mask_detection"] = "face_mask_detection"
 
     # Inputs
-    image:                Optional[ImageField]  = Field(default=None, description="Image to face detect")
-    face_ids:             str = Field(default=0, description="0 for all faces, single digit for one, comma-separated list for multiple specific (1, 2, 4). Find face IDs with FaceIdentifier node.")
-    faces:                int = Field(default=4, description="Maximum number of faces to detect")
-    minimum_confidence:   float = Field(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
-    x_offset:             float = Field(default=0.0, description="Offset for the X-axis of the face mask")
-    y_offset:             float = Field(default=0.0, description="Offset for the Y-axis of the face mask")
-    invert_mask:          bool = Field(default=False, description="Toggle to invert the mask")
+    image:                Optional[ImageField]  = InputField(default=None, description="Image to face detect")
+    face_ids:             str = InputField(default=0, description="0 for all faces, single digit for one, comma-separated list for multiple specific (1, 2, 4). Find face IDs with FaceIdentifier node.")
+    faces:                int = InputField(default=4, description="Maximum number of faces to detect")
+    minimum_confidence:   float = InputField(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
+    x_offset:             float = InputField(default=0.0, description="Offset for the X-axis of the face mask")
+    y_offset:             float = InputField(default=0.0, description="Offset for the Y-axis of the face mask")
+    invert_mask:          bool = InputField(default=False, description="Toggle to invert the mask")
     # fmt: on
 
 

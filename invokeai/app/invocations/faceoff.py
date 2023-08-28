@@ -5,7 +5,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field
 import numpy as np
 import mediapipe as mp
-from PIL import Image
+from PIL import Image, ImageFilter
 import cv2
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField
@@ -15,6 +15,7 @@ from invokeai.app.invocations.baseinvocation import (
     InvocationContext,
     FieldDescriptions,
     InputField,
+    OutputField,
     tags,
     title)
 
@@ -24,12 +25,12 @@ class FaceOffOutput(BaseInvocationOutput):
 
     # fmt: off
     type:              Literal["face_off_output"] = "face_off_output"
-    bounded_image:     ImageField = Field(default=None, description="Original image bound, cropped, and resized")
-    width:             int = Field(description="The width of the bounded image in pixels")
-    height:            int = Field(description="The height of the bounded image in pixels")
-    mask:              ImageField = Field(default=None, description="The output mask")
-    x:                 int = Field(description="The x coordinate of the bounding box's left side")
-    y:                 int = Field(description="The y coordinate of the bounding box's top side")
+    bounded_image:     ImageField = OutputField(default=None, description="Original image bound, cropped, and resized")
+    width:             int = OutputField(description="The width of the bounded image in pixels")
+    height:            int = OutputField(description="The height of the bounded image in pixels")
+    mask:              ImageField = OutputField(default=None, description="The output mask")
+    x:                 int = OutputField(description="The x coordinate of the bounding box's left side")
+    y:                 int = OutputField(description="The y coordinate of the bounding box's top side")
     # fmt: on
 
     class Config:
@@ -45,14 +46,14 @@ class FaceOffInvocation(BaseInvocation):
     type: Literal["face_off"] = "face_off"
 
     # Inputs
-    image:               Optional[ImageField]  = Field(default=None, description="Image for face detection")
-    face_id:             int = Field(default=0, description="0 for first detected face, single digit for one specific. Multiple faces not supported. Find a face's ID with FaceIdentifier node.")
-    faces:               int = Field(default=4, description="Maximum number of faces to detect")
-    minimum_confidence:  float = Field(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
-    x_offset:            float = Field(default=0.0, description="X-axis offset of the mask")
-    y_offset:            float = Field(default=0.0, description="Y-axis offset of the mask")
-    padding:             int = Field(default=0, description="All-axis padding around the mask in pixels")
-    scale_factor:        int = Field(default=2, description="Factor to scale the bounding box by before outputting")
+    image:               Optional[ImageField]  = InputField(default=None, description="Image for face detection")
+    face_id:             int = InputField(default=0, description="0 for first detected face, single digit for one specific. Multiple faces not supported. Find a face's ID with FaceIdentifier node.")
+    faces:               int = InputField(default=4, description="Maximum number of faces to detect")
+    minimum_confidence:  float = InputField(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
+    x_offset:            float = InputField(default=0.0, description="X-axis offset of the mask")
+    y_offset:            float = InputField(default=0.0, description="Y-axis offset of the mask")
+    padding:             int = InputField(default=0, description="All-axis padding around the mask in pixels")
+    scale_factor:        int = InputField(default=2, description="Factor to scale the bounding box by before outputting")
     # fmt: on
 
 
@@ -205,6 +206,7 @@ class FaceOffInvocation(BaseInvocation):
         if self.scale_factor > 0:
             new_size = (mask_pil.width * self.scale_factor, mask_pil.height * self.scale_factor)
             mask_pil = mask_pil.resize(new_size)
+            mask_pil = mask_pil.filter(ImageFilter.GaussianBlur(radius=2))
             bounded_image_np = np.array(bounded_image)
             bounded_image_np = cv2.resize(bounded_image_np, new_size, interpolation=cv2.INTER_LANCZOS4)
             bounded_image = Image.fromarray(bounded_image_np)

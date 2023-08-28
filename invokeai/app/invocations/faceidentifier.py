@@ -27,9 +27,9 @@ class FaceIdentifierInvocation(BaseInvocation):
     type: Literal["face_identifier"] = "face_identifier"
 
     # Inputs
-    image:                Optional[ImageField]  = Field(default=None, description="Image to face detect")
-    faces:                int = Field(default=4, description="Maximum number of faces to detect")
-    minimum_confidence:   float = Field(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
+    image:                Optional[ImageField]  = InputField(default=None, description="Image to face detect")
+    faces:                int = InputField(default=4, description="Maximum number of faces to detect")
+    minimum_confidence:   float = InputField(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
     # fmt: on
 
 
