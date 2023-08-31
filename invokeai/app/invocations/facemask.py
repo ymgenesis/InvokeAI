@@ -1,19 +1,16 @@
 ## FaceMask 3.7
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Optional
 from PIL import Image, ImageOps
 import cv2
 import mediapipe as mp
 import numpy as np
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField
-from invokeai.app.invocations.metadata import CoreMetadata
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
-    FieldDescriptions,
     InputField,
     OutputField,
     invocation,
@@ -41,11 +38,6 @@ class FaceMaskInvocation(BaseInvocation):
     x_offset:             float = InputField(default=0.0, description="Offset for the X-axis of the face mask")
     y_offset:             float = InputField(default=0.0, description="Offset for the Y-axis of the face mask")
     invert_mask:          bool = InputField(default=False, description="Toggle to invert the mask")
-    metadata:             Optional[CoreMetadata] = InputField(
-        default=None,
-        description=FieldDescriptions.core_metadata,
-        ui_hidden=True,
-    )
 
     def scale_and_convex(self, np_image, face_landmark_points):
         # Apply the scaling offsets to the face landmark points.
@@ -137,7 +129,6 @@ class FaceMaskInvocation(BaseInvocation):
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
-            metadata=self.metadata.dict() if self.metadata else None,
             workflow=self.workflow,
         )
 

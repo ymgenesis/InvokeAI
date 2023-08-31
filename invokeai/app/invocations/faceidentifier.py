@@ -1,17 +1,14 @@
 ## FaceIdentifier 1.8
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Optional
 from PIL import Image, ImageDraw
 import mediapipe as mp
 import numpy as np
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
-from invokeai.app.invocations.metadata import CoreMetadata
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     InvocationContext,
-    FieldDescriptions,
     InputField,
     invocation)
 
@@ -23,11 +20,6 @@ class FaceIdentifierInvocation(BaseInvocation):
     image:                ImageField  = InputField(description="Image to face detect")
     faces:                int = InputField(default=4, description="Maximum number of faces to detect")
     minimum_confidence:   float = InputField(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
-    metadata:             Optional[CoreMetadata] = InputField(
-        default=None,
-        description=FieldDescriptions.core_metadata,
-        ui_hidden=True,
-    )
 
     def generate_face_masks(self, pil_image):
         # Convert the PIL image to a NumPy array.
@@ -99,7 +91,6 @@ class FaceIdentifierInvocation(BaseInvocation):
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
-            metadata=self.metadata.dict() if self.metadata else None,
             workflow=self.workflow,
         )
 

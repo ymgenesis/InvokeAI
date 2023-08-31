@@ -1,19 +1,16 @@
 ## FaceOff 3.6
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Optional
 import numpy as np
 import mediapipe as mp
 from PIL import Image, ImageFilter
 import cv2
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField
-from invokeai.app.invocations.metadata import CoreMetadata
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
-    FieldDescriptions,
     InputField,
     OutputField,
     invocation,
@@ -44,11 +41,6 @@ class FaceOffInvocation(BaseInvocation):
     y_offset:            float = InputField(default=0.0, description="Y-axis offset of the mask")
     padding:             int = InputField(default=0, description="All-axis padding around the mask in pixels")
     scale_factor:        int = InputField(default=2, description="Factor to scale the bounding box by before outputting")
-    metadata:            Optional[CoreMetadata] = InputField(
-        default=None,
-        description=FieldDescriptions.core_metadata,
-        ui_hidden=True,
-    )
 
     def generate_face_box_mask(self, pil_image):
         # Convert the PIL image to a NumPy array.
@@ -214,7 +206,6 @@ class FaceOffInvocation(BaseInvocation):
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
-            metadata=self.metadata.dict() if self.metadata else None,
             workflow=self.workflow,
         )
         mask_dto = context.services.images.create(

@@ -1,15 +1,12 @@
 ## FacePlace 1.8
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Optional
 from PIL import Image
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
-from invokeai.app.invocations.metadata import CoreMetadata
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     InvocationContext,
-    FieldDescriptions,
     InputField,
     invocation)
 
@@ -23,11 +20,6 @@ class FacePlaceInvocation(BaseInvocation):
     downscale_factor:  int = InputField(default=2, description="Factor to downscale the bounded image before placing")
     x:                 int = InputField(default=0, description="The x coordinate (top left corner) to place on the original image")
     y:                 int = InputField(default=0, description="The y coordinate (top left corner) to place on the original image")
-    metadata:             Optional[CoreMetadata] = InputField(
-        default=None,
-        description=FieldDescriptions.core_metadata,
-        ui_hidden=True,
-    )
 
     def create_alpha_mask(self, image):
         # Check the image mode to determine if it has an alpha channel.
@@ -79,7 +71,6 @@ class FacePlaceInvocation(BaseInvocation):
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
-            metadata=self.metadata.dict() if self.metadata else None,
             workflow=self.workflow,            
         )
 

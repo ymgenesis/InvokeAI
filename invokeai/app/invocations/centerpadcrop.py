@@ -1,15 +1,12 @@
 ## CenterPadCrop 1.7
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Optional
 from PIL import Image
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
-from invokeai.app.invocations.metadata import CoreMetadata
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     InvocationContext,
-    FieldDescriptions,
     InputField,
     invocation)
 
@@ -23,11 +20,6 @@ class CenterPadCropInvocation(BaseInvocation):
     right:  int = InputField(default=0, description="Number of pixels to pad/crop from the right (negative values crop inwards, positive values pad outwards)")
     top:    int = InputField(default=0, description="Number of pixels to pad/crop from the top (negative values crop inwards, positive values pad outwards)")
     bottom: int = InputField(default=0, description="Number of pixels to pad/crop from the bottom (negative values crop inwards, positive values pad outwards)")
-    metadata:             Optional[CoreMetadata] = InputField(
-        default=None,
-        description=FieldDescriptions.core_metadata,
-        ui_hidden=True,
-    )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -47,7 +39,6 @@ class CenterPadCropInvocation(BaseInvocation):
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
-            metadata=self.metadata.dict() if self.metadata else None,
             workflow=self.workflow,            
         )
 
