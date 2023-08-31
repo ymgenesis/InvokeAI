@@ -1,44 +1,37 @@
-## CenterPadCrop 1.0
+## CenterPadCrop 1.7
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Literal, Optional
-import numpy
+from typing import Optional
 from PIL import Image
-from pydantic import BaseModel, Field
-
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
+from invokeai.app.invocations.metadata import CoreMetadata
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
-    BaseInvocationOutput,
     InvocationContext,
     FieldDescriptions,
     InputField,
-    tags,
-    title)
+    invocation)
 
 
-@title("Center Pad Crop")
-@tags("image", "center", "pad", "crop")
+@invocation("img_pad_crop", title="Center Pad Crop", tags=["image", "center", "pad", "crop"], category="image")
 class CenterPadCropInvocation(BaseInvocation):
     """Pad or crop an image's sides from the center by specified pixels. Positive values are outside of the image."""
 
-    # fmt: off
-    type: Literal["img_pad_crop"] = "img_pad_crop"
-
-    # Inputs
-    image:  Optional[ImageField] = Field(default=None, description="The image to crop")
-    left:   int = Field(default=0, description="Number of pixels to pad/crop from the left (negative values crop inwards, positive values pad outwards)")
-    right:  int = Field(default=0, description="Number of pixels to pad/crop from the right (negative values crop inwards, positive values pad outwards)")
-    top:    int = Field(default=0, description="Number of pixels to pad/crop from the top (negative values crop inwards, positive values pad outwards)")
-    bottom: int = Field(default=0, description="Number of pixels to pad/crop from the bottom (negative values crop inwards, positive values pad outwards)")
-    # fmt: on
-
+    image:  ImageField = InputField(default=None, description="The image to crop")
+    left:   int = InputField(default=0, description="Number of pixels to pad/crop from the left (negative values crop inwards, positive values pad outwards)")
+    right:  int = InputField(default=0, description="Number of pixels to pad/crop from the right (negative values crop inwards, positive values pad outwards)")
+    top:    int = InputField(default=0, description="Number of pixels to pad/crop from the top (negative values crop inwards, positive values pad outwards)")
+    bottom: int = InputField(default=0, description="Number of pixels to pad/crop from the bottom (negative values crop inwards, positive values pad outwards)")
+    metadata:             Optional[CoreMetadata] = InputField(
+        default=None,
+        description=FieldDescriptions.core_metadata,
+        ui_hidden=True,
+    )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
-        imgwidth, imgheight = image.size
-
+        
         # Calculate and create new image dimensions
         new_width = image.width + self.right + self.left
         new_height = image.height + self.top + self.bottom
@@ -50,10 +43,12 @@ class CenterPadCropInvocation(BaseInvocation):
         image_dto = context.services.images.create(
             image=image_crop,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.OTHER,
+            image_category=ImageCategory.GENERAL,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
+            metadata=self.metadata.dict() if self.metadata else None,
+            workflow=self.workflow,            
         )
 
         return ImageOutput(

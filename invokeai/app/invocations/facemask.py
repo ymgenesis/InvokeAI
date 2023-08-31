@@ -1,56 +1,51 @@
-## FaceMask 3.6
+## FaceMask 3.7
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Literal, Optional, Union
+from typing import Optional
 from PIL import Image, ImageOps
-from pydantic import BaseModel, Field
 import cv2
 import mediapipe as mp
 import numpy as np
-from invokeai.app.invocations.baseinvocation import (BaseInvocation,
-                                                     BaseInvocationOutput,
-                                                     InvocationContext,
-                                                     FieldDescriptions,
-                                                     InputField,
-                                                     OutputField,
-                                                     tags,
-                                                     title)
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField
+from invokeai.app.invocations.metadata import CoreMetadata
+from invokeai.app.invocations.baseinvocation import (
+    BaseInvocation,
+    BaseInvocationOutput,
+    InvocationContext,
+    FieldDescriptions,
+    InputField,
+    OutputField,
+    invocation,
+    invocation_output)
 
 
+@invocation_output("face_mask_output")
 class FaceMaskOutput(BaseInvocationOutput):
     """Base class for FaceMask output"""
 
-    # fmt: off
-    type:       Literal["face_mask_output"] = "face_mask_output"
-    image:      ImageField = OutputField(default=None, description="The output image")
+    image:      ImageField = OutputField(description="The output image")
     width:      int = OutputField(description="The width of the image in pixels")
     height:     int = OutputField(description="The height of the image in pixels")
-    mask:       ImageField = OutputField(default=None, description="The output mask")
-    # fmt: on
+    mask:       ImageField = OutputField(description="The output mask")
 
-    class Config:
-        schema_extra = {"required": ["type", "image", "width", "height", "mask"]}
 
-@title("FaceMask")
-@tags("image", "face", "mask")
+@invocation("face_mask_detection", title="FaceMask", tags=["image", "face", "mask"], category="image")
 class FaceMaskInvocation(BaseInvocation):
     """Face mask creation using mediapipe face detection"""
 
-    # fmt: off
-    type: Literal["face_mask_detection"] = "face_mask_detection"
-
-    # Inputs
-    image:                Optional[ImageField]  = InputField(default=None, description="Image to face detect")
-    face_ids:             str = InputField(default=0, description="0 for all faces, single digit for one, comma-separated list for multiple specific (1, 2, 4). Find face IDs with FaceIdentifier node.")
+    image:                ImageField  = InputField(default=None, description="Image to face detect")
+    face_ids:             str = InputField(default="0", description="0 for all faces, single digit for one, comma-separated list for multiple specific (1, 2, 4). Find face IDs with FaceIdentifier node.")
     faces:                int = InputField(default=4, description="Maximum number of faces to detect")
     minimum_confidence:   float = InputField(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
     x_offset:             float = InputField(default=0.0, description="Offset for the X-axis of the face mask")
     y_offset:             float = InputField(default=0.0, description="Offset for the Y-axis of the face mask")
     invert_mask:          bool = InputField(default=False, description="Toggle to invert the mask")
-    # fmt: on
-
+    metadata:             Optional[CoreMetadata] = InputField(
+        default=None,
+        description=FieldDescriptions.core_metadata,
+        ui_hidden=True,
+    )
 
     def scale_and_convex(self, np_image, face_landmark_points):
         # Apply the scaling offsets to the face landmark points.
@@ -122,7 +117,6 @@ class FaceMaskInvocation(BaseInvocation):
 
         else:
             raise ValueError("Failed to detect 1 or more faces in the image.")
-            context.services.logger.warning('Failed to detect 1 or more faces in the image.')
 
 
     def invoke(self, context: InvocationContext) -> FaceMaskOutput:
@@ -139,10 +133,12 @@ class FaceMaskInvocation(BaseInvocation):
         image_dto = context.services.images.create(
             image=image,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.OTHER,
+            image_category=ImageCategory.GENERAL,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
+            metadata=self.metadata.dict() if self.metadata else None,
+            workflow=self.workflow,
         )
 
         mask_dto = context.services.images.create(

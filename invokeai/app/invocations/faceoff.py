@@ -1,14 +1,14 @@
-## FaceOff 3.1
+## FaceOff 3.6
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Literal, Optional
-from pydantic import BaseModel, Field
+from typing import Optional
 import numpy as np
 import mediapipe as mp
 from PIL import Image, ImageFilter
 import cv2
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField
+from invokeai.app.invocations.metadata import CoreMetadata
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
@@ -16,37 +16,27 @@ from invokeai.app.invocations.baseinvocation import (
     FieldDescriptions,
     InputField,
     OutputField,
-    tags,
-    title)
+    invocation,
+    invocation_output)
 
 
+@invocation_output("face_off_output")
 class FaceOffOutput(BaseInvocationOutput):
     """Base class for FaceOff Output"""
 
-    # fmt: off
-    type:              Literal["face_off_output"] = "face_off_output"
     bounded_image:     ImageField = OutputField(default=None, description="Original image bound, cropped, and resized")
     width:             int = OutputField(description="The width of the bounded image in pixels")
     height:            int = OutputField(description="The height of the bounded image in pixels")
     mask:              ImageField = OutputField(default=None, description="The output mask")
     x:                 int = OutputField(description="The x coordinate of the bounding box's left side")
     y:                 int = OutputField(description="The y coordinate of the bounding box's top side")
-    # fmt: on
-
-    class Config:
-        schema_extra = {"required": ["type", "bounded_image", "width", "height", "mask", "x", "y"]}
 
 
-@title("FaceOff")
-@tags("image", "faceoff", "face", "mask")
+@invocation("face_off", title="FaceOff", tags=["image", "faceoff", "face", "mask"], category="image")
 class FaceOffInvocation(BaseInvocation):
     """bound, extract, and mask a face from an image using MediaPipe detection"""
 
-    # fmt: off
-    type: Literal["face_off"] = "face_off"
-
-    # Inputs
-    image:               Optional[ImageField]  = InputField(default=None, description="Image for face detection")
+    image:               ImageField  = InputField(default=None, description="Image for face detection")
     face_id:             int = InputField(default=0, description="0 for first detected face, single digit for one specific. Multiple faces not supported. Find a face's ID with FaceIdentifier node.")
     faces:               int = InputField(default=4, description="Maximum number of faces to detect")
     minimum_confidence:  float = InputField(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
@@ -54,8 +44,11 @@ class FaceOffInvocation(BaseInvocation):
     y_offset:            float = InputField(default=0.0, description="Y-axis offset of the mask")
     padding:             int = InputField(default=0, description="All-axis padding around the mask in pixels")
     scale_factor:        int = InputField(default=2, description="Factor to scale the bounding box by before outputting")
-    # fmt: on
-
+    metadata:            Optional[CoreMetadata] = InputField(
+        default=None,
+        description=FieldDescriptions.core_metadata,
+        ui_hidden=True,
+    )
 
     def generate_face_box_mask(self, pil_image):
         # Convert the PIL image to a NumPy array.
@@ -217,10 +210,12 @@ class FaceOffInvocation(BaseInvocation):
         bounded_image_dto = context.services.images.create(
             image=bounded_image,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.OTHER,
+            image_category=ImageCategory.GENERAL,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
+            metadata=self.metadata.dict() if self.metadata else None,
+            workflow=self.workflow,
         )
         mask_dto = context.services.images.create(
             image=mask_pil,

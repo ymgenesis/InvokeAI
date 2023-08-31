@@ -1,37 +1,33 @@
-## FaceIdentifier 1.0
+## FaceIdentifier 1.8
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Literal, Optional, Dict
-from PIL import Image, ImageOps, ImageDraw
-from pydantic import BaseModel, Field
-import cv2
+from typing import Optional
+from PIL import Image, ImageDraw
 import mediapipe as mp
 import numpy as np
-from invokeai.app.invocations.baseinvocation import (BaseInvocation,
-                                                     BaseInvocationOutput,
-                                                     InvocationContext,
-                                                     FieldDescriptions,
-                                                     InputField,
-                                                     tags,
-                                                     title)
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
+from invokeai.app.invocations.metadata import CoreMetadata
+from invokeai.app.invocations.baseinvocation import (
+    BaseInvocation,
+    InvocationContext,
+    FieldDescriptions,
+    InputField,
+    invocation)
 
 
-@title("FaceIdentifier")
-@tags("image", "face", "identifier")
+@invocation("face_identifier", title="FaceIdentifier", tags=["image", "face", "identifier"], category="image")
 class FaceIdentifierInvocation(BaseInvocation):
     """Outputs an image with detected face IDs printed on each face. For use with other FaceTools."""
 
-    # fmt: off
-    type: Literal["face_identifier"] = "face_identifier"
-
-    # Inputs
-    image:                Optional[ImageField]  = InputField(default=None, description="Image to face detect")
+    image:                ImageField  = InputField(description="Image to face detect")
     faces:                int = InputField(default=4, description="Maximum number of faces to detect")
     minimum_confidence:   float = InputField(default=0.5, description="Minimum confidence for face detection (lower if detection is failing)")
-    # fmt: on
-
+    metadata:             Optional[CoreMetadata] = InputField(
+        default=None,
+        description=FieldDescriptions.core_metadata,
+        ui_hidden=True,
+    )
 
     def generate_face_masks(self, pil_image):
         # Convert the PIL image to a NumPy array.
@@ -99,10 +95,12 @@ class FaceIdentifierInvocation(BaseInvocation):
         image_dto = context.services.images.create(
             image=image,
             image_origin=ResourceOrigin.INTERNAL,
-            image_category=ImageCategory.OTHER,
+            image_category=ImageCategory.GENERAL,
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
+            metadata=self.metadata.dict() if self.metadata else None,
+            workflow=self.workflow,
         )
 
         return ImageOutput(

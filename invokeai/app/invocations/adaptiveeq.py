@@ -1,36 +1,32 @@
-## Adaptive EQ 1.0
+## Adaptive EQ 1.7
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-from typing import Literal, Optional
-from pydantic import BaseModel, Field
+from typing import Optional
 import numpy as np
 from skimage import exposure
 from PIL import Image
-
-
-from invokeai.app.invocations.baseinvocation import (BaseInvocation,
-                                                     BaseInvocationOutput,
-                                                     InvocationContext,
-                                                     FieldDescriptions,
-                                                     InputField,
-                                                     tags,
-                                                     title)
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
+from invokeai.app.invocations.metadata import CoreMetadata
+from invokeai.app.invocations.baseinvocation import (
+    BaseInvocation,
+    InvocationContext,
+    FieldDescriptions,
+    InputField,
+    invocation)
 
-@title("Adaptive EQ")
-@tags("eq", "adaptive")
+
+@invocation("adaptive_eq", title="Adaptive EQ", tags=["image", "adaptive", "eq"], category="image")
 class AdaptiveEQInvocation(BaseInvocation):
     """Adaptive Histogram Equalization using skimage."""
 
-    # fmt: off
-    type: Literal["adaptive_eq"] = "adaptive_eq"
-
-    # Inputs
-    image:       Optional[ImageField]  = Field(default=None, description="Input image")
-    strength:    float = Field(default=1.5, description="Adaptive EQ strength")
-    # fmt: on
-
+    image:       Optional[ImageField]  = InputField(default=None, description="Input image")
+    strength:    float = InputField(default=1.5, description="Adaptive EQ strength")
+    metadata:             Optional[CoreMetadata] = InputField(
+        default=None,
+        description=FieldDescriptions.core_metadata,
+        ui_hidden=True,
+    )
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -48,6 +44,8 @@ class AdaptiveEQInvocation(BaseInvocation):
             node_id=self.id,
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
+            metadata=self.metadata.dict() if self.metadata else None,
+            workflow=self.workflow,
         )
 
         return ImageOutput(
