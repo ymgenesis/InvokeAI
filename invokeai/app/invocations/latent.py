@@ -34,6 +34,7 @@ from invokeai.app.util.step_callback import stable_diffusion_step_callback
 from invokeai.backend.model_management.models import ModelType, SilenceWarnings
 
 from ...backend.model_management.lora import ModelPatcher
+from ...backend.model_management.seamless import set_seamless
 from ...backend.model_management.models import BaseModelType
 from ...backend.stable_diffusion import PipelineIntermediateState
 from ...backend.stable_diffusion.diffusers_pipeline import (
@@ -46,7 +47,18 @@ from ...backend.stable_diffusion.diffusion.shared_invokeai_diffusion import Post
 from ...backend.stable_diffusion.schedulers import SCHEDULER_MAP
 from ...backend.util.devices import choose_precision, choose_torch_device
 from ..models.image import ImageCategory, ResourceOrigin
-from .baseinvocation import BaseInvocation, FieldDescriptions, Input, InputField, InvocationContext, UIType, tags, title
+from .baseinvocation import (
+    BaseInvocation,
+    BaseInvocationOutput,
+    FieldDescriptions,
+    Input,
+    InputField,
+    InvocationContext,
+    OutputField,
+    UIType,
+    invocation,
+    invocation_output,
+)
 from .compel import ConditioningField
 from .controlnet_image_processors import ControlField
 from .model import ModelInfo, UNetField, VaeField
@@ -57,15 +69,27 @@ DEFAULT_PRECISION = choose_precision(choose_torch_device())
 SAMPLER_NAME_VALUES = Literal[tuple(list(SCHEDULER_MAP.keys()))]
 
 
-@title("Create Denoise Mask")
-@tags("mask", "denoise")
+@invocation_output("scheduler_output")
+class SchedulerOutput(BaseInvocationOutput):
+    scheduler: SAMPLER_NAME_VALUES = OutputField(description=FieldDescriptions.scheduler, ui_type=UIType.Scheduler)
+
+
+@invocation("scheduler", title="Scheduler", tags=["scheduler"], category="latents")
+class SchedulerInvocation(BaseInvocation):
+    """Selects a scheduler."""
+
+    scheduler: SAMPLER_NAME_VALUES = InputField(
+        default="euler", description=FieldDescriptions.scheduler, ui_type=UIType.Scheduler
+    )
+
+    def invoke(self, context: InvocationContext) -> SchedulerOutput:
+        return SchedulerOutput(scheduler=self.scheduler)
+
+
+@invocation("create_denoise_mask", title="Create Denoise Mask", tags=["mask", "denoise"], category="latents")
 class CreateDenoiseMaskInvocation(BaseInvocation):
     """Creates mask for denoising model run."""
 
-    # Metadata
-    type: Literal["create_denoise_mask"] = "create_denoise_mask"
-
-    # Inputs
     vae: VaeField = InputField(description=FieldDescriptions.vae, input=Input.Connection, ui_order=0)
     image: Optional[ImageField] = InputField(default=None, description="Image which will be masked", ui_order=1)
     mask: ImageField = InputField(description="The mask to use when pasting", ui_order=2)
@@ -157,14 +181,15 @@ def get_scheduler(
     return scheduler
 
 
-@title("Denoise Latents")
-@tags("latents", "denoise", "txt2img", "t2i", "t2l", "img2img", "i2i", "l2l")
+@invocation(
+    "denoise_latents",
+    title="Denoise Latents",
+    tags=["latents", "denoise", "txt2img", "t2i", "t2l", "img2img", "i2i", "l2l"],
+    category="latents",
+)
 class DenoiseLatentsInvocation(BaseInvocation):
     """Denoises noisy latents to decodable images"""
 
-    type: Literal["denoise_latents"] = "denoise_latents"
-
-    # Inputs
     positive_conditioning: ConditioningField = InputField(
         description=FieldDescriptions.positive_cond, input=Input.Connection, ui_order=0
     )
@@ -366,36 +391,31 @@ class DenoiseLatentsInvocation(BaseInvocation):
     # original idea by https://github.com/AmericanPresidentJimmyCarter
     # TODO: research more for second order schedulers timesteps
     def init_scheduler(self, scheduler, device, steps, denoising_start, denoising_end):
-        num_inference_steps = steps
         if scheduler.config.get("cpu_only", False):
-            scheduler.set_timesteps(num_inference_steps, device="cpu")
+            scheduler.set_timesteps(steps, device="cpu")
             timesteps = scheduler.timesteps.to(device=device)
         else:
-            scheduler.set_timesteps(num_inference_steps, device=device)
+            scheduler.set_timesteps(steps, device=device)
             timesteps = scheduler.timesteps
 
-        # apply denoising_start
+        # skip greater order timesteps
+        _timesteps = timesteps[:: scheduler.order]
+
+        # get start timestep index
         t_start_val = int(round(scheduler.config.num_train_timesteps * (1 - denoising_start)))
-        t_start_idx = len(list(filter(lambda ts: ts >= t_start_val, timesteps)))
-        timesteps = timesteps[t_start_idx:]
-        if scheduler.order == 2 and t_start_idx > 0:
-            timesteps = timesteps[1:]
+        t_start_idx = len(list(filter(lambda ts: ts >= t_start_val, _timesteps)))
 
-        # save start timestep to apply noise
-        init_timestep = timesteps[:1]
-
-        # apply denoising_end
+        # get end timestep index
         t_end_val = int(round(scheduler.config.num_train_timesteps * (1 - denoising_end)))
-        t_end_idx = len(list(filter(lambda ts: ts >= t_end_val, timesteps)))
-        if scheduler.order == 2 and t_end_idx > 0:
-            t_end_idx += 1
-        timesteps = timesteps[:t_end_idx]
+        t_end_idx = len(list(filter(lambda ts: ts >= t_end_val, _timesteps[t_start_idx:])))
 
-        # calculate step count based on scheduler order
-        num_inference_steps = len(timesteps)
-        if scheduler.order == 2:
-            num_inference_steps += num_inference_steps % 2
-            num_inference_steps = num_inference_steps // 2
+        # apply order to indexes
+        t_start_idx *= scheduler.order
+        t_end_idx *= scheduler.order
+
+        init_timestep = timesteps[t_start_idx : t_start_idx + 1]
+        timesteps = timesteps[t_start_idx : t_start_idx + t_end_idx]
+        num_inference_steps = len(timesteps) // scheduler.order
 
         return num_inference_steps, timesteps, init_timestep
 
@@ -456,7 +476,7 @@ class DenoiseLatentsInvocation(BaseInvocation):
             )
             with ExitStack() as exit_stack, ModelPatcher.apply_lora_unet(
                 unet_info.context.model, _lora_loader()
-            ), unet_info as unet:
+            ), set_seamless(unet_info.context.model, self.unet.seamless_axes), unet_info as unet:
                 latents = latents.to(device=unet.device, dtype=unet.dtype)
                 if noise is not None:
                     noise = noise.to(device=unet.device, dtype=unet.dtype)
@@ -516,14 +536,10 @@ class DenoiseLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=result_latents, seed=seed)
 
 
-@title("Latents to Image")
-@tags("latents", "image", "vae", "l2i")
+@invocation("l2i", title="Latents to Image", tags=["latents", "image", "vae", "l2i"], category="latents")
 class LatentsToImageInvocation(BaseInvocation):
     """Generates an image from latents."""
 
-    type: Literal["l2i"] = "l2i"
-
-    # Inputs
     latents: LatentsField = InputField(
         description=FieldDescriptions.latents,
         input=Input.Connection,
@@ -549,7 +565,7 @@ class LatentsToImageInvocation(BaseInvocation):
             context=context,
         )
 
-        with vae_info as vae:
+        with set_seamless(vae_info.context.model, self.vae.seamless_axes), vae_info as vae:
             latents = latents.to(vae.device)
             if self.fp32:
                 vae.to(dtype=torch.float32)
@@ -604,6 +620,7 @@ class LatentsToImageInvocation(BaseInvocation):
             session_id=context.graph_execution_state_id,
             is_intermediate=self.is_intermediate,
             metadata=self.metadata.dict() if self.metadata else None,
+            workflow=self.workflow,
         )
 
         return ImageOutput(
@@ -616,14 +633,10 @@ class LatentsToImageInvocation(BaseInvocation):
 LATENTS_INTERPOLATION_MODE = Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area", "nearest-exact"]
 
 
-@title("Resize Latents")
-@tags("latents", "resize")
+@invocation("lresize", title="Resize Latents", tags=["latents", "resize"], category="latents")
 class ResizeLatentsInvocation(BaseInvocation):
     """Resizes latents to explicit width/height (in pixels). Provided dimensions are floor-divided by 8."""
 
-    type: Literal["lresize"] = "lresize"
-
-    # Inputs
     latents: LatentsField = InputField(
         description=FieldDescriptions.latents,
         input=Input.Connection,
@@ -664,14 +677,10 @@ class ResizeLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=resized_latents, seed=self.latents.seed)
 
 
-@title("Scale Latents")
-@tags("latents", "resize")
+@invocation("lscale", title="Scale Latents", tags=["latents", "resize"], category="latents")
 class ScaleLatentsInvocation(BaseInvocation):
     """Scales latents by a given factor."""
 
-    type: Literal["lscale"] = "lscale"
-
-    # Inputs
     latents: LatentsField = InputField(
         description=FieldDescriptions.latents,
         input=Input.Connection,
@@ -704,14 +713,10 @@ class ScaleLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=resized_latents, seed=self.latents.seed)
 
 
-@title("Image to Latents")
-@tags("latents", "image", "vae", "i2l")
+@invocation("i2l", title="Image to Latents", tags=["latents", "image", "vae", "i2l"], category="latents")
 class ImageToLatentsInvocation(BaseInvocation):
     """Encodes an image into latents."""
 
-    type: Literal["i2l"] = "i2l"
-
-    # Inputs
     image: ImageField = InputField(
         description="The image to encode",
     )
@@ -788,14 +793,10 @@ class ImageToLatentsInvocation(BaseInvocation):
         return build_latents_output(latents_name=name, latents=latents, seed=None)
 
 
-@title("Blend Latents")
-@tags("latents", "blend")
+@invocation("lblend", title="Blend Latents", tags=["latents", "blend"], category="latents")
 class BlendLatentsInvocation(BaseInvocation):
     """Blend two latents using a given alpha. Latents must have same size."""
 
-    type: Literal["lblend"] = "lblend"
-
-    # Inputs
     latents_a: LatentsField = InputField(
         description=FieldDescriptions.latents,
         input=Input.Connection,

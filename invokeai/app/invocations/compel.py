@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import List, Literal, Union
+from typing import List, Union
 
 import torch
 from compel import Compel, ReturnedEmbeddingsType
@@ -26,8 +26,8 @@ from .baseinvocation import (
     InvocationContext,
     OutputField,
     UIComponent,
-    tags,
-    title,
+    invocation,
+    invocation_output,
 )
 from .model import ClipField
 
@@ -44,12 +44,9 @@ class ConditioningFieldData:
 #    PerpNeg = "perp_neg"
 
 
-@title("Compel Prompt")
-@tags("prompt", "compel")
+@invocation("compel", title="Prompt", tags=["prompt", "compel"], category="conditioning")
 class CompelInvocation(BaseInvocation):
     """Parse prompt using compel package to conditioning."""
-
-    type: Literal["compel"] = "compel"
 
     prompt: str = InputField(
         default="",
@@ -116,16 +113,15 @@ class CompelInvocation(BaseInvocation):
                 text_encoder=text_encoder,
                 textual_inversion_manager=ti_manager,
                 dtype_for_device_getter=torch_dtype,
-                truncate_long_prompts=True,
+                truncate_long_prompts=False,
             )
 
             conjunction = Compel.parse_prompt_string(self.prompt)
-            prompt: Union[FlattenedPrompt, Blend] = conjunction.prompts[0]
 
             if context.services.configuration.log_tokenization:
-                log_tokenization_for_prompt_object(prompt, tokenizer)
+                log_tokenization_for_conjunction(conjunction, tokenizer)
 
-            c, options = compel.build_conditioning_tensor_for_prompt_object(prompt)
+            c, options = compel.build_conditioning_tensor_for_conjunction(conjunction)
 
             ec = InvokeAIDiffuserComponent.ExtraConditioningInfo(
                 tokens_count_including_eos_bos=get_max_token_count(tokenizer, conjunction),
@@ -231,7 +227,7 @@ class SDXLPromptInvocationBase:
                 text_encoder=text_encoder,
                 textual_inversion_manager=ti_manager,
                 dtype_for_device_getter=torch_dtype,
-                truncate_long_prompts=True,  # TODO:
+                truncate_long_prompts=False,  # TODO:
                 returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,  # TODO: clip skip
                 requires_pooled=get_pooled,
             )
@@ -240,8 +236,7 @@ class SDXLPromptInvocationBase:
 
             if context.services.configuration.log_tokenization:
                 # TODO: better logging for and syntax
-                for prompt_obj in conjunction.prompts:
-                    log_tokenization_for_prompt_object(prompt_obj, tokenizer)
+                log_tokenization_for_conjunction(conjunction, tokenizer)
 
             # TODO: ask for optimizations? to not run text_encoder twice
             c, options = compel.build_conditioning_tensor_for_conjunction(conjunction)
@@ -267,12 +262,14 @@ class SDXLPromptInvocationBase:
         return c, c_pooled, ec
 
 
-@title("SDXL Compel Prompt")
-@tags("sdxl", "compel", "prompt")
+@invocation(
+    "sdxl_compel_prompt",
+    title="SDXL Prompt",
+    tags=["sdxl", "compel", "prompt"],
+    category="conditioning",
+)
 class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
-
-    type: Literal["sdxl_compel_prompt"] = "sdxl_compel_prompt"
 
     prompt: str = InputField(default="", description=FieldDescriptions.compel_prompt, ui_component=UIComponent.Textarea)
     style: str = InputField(default="", description=FieldDescriptions.compel_prompt, ui_component=UIComponent.Textarea)
@@ -326,12 +323,14 @@ class SDXLCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
         )
 
 
-@title("SDXL Refiner Compel Prompt")
-@tags("sdxl", "compel", "prompt")
+@invocation(
+    "sdxl_refiner_compel_prompt",
+    title="SDXL Refiner Prompt",
+    tags=["sdxl", "compel", "prompt"],
+    category="conditioning",
+)
 class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase):
     """Parse prompt using compel package to conditioning."""
-
-    type: Literal["sdxl_refiner_compel_prompt"] = "sdxl_refiner_compel_prompt"
 
     style: str = InputField(
         default="", description=FieldDescriptions.compel_prompt, ui_component=UIComponent.Textarea
@@ -374,19 +373,16 @@ class SDXLRefinerCompelPromptInvocation(BaseInvocation, SDXLPromptInvocationBase
         )
 
 
+@invocation_output("clip_skip_output")
 class ClipSkipInvocationOutput(BaseInvocationOutput):
     """Clip skip node output"""
 
-    type: Literal["clip_skip_output"] = "clip_skip_output"
     clip: ClipField = OutputField(default=None, description=FieldDescriptions.clip, title="CLIP")
 
 
-@title("CLIP Skip")
-@tags("clipskip", "clip", "skip")
+@invocation("clip_skip", title="CLIP Skip", tags=["clipskip", "clip", "skip"], category="conditioning")
 class ClipSkipInvocation(BaseInvocation):
     """Skip layers in clip text_encoder model."""
-
-    type: Literal["clip_skip"] = "clip_skip"
 
     clip: ClipField = InputField(description=FieldDescriptions.clip, input=Input.Connection, title="CLIP")
     skipped_layers: int = InputField(default=0, description=FieldDescriptions.skipped_layers)
