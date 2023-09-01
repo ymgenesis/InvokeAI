@@ -16,7 +16,7 @@ class FacePlaceInvocation(BaseInvocation):
     """FacePlace node to place the a bounded face from FaceOff back onto the original image"""
 
     bounded_image:   ImageField = InputField(description="The bounded image to be placed on the original image")
-    original_image:    ImageField = InputField(default=None, description="The original image to place the bounded image on")
+    original_image:    ImageField = InputField(description="The original image to place the bounded image on")
     downscale_factor:  int = InputField(default=2, description="Factor to downscale the bounded image before placing")
     x:                 int = InputField(default=0, description="The x coordinate (top left corner) to place on the original image")
     y:                 int = InputField(default=0, description="The y coordinate (top left corner) to place on the original image")
