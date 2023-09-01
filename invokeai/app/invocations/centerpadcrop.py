@@ -15,7 +15,7 @@ from invokeai.app.invocations.baseinvocation import (
 class CenterPadCropInvocation(BaseInvocation):
     """Pad or crop an image's sides from the center by specified pixels. Positive values are outside of the image."""
 
-    image:  ImageField = InputField(default=None, description="The image to crop")
+    image:  ImageField = InputField(description="The image to crop")
     left:   int = InputField(default=0, description="Number of pixels to pad/crop from the left (negative values crop inwards, positive values pad outwards)")
     right:  int = InputField(default=0, description="Number of pixels to pad/crop from the right (negative values crop inwards, positive values pad outwards)")
     top:    int = InputField(default=0, description="Number of pixels to pad/crop from the top (negative values crop inwards, positive values pad outwards)")
