@@ -13,7 +13,7 @@ from invokeai.app.invocations.baseinvocation import (
     invocation)
 
 
-@invocation("face_identifier", title="FaceIdentifier", tags=["image", "face", "identifier"], category="image")
+@invocation("face_identifier", title="FaceIdentifier", tags=["image", "face", "identifier"], category="image", version="1.0.0")
 class FaceIdentifierInvocation(BaseInvocation):
     """Outputs an image with detected face IDs printed on each face. For use with other FaceTools."""
 

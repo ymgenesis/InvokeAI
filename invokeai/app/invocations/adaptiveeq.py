@@ -13,7 +13,7 @@ from invokeai.app.invocations.baseinvocation import (
     invocation)
 
 
-@invocation("adaptive_eq", title="Adaptive EQ", tags=["image", "adaptive", "eq"], category="image")
+@invocation("adaptive_eq", title="Adaptive EQ", tags=["image", "adaptive", "eq"], category="image", version="1.0.0")
 class AdaptiveEQInvocation(BaseInvocation):
     """Adaptive Histogram Equalization using skimage."""
 

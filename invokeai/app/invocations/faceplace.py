@@ -11,7 +11,7 @@ from invokeai.app.invocations.baseinvocation import (
     invocation)
 
 
-@invocation("face_place", title="FacePlace", tags=["image", "face", "place"], category="image")
+@invocation("face_place", title="FacePlace", tags=["image", "face", "place"], category="image", version="1.0.0")
 class FacePlaceInvocation(BaseInvocation):
     """FacePlace node to place the a bounded face from FaceOff back onto the original image"""
 

@@ -27,7 +27,7 @@ class FaceMaskOutput(BaseInvocationOutput):
     mask:       ImageField = OutputField(description="The output mask")
 
 
-@invocation("face_mask_detection", title="FaceMask", tags=["image", "face", "mask"], category="image")
+@invocation("face_mask_detection", title="FaceMask", tags=["image", "face", "mask"], category="image", version="1.0.0")
 class FaceMaskInvocation(BaseInvocation):
     """Face mask creation using mediapipe face detection"""
 

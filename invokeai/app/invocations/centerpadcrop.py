@@ -11,7 +11,7 @@ from invokeai.app.invocations.baseinvocation import (
     invocation)
 
 
-@invocation("img_pad_crop", title="Center Pad Crop", tags=["image", "center", "pad", "crop"], category="image")
+@invocation("img_pad_crop", title="Center Pad Crop", tags=["image", "center", "pad", "crop"], category="image", version="1.0.0")
 class CenterPadCropInvocation(BaseInvocation):
     """Pad or crop an image's sides from the center by specified pixels. Positive values are outside of the image."""
 

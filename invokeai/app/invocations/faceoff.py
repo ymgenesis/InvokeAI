@@ -29,7 +29,7 @@ class FaceOffOutput(BaseInvocationOutput):
     y:                 int = OutputField(description="The y coordinate of the bounding box's top side")
 
 
-@invocation("face_off", title="FaceOff", tags=["image", "faceoff", "face", "mask"], category="image")
+@invocation("face_off", title="FaceOff", tags=["image", "faceoff", "face", "mask"], category="image", version="1.0.0")
 class FaceOffInvocation(BaseInvocation):
     """bound, extract, and mask a face from an image using MediaPipe detection"""
 
