@@ -17,8 +17,8 @@ class RemoveTransparenciesInvocation(BaseInvocation):
 
     image:                      ImageField  = InputField(description="Image to remove transparencies from")
     transparency_threshold:     float = InputField(default="0.5", description="Transparency threshold pixels meet to be removed. 0 = transparent, 1 = opaque.")
-    crop:                       bool = InputField(default=False, description="Whether to crop to remaining pixels")
-    border:                     int = InputField(default="0", description="If cropping, the transparent border (px) to draw around cropped area")
+    crop:                       bool = InputField(default=False, description="Whether to crop to remaining pixels. H&W both a multiple of 8.")
+    border:                     int = InputField(default="0", description="If cropping, the transparent border (px) to draw around the cropped area. >0 & multiple of 8.")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -38,18 +38,28 @@ class RemoveTransparenciesInvocation(BaseInvocation):
             bbox = image.getbbox()
             image = image.crop(bbox)
             (width, height) = image.size
+            width8 = (width // 8) * 8
+            height8 = (height // 8) * 8
             # border
-            width += self.border * 2
-            height += self.border * 2
-            border = self.border
+            if self.border > 0:
+                border = self.border
+                border8 = (border // 8) * 8
+                width8 += border8 * 2
+                height8 += border8 * 2
+            else:
+                border8 = 0
+            # Create a new image object for the output image
+            image_out = Image.new("RGBA", (width8, height8), (0, 0, 0, 0))
+            # Paste the cropped image onto the new image
+            image_out.paste(image, (border8, border8))
+
         else:
             # no border if cropping isn't true
-            border = 0
-        
-        # Create a new image object for the output image
-        image_out = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-        # Paste the cropped image onto the new image
-        image_out.paste(image, (border, border))
+            border = 0        
+            # Create a new image object for the output image
+            image_out = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+            # Paste the cropped image onto the new image
+            image_out.paste(image, (border, border))
 
         image_dto = context.services.images.create(
             image=image_out,
