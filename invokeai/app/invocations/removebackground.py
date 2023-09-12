@@ -1,3 +1,6 @@
+## Remove Background 1.0
+## A node for InvokeAI, written by YMGenesis/Matthew Janik
+
 from typing import Literal
 from invokeai.app.models.image import (ImageCategory, ResourceOrigin)
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
