@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Dict, Union, types, Optional, Type, Any
 
 import torch
+from torch import mps
 
 import invokeai.backend.util.logging as logger
 from .models import BaseModelType, ModelType, SubModelType, ModelBase
@@ -405,6 +406,7 @@ class ModelCache(object):
 
         gc.collect()
         torch.cuda.empty_cache()
+        mps.empty_cache()
 
         self.logger.debug(f"After unloading: cached_models={len(self._cached_models)}")
 
@@ -425,6 +427,7 @@ class ModelCache(object):
 
         gc.collect()
         torch.cuda.empty_cache()
+        mps.empty_cache()
 
     def _local_model_hash(self, model_path: Union[str, Path]) -> str:
         sha = hashlib.sha256()
