@@ -13,7 +13,7 @@ from invokeai.app.invocations.baseinvocation import (
 
 rembg_models = Literal[
     "isnet-anime",
-    #"isnet-general-use", # on the github page but not shipped with pip it seems
+    "isnet-general-use", # on the github page but not shipped with pip it seems
     "silueta",
     "u2net_cloth_seg",
     "u2net_human_seg",
