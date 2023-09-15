@@ -1,4 +1,4 @@
-## Remove Transparencies 1.0
+## Remove Transparencies 2.0
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
 from PIL import Image, ImageOps
@@ -33,7 +33,7 @@ class RemoveTransparenciesInvocation(BaseInvocation):
     border:                     int = InputField(default=0, description="If cropping, the transparent border (px) to draw around the cropped area. >0 & multiple of 8.")
     rectangle_mask:             bool = InputField(default=False, description="Whether the mask equals the entire bounding box dimensions of the subject(s). Off when crop is on. Off will pass a form-fitting mask. On provides a larger mask for painting to work with.")
     invert_mask:                bool = InputField(default=False, description="Invert the mask")
-    
+
     def invoke(self, context: InvocationContext) -> RemoveTransparenciesOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
         image = image.convert("RGBA")
@@ -83,7 +83,7 @@ class RemoveTransparenciesInvocation(BaseInvocation):
             image_out = Image.new("RGBA", (width, height), (0, 0, 0, 0))
             # Paste the cropped image onto the new image
             image_out.paste(image, (border, border))
-            
+
             if self.rectangle_mask:
                 # Create a mask image with a black rectangle of the dimensions of bboxcrop
                 mask = Image.new("L", (image.width, image.height), (255))
