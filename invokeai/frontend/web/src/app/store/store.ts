@@ -86,10 +86,7 @@ export const store = configureStore({
       .concat(autoBatchEnhancer());
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: true,
-      immutableCheck: false,
-    })
+    getDefaultMiddleware({ immutableCheck: false })
       .concat(api.middleware)
       .concat(dynamicMiddlewares)
       .prepend(listenerMiddleware.middleware),
