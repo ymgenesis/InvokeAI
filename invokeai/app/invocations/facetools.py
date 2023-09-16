@@ -6,7 +6,7 @@ import math
 import cv2
 import mediapipe as mp
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageOps
+from PIL import Image, ImageDraw, ImageOps
 
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
@@ -188,7 +188,7 @@ def generate_face_box_mask(
                 this_face["mesh_height"] = mesh_height
                 result.append(this_face)
             else:
-                context.services.logger.info(f"FaceTools --> Face out of bounds, ignoring.")
+                context.services.logger.info("FaceTools --> Face out of bounds, ignoring.")
 
     return result
 
@@ -220,32 +220,32 @@ def extract_face(context: InvocationContext, image, all_faces, face_id, padding)
 
     # Adjust the crop boundaries to stay within the original image's dimensions
     if x_min < 0:
-        context.services.logger.warning(f"FaceTools --> -X-axis padding reached image edge.")
+        context.services.logger.warning("FaceTools --> -X-axis padding reached image edge.")
         x_max -= x_min
         x_min = 0
     elif x_max > mask_pil.width:
-        context.services.logger.warning(f"FaceTools --> +X-axis padding reached image edge.")
+        context.services.logger.warning("FaceTools --> +X-axis padding reached image edge.")
         x_min -= x_max - mask_pil.width
         x_max = mask_pil.width
 
     if y_min < 0:
-        context.services.logger.warning(f"FaceTools --> +Y-axis padding reached image edge.")
+        context.services.logger.warning("FaceTools --> +Y-axis padding reached image edge.")
         y_max -= y_min
         y_min = 0
     elif y_max > mask_pil.height:
-        context.services.logger.warning(f"FaceTools --> -Y-axis padding reached image edge.")
+        context.services.logger.warning("FaceTools --> -Y-axis padding reached image edge.")
         y_min -= y_max - mask_pil.height
         y_max = mask_pil.height
 
     # Ensure the crop is square and adjust the boundaries if needed
     if x_max - x_min != crop_size:
-        context.services.logger.warning(f"FaceTools --> Limiting x-axis padding to constrain bounding box to a square.")
+        context.services.logger.warning("FaceTools --> Limiting x-axis padding to constrain bounding box to a square.")
         diff = crop_size - (x_max - x_min)
         x_min -= diff // 2
         x_max += diff - diff // 2
 
     if y_max - y_min != crop_size:
-        context.services.logger.warning(f"FaceTools --> Limiting y-axis padding to constrain bounding box to a square.")
+        context.services.logger.warning("FaceTools --> Limiting y-axis padding to constrain bounding box to a square.")
         diff = crop_size - (y_max - y_min)
         y_min -= diff // 2
         y_max += diff - diff // 2
@@ -265,8 +265,8 @@ def get_faces_list(
     result = []
 
     # Generate the face box mask and get the center of the face.
-    if should_chunk == False:
-        context.services.logger.info(f"FaceTools --> Attempting full image face detection.")
+    if not should_chunk:
+        context.services.logger.info("FaceTools --> Attempting full image face detection.")
         result = generate_face_box_mask(
             context,
             minimum_confidence,
@@ -277,9 +277,9 @@ def get_faces_list(
             0,
             draw_mesh,
         )
-    if should_chunk == True or len(result) == 0:
+    if should_chunk or len(result) == 0:
         context.services.logger.info(
-            f"FaceTools --> Chunking image (chunk toggled on, or no face found in full image)."
+            "FaceTools --> Chunking image (chunk toggled on, or no face found in full image)."
         )
         width, height = image.size
         image_chunks = []
@@ -327,7 +327,7 @@ def get_faces_list(
         if len(result) == 0:
             # Give up
             context.services.logger.warning(
-                f"FaceTools --> No face detected in chunked input image. Passing through original image."
+                "FaceTools --> No face detected in chunked input image. Passing through original image."
             )
 
     all_faces = cleanup_faces_list(result)
@@ -416,7 +416,7 @@ class FaceOffInvocation(BaseInvocation):
         if result is None:
             image = context.services.images.get_pil_image(self.image.image_name)
             whitemask = Image.new("L", image.size, color=255)
-            context.services.logger.info(f"FaceOff --> No face detected. Passing through original image.")
+            context.services.logger.info("FaceOff --> No face detected. Passing through original image.")
 
             image_dto = context.services.images.create(
                 image=image,
@@ -541,7 +541,7 @@ class FaceMaskInvocation(BaseInvocation):
         if result is None:
             image = context.services.images.get_pil_image(self.image.image_name)
             whitemask = Image.new("L", image.size, color=255)
-            context.services.logger.warning(f"FaceMask --> No face detected. Passing through original image.")
+            context.services.logger.warning("FaceMask --> No face detected. Passing through original image.")
 
             image_dto = context.services.images.create(
                 image=image,
@@ -634,7 +634,7 @@ class FaceIdentifierInvocation(BaseInvocation):
         if result is None:
             image = context.services.images.get_pil_image(self.image.image_name)
             context.services.logger.warning(
-                f"FaceIdentifier --> No face detected. Passing through original image without drawing FaceIDs."
+                "FaceIdentifier --> No face detected. Passing through original image without drawing FaceIDs."
             )
 
             image_dto = context.services.images.create(
