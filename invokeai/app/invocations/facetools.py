@@ -6,7 +6,7 @@ import math
 import cv2
 import mediapipe as mp
 import numpy as np
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageDraw, ImageOps, ImageFilter
 
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
@@ -255,6 +255,9 @@ def extract_face(context: InvocationContext, image, all_faces, face_id, padding)
     # Crop the output image to the specified size with the center of the face mesh as the center.
     mask_pil = mask_pil.crop((x_min, y_min, x_max, y_max))
     bounded_image = image.crop((x_min, y_min, x_max, y_max))
+
+    # blur mask edge by small radius
+    mask_pil = mask_pil.filter(ImageFilter.GaussianBlur(radius=2))
 
     return bounded_image, mask_pil, x_min, y_min, x_max, y_max
 
