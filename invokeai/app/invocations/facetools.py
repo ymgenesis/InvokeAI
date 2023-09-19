@@ -6,7 +6,7 @@ import math
 import cv2
 import mediapipe as mp
 import numpy as np
-from PIL import Image, ImageDraw, ImageOps, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageOps
 
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
@@ -281,9 +281,7 @@ def get_faces_list(
             draw_mesh,
         )
     if should_chunk or len(result) == 0:
-        context.services.logger.info(
-            "FaceTools --> Chunking image (chunk toggled on, or no face found in full image)."
-        )
+        context.services.logger.info("FaceTools --> Chunking image (chunk toggled on, or no face found in full image).")
         width, height = image.size
         image_chunks = []
         x_offsets = []
