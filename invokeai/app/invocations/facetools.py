@@ -1,4 +1,4 @@
-## FaceTools 3.7
+## FaceTools 3.9
 ## Nodes for InvokeAI, written by YMGenesis/Matthew Janik & JPPhoto/Jonathan S. Pollack
 
 import math
