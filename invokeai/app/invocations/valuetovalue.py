@@ -14,8 +14,8 @@ from invokeai.app.invocations.baseinvocation import (
 
 
 @invocation_output("str_flt_int_output")
-class str_flt_int_output(BaseInvocationOutput):
-    """Base class for nodes that output a string, float, and integer"""
+class StrFltIntOutput(BaseInvocationOutput):
+    """Output a string, float, and integer"""
 
     string_output: str = OutputField(description="The output string", title="String")
     float_output: float = OutputField(description="The output float", title="Float")
@@ -41,7 +41,7 @@ class ValueToValueInvocation(BaseInvocation):
         default="Nearest", description="The method to use for rounding"
     )
 
-    def invoke(self, context: InvocationContext) -> str_flt_int_output:
+    def invoke(self, context: InvocationContext) -> StrFltIntOutput:
         try:
             if float(self.value):
                 if self.round_method == "Nearest":
@@ -59,7 +59,7 @@ class ValueToValueInvocation(BaseInvocation):
             float_out = 0
             int_out = 0
 
-        return str_flt_int_output(
+        return StrFltIntOutput(
             string_output=string_out,
             float_output=float_out,
             integer_output=int_out,
