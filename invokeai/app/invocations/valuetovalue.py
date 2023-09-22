@@ -1,3 +1,6 @@
+## Value To Value 1.0
+## A node for InvokeAI, written by YMGenesis/Matthew Janik
+
 from typing import Literal
 
 import numpy as np
