@@ -25,6 +25,7 @@ import 'reactflow/dist/style.css';
 import { AnyInvocationType } from 'services/events/types';
 import { AddNodePopoverSelectItem } from './AddNodePopoverSelectItem';
 import { useTranslation } from 'react-i18next';
+import { InvocationTemplate } from 'features/nodes/types/types';
 
 type NodeTemplate = {
   label: string;
@@ -55,10 +56,31 @@ const AddNodePopover = () => {
   const toaster = useAppToaster();
   const { t } = useTranslation();
 
+  const fieldFilter = useAppSelector(
+    (state) => state.nodes.currentConnectionFieldType
+  );
+  const handleFilter = useAppSelector(
+    (state) => state.nodes.connectionStartParams?.handleType
+  );
+
   const selector = createSelector(
     [stateSelector],
     ({ nodes }) => {
-      const data: NodeTemplate[] = map(nodes.nodeTemplates, (template) => {
+      const filteredNodeTemplates = fieldFilter
+        ? Object.entries(nodes.nodeTemplates)
+            .filter(([_key, template]) => {
+              const handles =
+                handleFilter == 'source' ? template.inputs : template.outputs;
+              return Object.values(handles).some((input) => {
+                return input.type === fieldFilter;
+              });
+            })
+            .reduce((obj: Record<string, InvocationTemplate>, [key, value]) => {
+              obj[key] = value;
+              return obj;
+            }, {})
+        : nodes.nodeTemplates;
+      const data: NodeTemplate[] = map(filteredNodeTemplates, (template) => {
         return {
           label: template.title,
           value: template.type,
@@ -67,19 +89,22 @@ const AddNodePopover = () => {
         };
       });
 
-      data.push({
-        label: t('nodes.currentImage'),
-        value: 'current_image',
-        description: t('nodes.currentImageDescription'),
-        tags: ['progress'],
-      });
+      //We only want these nodes if we're not filtered
+      if (fieldFilter === null) {
+        data.push({
+          label: t('nodes.currentImage'),
+          value: 'current_image',
+          description: t('nodes.currentImageDescription'),
+          tags: ['progress'],
+        });
 
-      data.push({
-        label: t('nodes.notes'),
-        value: 'notes',
-        description: t('nodes.notesDescription'),
-        tags: ['notes'],
-      });
+        data.push({
+          label: t('nodes.notes'),
+          value: 'notes',
+          description: t('nodes.notesDescription'),
+          tags: ['notes'],
+        });
+      }
 
       data.sort((a, b) => a.label.localeCompare(b.label));
 
