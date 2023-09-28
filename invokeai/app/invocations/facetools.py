@@ -1,14 +1,13 @@
-## FaceTools 3.9
-## Nodes for InvokeAI, written by YMGenesis/Matthew Janik & JPPhoto/Jonathan S. Pollack
-
 import math
-from typing import TypedDict
+import re
+from typing import Optional, TypedDict
 
 import cv2
-import mediapipe as mp
 import numpy as np
+from mediapipe.python.solutions.face_mesh import FaceMesh
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 from PIL.Image import Image as ImageType
+from pydantic import validator
 
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
@@ -38,13 +37,16 @@ class FaceOffOutput(ImageOutput):
     y: int = OutputField(description="The y coordinate of the bounding box's top side")
 
 
-class FaceResultsData(TypedDict):
+class FaceResultData(TypedDict):
     pil_image: ImageType
     mask_pil: ImageType
     x_center: float
     y_center: float
     mesh_width: int
     mesh_height: int
+
+
+class FaceResultDataWithId(FaceResultData):
     face_id: int
 
 
@@ -57,19 +59,32 @@ class ExtractFaceData(TypedDict):
     y_max: int
 
 
+class FaceMaskResult(TypedDict):
+    image: ImageType
+    mask: ImageType
+
+
+def create_white_image(w: int, h: int) -> ImageType:
+    return Image.new("L", (w, h), color=255)
+
+
+def create_black_image(w: int, h: int) -> ImageType:
+    return Image.new("L", (w, h), color=0)
+
+
 def cleanup_faces_list(
-    orig: list[FaceResultsData],
-) -> list[FaceResultsData]:
-    newlist = []
+    face_result_list: list[FaceResultData],
+) -> list[FaceResultDataWithId]:
+    pruned_faces: list[FaceResultData] = []
 
-    if len(orig) == 0:
-        return orig
+    if len(face_result_list) == 0:
+        return list()
 
-    for i in orig:
+    for face_result in face_result_list:
         should_add = True
-        i_x_center = i["x_center"]
-        i_y_center = i["y_center"]
-        for j in newlist:
+        i_x_center = face_result["x_center"]
+        i_y_center = face_result["y_center"]
+        for j in pruned_faces:
             face_center_x = j["x_center"]
             face_center_y = j["y_center"]
             face_radius_w = j["mesh_width"] / 2
@@ -87,18 +102,24 @@ def cleanup_faces_list(
                 break
 
         if should_add is True:
-            newlist.append(i)
+            pruned_faces.append(face_result)
 
-    newlist = sorted(newlist, key=lambda x: x["y_center"])
-    newlist = sorted(newlist, key=lambda x: x["x_center"])
+    pruned_faces = sorted(pruned_faces, key=lambda x: x["y_center"])
+    pruned_faces = sorted(pruned_faces, key=lambda x: x["x_center"])
 
-    # add a face_id for reference
-    face_id_counter = 1
-    for face in newlist:
-        face["face_id"] = face_id_counter
+    # add face_id for reference
+    pruned_faces_with_ids: list[FaceResultDataWithId] = []
+    face_id_counter = 0
+    for face in pruned_faces:
+        pruned_faces_with_ids.append(
+            FaceResultDataWithId(
+                **face,
+                face_id=face_id_counter,
+            )
+        )
         face_id_counter += 1
 
-    return newlist
+    return pruned_faces_with_ids
 
 
 def generate_face_box_mask(
@@ -110,8 +131,9 @@ def generate_face_box_mask(
     chunk_x_offset: int = 0,
     chunk_y_offset: int = 0,
     draw_mesh: bool = True,
-) -> list[FaceResultsData]:
+) -> list[FaceResultData]:
     result = []
+    mask_pil = None
 
     # Convert the PIL image to a NumPy array.
     np_image = np.array(pil_image, dtype=np.uint8)
@@ -122,7 +144,7 @@ def generate_face_box_mask(
         np_image = np_image[:, :, :3]
 
     # Create a FaceMesh object for face landmark detection and mesh generation.
-    face_mesh = mp.solutions.face_mesh.FaceMesh(
+    face_mesh = FaceMesh(
         max_num_faces=999,
         min_detection_confidence=minimum_confidence,
         min_tracking_confidence=minimum_confidence,
@@ -132,9 +154,9 @@ def generate_face_box_mask(
     results = face_mesh.process(np_image)
 
     # Check if any face is detected.
-    if results.multi_face_landmarks:
+    if results.multi_face_landmarks:  # type: ignore # this are via protobuf and not typed
         # Search for the face_id in the detected faces.
-        for face_landmarks in results.multi_face_landmarks:
+        for face_id, face_landmarks in enumerate(results.multi_face_landmarks):  # type: ignore #this are via protobuf and not typed
             # Get the bounding box of the face mesh.
             x_coordinates = [landmark.x for landmark in face_landmarks.landmark]
             y_coordinates = [landmark.y for landmark in face_landmarks.landmark]
@@ -178,7 +200,7 @@ def generate_face_box_mask(
                 # Convert the binary mask image to a PIL Image.
                 init_mask_pil = Image.fromarray(mask_image, mode="L")
                 w, h = init_mask_pil.size
-                mask_pil = Image.new(mode="L", size=(w + chunk_x_offset, h + chunk_y_offset), color=255)
+                mask_pil = create_white_image(w + chunk_x_offset, h + chunk_y_offset)
                 mask_pil.paste(init_mask_pil, (chunk_x_offset, chunk_y_offset))
 
             left_side = x_center - mesh_width
@@ -194,15 +216,18 @@ def generate_face_box_mask(
                 and (top_side >= -over_h)
                 and (bottom_side < im_height + over_h)
             ):
-                this_face: FaceResultsData = FaceResultsData()
-                if draw_mesh:
-                    this_face["pil_image"] = pil_image
-                    this_face["mask_pil"] = mask_pil
-                this_face["x_center"] = x_center + chunk_x_offset
-                this_face["y_center"] = y_center + chunk_y_offset
-                this_face["mesh_width"] = mesh_width
-                this_face["mesh_height"] = mesh_height
-                result.append(this_face)
+                x_center = float(x_center)
+                y_center = float(y_center)
+                face = FaceResultData(
+                    pil_image=pil_image,
+                    mask_pil=mask_pil or create_white_image(*pil_image.size),
+                    x_center=x_center + chunk_x_offset,
+                    y_center=y_center + chunk_y_offset,
+                    mesh_width=mesh_width,
+                    mesh_height=mesh_height,
+                )
+
+                result.append(face)
             else:
                 context.services.logger.info("FaceTools --> Face out of bounds, ignoring.")
 
@@ -212,15 +237,14 @@ def generate_face_box_mask(
 def extract_face(
     context: InvocationContext,
     image: ImageType,
-    all_faces: list[FaceResultsData],
-    face_id: int,
+    face: FaceResultData,
     padding: int,
 ) -> ExtractFaceData:
-    mask_pil = all_faces[face_id]["mask_pil"]
-    center_x = all_faces[face_id]["x_center"]
-    center_y = all_faces[face_id]["y_center"]
-    mesh_width = all_faces[face_id]["mesh_width"]
-    mesh_height = all_faces[face_id]["mesh_height"]
+    mask_pil = face["mask_pil"]
+    center_x = face["x_center"]
+    center_y = face["y_center"]
+    mesh_width = face["mesh_width"]
+    mesh_height = face["mesh_height"]
 
     # Determine the minimum size of the square crop
     min_size = min(mask_pil.width, mask_pil.height)
@@ -299,7 +323,7 @@ def get_faces_list(
     x_offset: float,
     y_offset: float,
     draw_mesh: bool = True,
-) -> list[FaceResultsData]:
+) -> list[FaceResultDataWithId]:
     result = []
 
     # Generate the face box mask and get the center of the face.
@@ -378,7 +402,8 @@ class FaceOffInvocation(BaseInvocation):
     image: ImageField = InputField(description="Image for face detection")
     face_id: int = InputField(
         default=0,
-        description="0 for first detected face, single digit for one specific. Multiple faces not supported. Find a face's ID with FaceIdentifier node.",
+        ge=0,
+        description="The face ID to process, numbered from 0. Multiple faces not supported. Find a face's ID with FaceIdentifier node.",
     )
     minimum_confidence: float = InputField(
         default=0.5, description="Minimum confidence for face detection (lower if detection is failing)"
@@ -391,9 +416,7 @@ class FaceOffInvocation(BaseInvocation):
         description="Whether to bypass full image face detection and default to image chunking. Chunking will occur if no faces are found in the full image.",
     )
 
-    def faceoff(self, context: InvocationContext) -> FaceOffOutput:
-        image = context.services.images.get_pil_image(self.image.image_name)
-
+    def faceoff(self, context: InvocationContext, image: ImageType) -> Optional[ExtractFaceData]:
         all_faces = get_faces_list(
             context,
             image,
@@ -403,25 +426,39 @@ class FaceOffInvocation(BaseInvocation):
             self.y_offset,
         )
 
-        face_id = self.face_id - 1 if self.face_id > 0 else self.face_id
+        if len(all_faces) == 0:
+            context.services.logger.warning("FaceOff --> No faces detected. Passing through original image.")
+            return None
 
-        if face_id + 1 > len(all_faces) or face_id < 0:
+        if self.face_id > len(all_faces) - 1:
             context.services.logger.warning(
                 f"FaceOff --> Face ID {self.face_id} is outside of the number of faces detected ({len(all_faces)}). Passing through original image."
             )
             return None
 
-        face_data = extract_face(context, image, all_faces, face_id, self.padding)
-        bounded_image = face_data["bounded_image"]
-        mask_pil = face_data["mask_pil"]
-        x_min = face_data["x_min"]
-        y_min = face_data["y_min"]
-
+        face_data = extract_face(context, image, all_faces[self.face_id], self.padding)
         # Convert the input image to RGBA mode to ensure it has an alpha channel.
-        image = bounded_image.convert("RGBA")
+        face_data["bounded_image"] = face_data["bounded_image"].convert("RGBA")
+
+        return face_data
+
+    def invoke(self, context: InvocationContext) -> FaceOffOutput:
+        image = context.services.images.get_pil_image(self.image.image_name)
+        result = self.faceoff(context, image)
+
+        if result is None:
+            result_image = image
+            result_mask = create_white_image(*image.size)
+            x = 0
+            y = 0
+        else:
+            result_image = result["bounded_image"]
+            result_mask = result["mask_pil"]
+            x = result["x_min"]
+            y = result["y_min"]
 
         image_dto = context.services.images.create(
-            image=image,
+            image=result_image,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.GENERAL,
             node_id=self.id,
@@ -431,7 +468,7 @@ class FaceOffInvocation(BaseInvocation):
         )
 
         mask_dto = context.services.images.create(
-            image=mask_pil,
+            image=result_mask,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.MASK,
             node_id=self.id,
@@ -439,50 +476,14 @@ class FaceOffInvocation(BaseInvocation):
             is_intermediate=self.is_intermediate,
         )
 
-        return FaceOffOutput(
+        result = FaceOffOutput(
             image=ImageField(image_name=image_dto.image_name),
             width=image_dto.width,
             height=image_dto.height,
             mask=ImageField(image_name=mask_dto.image_name),
-            x=x_min,
-            y=y_min,
+            x=x,
+            y=y,
         )
-
-    def invoke(self, context: InvocationContext) -> FaceOffOutput:
-        result = self.faceoff(context)
-
-        if result is None:
-            image = context.services.images.get_pil_image(self.image.image_name)
-            whitemask = Image.new("L", image.size, color=255)
-            context.services.logger.info("FaceOff --> No face detected. Passing through original image.")
-
-            image_dto = context.services.images.create(
-                image=image,
-                image_origin=ResourceOrigin.INTERNAL,
-                image_category=ImageCategory.GENERAL,
-                node_id=self.id,
-                session_id=context.graph_execution_state_id,
-                is_intermediate=self.is_intermediate,
-                workflow=self.workflow,
-            )
-
-            mask_dto = context.services.images.create(
-                image=whitemask,
-                image_origin=ResourceOrigin.INTERNAL,
-                image_category=ImageCategory.MASK,
-                node_id=self.id,
-                session_id=context.graph_execution_state_id,
-                is_intermediate=self.is_intermediate,
-            )
-
-            result = FaceOffOutput(
-                image=ImageField(image_name=image_dto.image_name),
-                width=image_dto.width,
-                height=image_dto.height,
-                mask=ImageField(image_name=mask_dto.image_name),
-                x=0,
-                y=0,
-            )
 
         return result
 
@@ -493,8 +494,8 @@ class FaceMaskInvocation(BaseInvocation):
 
     image: ImageField = InputField(description="Image to face detect")
     face_ids: str = InputField(
-        default="0",
-        description="0 for all faces, single digit for one, comma-separated list for multiple specific (1, 2, 4). Find face IDs with FaceIdentifier node.",
+        default="",
+        description="Comma-separated list of face ids to mask eg '0,2,7'. Numbered from 0. Leave empty to mask all. Find face IDs with FaceIdentifier node.",
     )
     minimum_confidence: float = InputField(
         default=0.5, description="Minimum confidence for face detection (lower if detection is failing)"
@@ -507,9 +508,14 @@ class FaceMaskInvocation(BaseInvocation):
     )
     invert_mask: bool = InputField(default=False, description="Toggle to invert the mask")
 
-    def facemask(self, context: InvocationContext) -> FaceMaskOutput:
-        image = context.services.images.get_pil_image(self.image.image_name)
+    @validator("face_ids")
+    def validate_comma_separated_list(cls, v) -> str:
+        comma_separated_ints_regex = re.compile(r"^\d*(,\d+)*$")
+        if comma_separated_ints_regex.match(v) is None:
+            raise ValueError('Face IDs must be a comma-separated list of integers (e.g. "1,2,3")')
+        return v
 
+    def facemask(self, context: InvocationContext, image: ImageType) -> FaceMaskResult:
         all_faces = get_faces_list(
             context,
             image,
@@ -519,31 +525,36 @@ class FaceMaskInvocation(BaseInvocation):
             self.y_offset,
         )
 
-        mask_pil = Image.new(mode="L", size=((image.size)), color=255)
+        mask_pil = create_white_image(*image.size)
 
-        id_range = range(0, len(all_faces))
+        id_range = list(range(0, len(all_faces)))
+        ids_to_extract = id_range
+        if self.face_ids != "":
+            parsed_face_ids = [int(id) for id in self.face_ids.split(",")]
+            # get requested face_ids that are in range
+            intersection = set(parsed_face_ids) & set(id_range)
 
-        # If '0' is entered, mask all faces, else use IDs provided (minus one)
-        if self.face_ids.strip() != "0":
-            id_range = [(int(id.strip()) - 1) for id in self.face_ids.split(",")]
-
-        if all(face_id + 1 > len(all_faces) for face_id in id_range):
-            return None
-
-        for face_id in id_range:
-            if face_id >= 0 and face_id < len(all_faces):
-                face_data = extract_face(context, image, all_faces, face_id, 0)
-                face_mask_pil = face_data["mask_pil"]
-                x_min = face_data["x_min"]
-                y_min = face_data["y_min"]
-                x_max = face_data["x_max"]
-                y_max = face_data["y_max"]
-
-                mask_pil.paste(
-                    Image.new(mode="L", size=((x_max - x_min, y_max - y_min)), color=0),
-                    box=(x_min, y_min),
-                    mask=ImageOps.invert(face_mask_pil),
+            if len(intersection) == 0:
+                id_range_str = ",".join([str(id) for id in id_range])
+                raise ValueError(
+                    f"Face IDs must be in range of detected faces - requested {self.face_ids}, detected {id_range_str}"
                 )
+
+            ids_to_extract = list(intersection)
+
+        for face_id in ids_to_extract:
+            face_data = extract_face(context, image, all_faces[face_id], 0)
+            face_mask_pil = face_data["mask_pil"]
+            x_min = face_data["x_min"]
+            y_min = face_data["y_min"]
+            x_max = face_data["x_max"]
+            y_max = face_data["y_max"]
+
+            mask_pil.paste(
+                create_black_image(x_max - x_min, y_max - y_min),
+                box=(x_min, y_min),
+                mask=ImageOps.invert(face_mask_pil),
+            )
 
         if self.invert_mask:
             mask_pil = ImageOps.invert(mask_pil)
@@ -551,8 +562,17 @@ class FaceMaskInvocation(BaseInvocation):
         # Create an RGBA image with transparency
         image = image.convert("RGBA")
 
-        image_dto = context.services.images.create(
+        return FaceMaskResult(
             image=image,
+            mask=mask_pil,
+        )
+
+    def invoke(self, context: InvocationContext) -> FaceMaskOutput:
+        image = context.services.images.get_pil_image(self.image.image_name)
+        result = self.facemask(context, image)
+
+        image_dto = context.services.images.create(
+            image=result["image"],
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.GENERAL,
             node_id=self.id,
@@ -562,7 +582,7 @@ class FaceMaskInvocation(BaseInvocation):
         )
 
         mask_dto = context.services.images.create(
-            image=mask_pil,
+            image=result["mask"],
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.MASK,
             node_id=self.id,
@@ -570,46 +590,12 @@ class FaceMaskInvocation(BaseInvocation):
             is_intermediate=self.is_intermediate,
         )
 
-        return FaceMaskOutput(
+        result = FaceMaskOutput(
             image=ImageField(image_name=image_dto.image_name),
             width=image_dto.width,
             height=image_dto.height,
             mask=ImageField(image_name=mask_dto.image_name),
         )
-
-    def invoke(self, context: InvocationContext) -> FaceMaskOutput:
-        result = self.facemask(context)
-
-        if result is None:
-            image = context.services.images.get_pil_image(self.image.image_name)
-            whitemask = Image.new("L", image.size, color=255)
-            context.services.logger.warning("FaceMask --> No face detected. Passing through original image.")
-
-            image_dto = context.services.images.create(
-                image=image,
-                image_origin=ResourceOrigin.INTERNAL,
-                image_category=ImageCategory.GENERAL,
-                node_id=self.id,
-                session_id=context.graph_execution_state_id,
-                is_intermediate=self.is_intermediate,
-                workflow=self.workflow,
-            )
-
-            mask_dto = context.services.images.create(
-                image=whitemask,
-                image_origin=ResourceOrigin.INTERNAL,
-                image_category=ImageCategory.MASK,
-                node_id=self.id,
-                session_id=context.graph_execution_state_id,
-                is_intermediate=self.is_intermediate,
-            )
-
-            result = FaceMaskOutput(
-                image=ImageField(image_name=image_dto.image_name),
-                width=image_dto.width,
-                height=image_dto.height,
-                mask=ImageField(image_name=mask_dto.image_name),
-            )
 
         return result
 
@@ -629,8 +615,7 @@ class FaceIdentifierInvocation(BaseInvocation):
         description="Whether to bypass full image face detection and default to image chunking. Chunking will occur if no faces are found in the full image.",
     )
 
-    def faceidentifier(self, context: InvocationContext) -> ImageOutput:
-        image = context.services.images.get_pil_image(self.image.image_name)
+    def faceidentifier(self, context: InvocationContext, image: ImageType) -> ImageType:
         image = image.copy()
 
         all_faces = get_faces_list(
@@ -654,8 +639,14 @@ class FaceIdentifierInvocation(BaseInvocation):
         # Create an RGBA image with transparency
         image = image.convert("RGBA")
 
+        return image
+
+    def invoke(self, context: InvocationContext) -> ImageOutput:
+        image = context.services.images.get_pil_image(self.image.image_name)
+        result_image = self.faceidentifier(context, image)
+
         image_dto = context.services.images.create(
-            image=image,
+            image=result_image,
             image_origin=ResourceOrigin.INTERNAL,
             image_category=ImageCategory.GENERAL,
             node_id=self.id,
@@ -669,30 +660,3 @@ class FaceIdentifierInvocation(BaseInvocation):
             width=image_dto.width,
             height=image_dto.height,
         )
-
-    def invoke(self, context: InvocationContext) -> ImageOutput:
-        result = self.faceidentifier(context)
-
-        if result is None:
-            image = context.services.images.get_pil_image(self.image.image_name)
-            context.services.logger.warning(
-                "FaceIdentifier --> No face detected. Passing through original image without drawing FaceIDs."
-            )
-
-            image_dto = context.services.images.create(
-                image=image,
-                image_origin=ResourceOrigin.INTERNAL,
-                image_category=ImageCategory.GENERAL,
-                node_id=self.id,
-                session_id=context.graph_execution_state_id,
-                is_intermediate=self.is_intermediate,
-                workflow=self.workflow,
-            )
-
-            result = ImageOutput(
-                image=ImageField(image_name=image_dto.image_name),
-                width=image_dto.width,
-                height=image_dto.height,
-            )
-
-        return result
