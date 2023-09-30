@@ -63,13 +63,13 @@ const BoardsSearch = () => {
     [handleBoardSearch]
   );
 
-  useEffect(() => {
-    // focus the search box on mount
-    if (!inputRef.current) {
-      return;
-    }
-    inputRef.current.focus();
-  }, []);
+  // useEffect(() => {
+  //   // focus the search box on mount
+  //   if (!inputRef.current) {
+  //     return;
+  //   }
+  //   inputRef.current.focus();
+  // }, []);
 
   return (
     <InputGroup>
