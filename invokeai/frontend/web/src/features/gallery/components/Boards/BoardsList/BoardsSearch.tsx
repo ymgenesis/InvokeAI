@@ -10,14 +10,7 @@ import { stateSelector } from 'app/store/store';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { defaultSelectorOptions } from 'app/store/util/defaultMemoizeOptions';
 import { boardSearchTextChanged } from 'features/gallery/store/gallerySlice';
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import { ChangeEvent, KeyboardEvent, memo, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const selector = createSelector(
@@ -62,14 +55,6 @@ const BoardsSearch = () => {
     },
     [handleBoardSearch]
   );
-
-  // useEffect(() => {
-  //   // focus the search box on mount
-  //   if (!inputRef.current) {
-  //     return;
-  //   }
-  //   inputRef.current.focus();
-  // }, []);
 
   return (
     <InputGroup>
