@@ -4,8 +4,8 @@
 import time
 
 import torch
-
 from tqdm import tqdm
+
 from invokeai.app.invocations.baseinvocation import BaseInvocation, InputField, InvocationContext, invocation
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
 from invokeai.app.models.image import ImageCategory, ResourceOrigin
