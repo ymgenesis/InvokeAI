@@ -1,4 +1,4 @@
-## Sleep 1.0
+## Sleep 1.1
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
 import time
