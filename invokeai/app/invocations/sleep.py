@@ -1,11 +1,11 @@
 ## Sleep 1.0
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
-import sys
 import time
 
 import torch
 
+from tqdm import tqdm
 from invokeai.app.invocations.baseinvocation import BaseInvocation, InputField, InvocationContext, invocation
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
 from invokeai.app.models.image import ImageCategory, ResourceOrigin
@@ -38,9 +38,7 @@ class SleepInvocation(BaseInvocation):
                 pass
 
         context.services.logger.warning(f"Sleep --> Sleeping for {self.interval} second(s)")
-        for remaining in range(self.interval, 0, -1):
-            sys.stdout.write(f"\r{remaining} second(s) remaining")
-            sys.stdout.flush()
+        for i in tqdm(range(self.interval), desc="Sleeping"):
             time.sleep(1)
         context.services.logger.info(f"Sleep --> Slept for {self.interval} second(s)")
 
