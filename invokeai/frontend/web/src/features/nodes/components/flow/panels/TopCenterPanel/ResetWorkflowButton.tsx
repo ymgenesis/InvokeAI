@@ -53,7 +53,7 @@ const ResetWorkflowButton = () => {
         aria-label={t('nodes.resetWorkflow')}
         onClick={onOpen}
         isDisabled={!nodesCount}
-        colorScheme="error"
+        // colorScheme="error"
       />
 
       <AlertDialog

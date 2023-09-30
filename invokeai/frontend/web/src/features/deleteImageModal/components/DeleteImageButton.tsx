@@ -20,7 +20,7 @@ export const DeleteImageButton = (props: DeleteImageButtonProps) => {
       tooltip={`${t('gallery.deleteImage')} (Del)`}
       aria-label={`${t('gallery.deleteImage')} (Del)`}
       isDisabled={isDisabled || !isConnected}
-      colorScheme="error"
+      // colorScheme="error"
     />
   );
 };
