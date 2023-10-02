@@ -729,12 +729,23 @@ class CodeFormerInvocation(BaseInvocation):
         cf.load_state_dict(codeformer_model)
         cf.eval()
 
+        # Convert RGB to RGBA & store original alpha for reinsertion after codeformer
+        if image.mode == "RGB":
+            image = image.convert("RGBA")
+            alpha_channel = np.array(image)[:, :, 3]
+        elif image.mode == "RGBA":
+            alpha_channel = np.array(image)[:, :, 3]
+        else:
+            print("The image has un unexpected colour mode:", image.mode)
+            image = image.convert("RGBA")
+            alpha_channel = np.array(image)[:, :, 3]
+
         # Codeformer expects BGR image data
-        bgrImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        bgraImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGBA2BGRA)
 
         face_helper = FaceRestoreHelper(upscale_factor=1, use_parse=True, device=device)
         face_helper.clean_all()
-        face_helper.read_image(bgrImage)
+        face_helper.read_image(bgraImage)
         face_helper.get_face_landmarks_5(resize=640, eye_dist_threshold=5)
         face_helper.align_warp_face()
 
@@ -760,8 +771,11 @@ class CodeFormerInvocation(BaseInvocation):
 
         restored_img = face_helper.paste_faces_to_input_image()
 
-        # Convert back to RGB for PIL
-        res = Image.fromarray(cv2.cvtColor(restored_img, cv2.COLOR_BGR2RGB))
+        # Insert original alpha
+        restored_img = np.dstack((restored_img, alpha_channel))
+
+        # Convert back to RGBA for PIL
+        res = Image.fromarray(cv2.cvtColor(restored_img, cv2.COLOR_BGRA2RGBA))
 
         if self.strength < 1.0:
             # Resize the image to the new image if the sizes have changed

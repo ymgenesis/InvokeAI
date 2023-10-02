@@ -1,5 +1,3 @@
-from typing import Literal
-
 import cv2
 import numpy as np
 from PIL import Image
@@ -8,13 +6,6 @@ from gfpgan import GFPGANer
 from invokeai.app.invocations.baseinvocation import BaseInvocation, InputField, InvocationContext, invocation
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
 from invokeai.app.models.image import ImageCategory, ResourceOrigin
-
-archs = Literal[
-    "clean",
-    "bilinear",
-    "original",
-    "RestoreFormer",
-]
 
 
 @invocation(
@@ -44,8 +35,19 @@ class GfpganInvocation(BaseInvocation):
             bg_upsampler=None,
         )
 
+        # Convert RGB to RGBA & store original alpha for reinsertion after codeformer
+        if image.mode == "RGB":
+            image = image.convert("RGBA")
+            alpha_channel = np.array(image)[:, :, 3]
+        elif image.mode == "RGBA":
+            alpha_channel = np.array(image)[:, :, 3]
+        else:
+            print("The image has un unexpected colour mode:", image.mode)
+            image = image.convert("RGBA")
+            alpha_channel = np.array(image)[:, :, 3]
+
         # GFPGAN expects BGR image data
-        bgrImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        bgrImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGBA2BGRA)
 
         _, _, restored_img = gfpgan.enhance(
             bgrImage,
@@ -54,8 +56,11 @@ class GfpganInvocation(BaseInvocation):
             paste_back=True,
         )
 
+        # Insert original alpha
+        restored_img = np.dstack((restored_img, alpha_channel))
+
         # Convert back to RGB for PIL
-        res = Image.fromarray(cv2.cvtColor(restored_img, cv2.COLOR_BGR2RGB))
+        res = Image.fromarray(cv2.cvtColor(restored_img, cv2.COLOR_BGRA2RGBA))
 
         if self.strength < 1.0:
             # Resize the image to the new image if the sizes have changed
