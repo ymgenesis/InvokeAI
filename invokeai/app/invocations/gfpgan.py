@@ -56,7 +56,11 @@ class GfpganInvocation(BaseInvocation):
             paste_back=True,
         )
 
-        # Insert original alpha
+        # Upscale alpha and insert back into image
+        if self.upscale > 1:
+            new_width = int(alpha_channel.shape[1] * self.upscale)
+            new_height = int(alpha_channel.shape[0] * self.upscale)
+            alpha_channel = cv2.resize(alpha_channel, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
         restored_img = np.dstack((restored_img, alpha_channel))
 
         # Convert back to RGB for PIL
