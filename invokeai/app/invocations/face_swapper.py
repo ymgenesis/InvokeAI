@@ -1,5 +1,5 @@
 import gc
-import pathlib
+from pathlib import Path
 from typing import Optional
 
 import cv2
@@ -23,7 +23,7 @@ from tqdm import tqdm
 class FaceSwapperInvocation(BaseInvocation):
     '''Replace face using InsightFace'''
 
-    image: Optional[ImageField] = InputField(default=None, description='Image that you want to replace the face from')
+    image: Optional[ImageField] = InputField(default=None, description='Image that you want to replace the face of')
     face: Optional[ImageField] = InputField(default=None, description='Face you want to replace with')
 
     def get_provider(self):
@@ -41,12 +41,15 @@ class FaceSwapperInvocation(BaseInvocation):
         r = requests.get(url, stream=True)
         total_size = int(r.headers.get('content-length', 0))
         with open(file_name, 'wb') as f:
-            for chunk in tqdm(r.iter_content(chunk_size=1024), total=total_size, unit='iB', unit_scale=True):
-                if chunk:
-                    f.write(chunk)
+            with tqdm(r.iter_content(chunk_size=1024), total=total_size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
+                        pbar.update(len(chunk))
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
+        models_path = context.services.configuration.models_path
         swapped_image = image
         image = self.make_cv2_image(image)
 
@@ -55,20 +58,17 @@ class FaceSwapperInvocation(BaseInvocation):
 
         providers = self.get_provider()
 
-        # Create models directory if it does not exist
-        models_dir = pathlib.Path(__file__).parent / 'models'
-        if not models_dir.is_dir():
-            models_dir.mkdir(exist_ok=True)
+        models_dir = f"{models_path}/any/faceswapper"
 
         # Initializing The Analyzer
         context.services.logger.info('Initializing Face Analyzer..')
-        insightface_analyzer_path = pathlib.Path(__file__).parent / 'models/insightface'
+        insightface_analyzer_path = f"{models_dir}/insightface"
         face_analyser = insightface.app.FaceAnalysis(name='buffalo_l', root=insightface_analyzer_path, providers=providers)
         face_analyser.prepare(0)
 
         # Initializing The Swapper
-        insightface_model_path_url = 'https://drive.google.com/uc?id=1krOLgjW2tAPaqV-Bw4YALz0xT5zlb5HF&export=download&confirm=t&uuid=79350c38-25d6-4883-8b3a-dca93d5b7cc3'
-        insightface_model_path = pathlib.Path(__file__).parent / 'models/inswapper_128.onnx'
+        insightface_model_path_url = 'https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx'
+        insightface_model_path = Path(models_dir) / 'inswapper_128.onnx'
         if not insightface_model_path.is_file():
             context.services.logger.warning('Model Missing. Downloading. Please wait..')
             self.download_model(insightface_model_path_url, insightface_model_path)
@@ -134,4 +134,3 @@ class FaceSwapperInvocation(BaseInvocation):
             width=swapped_pil_image.width,
             height=swapped_pil_image.height
         )
-
