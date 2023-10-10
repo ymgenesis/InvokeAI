@@ -427,7 +427,13 @@ class SqliteSessionQueue(SessionQueueBase):
         finally:
             self.__lock.release()
         queue_item = self.get_queue_item(item_id)
-        self.__invoker.services.events.emit_queue_item_status_changed(queue_item)
+        batch_status = self.get_batch_status(queue_id=queue_item.queue_id, batch_id=queue_item.batch_id)
+        queue_status = self.get_queue_status(queue_id=queue_item.queue_id)
+        self.__invoker.services.events.emit_queue_item_status_changed(
+            session_queue_item=queue_item,
+            batch_status=batch_status,
+            queue_status=queue_status,
+        )
         return queue_item
 
     def is_empty(self, queue_id: str) -> IsEmptyResult:
@@ -555,10 +561,11 @@ class SqliteSessionQueue(SessionQueueBase):
             self.__lock.release()
         return PruneResult(deleted=count)
 
-    def cancel_queue_item(self, item_id: int) -> SessionQueueItem:
+    def cancel_queue_item(self, item_id: int, error: Optional[str] = None) -> SessionQueueItem:
         queue_item = self.get_queue_item(item_id)
         if queue_item.status not in ["canceled", "failed", "completed"]:
-            queue_item = self._set_queue_item_status(item_id=item_id, status="canceled")
+            status = "failed" if error is not None else "canceled"
+            queue_item = self._set_queue_item_status(item_id=item_id, status=status, error=error)
             self.__invoker.services.queue.cancel(queue_item.session_id)
             self.__invoker.services.events.emit_session_canceled(
                 queue_item_id=queue_item.item_id,
@@ -608,7 +615,13 @@ class SqliteSessionQueue(SessionQueueBase):
                     queue_batch_id=current_queue_item.batch_id,
                     graph_execution_state_id=current_queue_item.session_id,
                 )
-                self.__invoker.services.events.emit_queue_item_status_changed(current_queue_item)
+                batch_status = self.get_batch_status(queue_id=queue_id, batch_id=current_queue_item.batch_id)
+                queue_status = self.get_queue_status(queue_id=queue_id)
+                self.__invoker.services.events.emit_queue_item_status_changed(
+                    session_queue_item=current_queue_item,
+                    batch_status=batch_status,
+                    queue_status=queue_status,
+                )
         except Exception:
             self.__conn.rollback()
             raise
@@ -654,7 +667,13 @@ class SqliteSessionQueue(SessionQueueBase):
                     queue_batch_id=current_queue_item.batch_id,
                     graph_execution_state_id=current_queue_item.session_id,
                 )
-                self.__invoker.services.events.emit_queue_item_status_changed(current_queue_item)
+                batch_status = self.get_batch_status(queue_id=queue_id, batch_id=current_queue_item.batch_id)
+                queue_status = self.get_queue_status(queue_id=queue_id)
+                self.__invoker.services.events.emit_queue_item_status_changed(
+                    session_queue_item=current_queue_item,
+                    batch_status=batch_status,
+                    queue_status=queue_status,
+                )
         except Exception:
             self.__conn.rollback()
             raise
