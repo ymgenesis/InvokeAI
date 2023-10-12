@@ -9,7 +9,6 @@ from invokeai.app.invocations.primitives import (
     ImageOutput
 )
 from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
-)
 from invokeai.app.invocations.baseinvocation import(
     BaseInvocation,
     InputField,

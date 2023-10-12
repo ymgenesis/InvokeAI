@@ -7,7 +7,7 @@ from invokeai.app.invocations.primitives import (
 )
 from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 
-from invokeai.app.invocations.baseinvocation import(
+from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     BaseInvocationOutput,
     InvocationContext,
@@ -15,6 +15,7 @@ from invokeai.app.invocations.baseinvocation import(
     invocation,
     invocation_output
 )
+
 
 def get_palette(image):
     #   Get palette from the image
