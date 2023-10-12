@@ -17,11 +17,11 @@ from invokeai.app.invocations.primitives import (
     ImageField,
     ImageOutput,
 )
-from invokeai.app.models.image import ImageCategory, ResourceOrigin
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 from invokeai.backend.stable_diffusion.diffusers_pipeline import (
     image_resized_to_grid_as_tensor,
 )
-    
+
 
 COMBINE_MODES: list = [
     "or",
@@ -72,7 +72,7 @@ class TextToMaskClipsegAdvancedInvocation(BaseInvocation):
             zeros_mask, ones_mask = torch.ge(img_tensor, threshold_h), torch.lt(img_tensor, threshold_s)
         else:
             ones_mask, zeros_mask = torch.ge(img_tensor, threshold_h), torch.lt(img_tensor, threshold_s)
-            
+
         if not (threshold_h == threshold_s):
             mask_hi = torch.ge(img_tensor, threshold_s)
             mask_lo = torch.lt(img_tensor, threshold_h)
@@ -108,7 +108,7 @@ class TextToMaskClipsegAdvancedInvocation(BaseInvocation):
         for prompt in [self.prompt_2, self.prompt_3, self.prompt_4]:
             if 0 < len(prompt.strip()):
                 prompts.append(prompt)
-        
+
         input_args = processor(
             text=prompts, images=[image_in for p in prompts], padding="max_length", return_tensors="pt"
         )
@@ -128,7 +128,7 @@ class TextToMaskClipsegAdvancedInvocation(BaseInvocation):
                 combined = torch.mul(combined, predictions[i+1,:,:])
             predictions = combined
             image_out = pil_image_from_tensor(predictions, mode="L")
-                           
+
         elif combine_mode == "or":
             combined = torch.add(torch.mul(predictions[0,:,:], -1.), 1.)
             for i in range(predictions.shape[0] - 1):
@@ -139,9 +139,9 @@ class TextToMaskClipsegAdvancedInvocation(BaseInvocation):
         else:
             missing_count = 4 - predictions.shape[0]
             extras = torch.ones([missing_count] + list(predictions.shape[1:]))
-            predictions = torch.cat([predictions, extras], 0)            
+            predictions = torch.cat([predictions, extras], 0)
             image_out = pil_image_from_tensor(predictions, mode="RGBA")
-        
+
         image_out = image_out.resize(image_size)
 
         image_out = image_resized_to_grid_as_tensor(image_out, normalize=False)
@@ -206,7 +206,7 @@ class ImageValueThresholdsInvocation(BaseInvocation):
             zeros_mask, ones_mask = torch.ge(img_tensor, threshold_h), torch.lt(img_tensor, threshold_s)
         else:
             ones_mask, zeros_mask = torch.ge(img_tensor, threshold_h), torch.lt(img_tensor, threshold_s)
-            
+
         if not (threshold_h == threshold_s):
             mask_hi = torch.ge(img_tensor, threshold_s)
             mask_lo = torch.lt(img_tensor, threshold_h)
@@ -266,7 +266,7 @@ class ImageValueThresholdsInvocation(BaseInvocation):
             image_out = image_resized_to_grid_as_tensor(image_in, normalize=False)
             image_out = self.get_threshold_mask(image_out)
             image_out = pil_image_from_tensor(image_out)
-        
+
         image_dto = context.services.images.create(
             image=image_out,
             image_origin=ResourceOrigin.INTERNAL,
@@ -320,7 +320,7 @@ class ImageDilateOrErodeInvocation(BaseInvocation):
             iterations=1
         )
         return Image.fromarray(image_out, mode=image_in.mode)
-    
+
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image_in = context.services.images.get_pil_image(self.image.image_name)
@@ -356,7 +356,7 @@ class ImageDilateOrErodeInvocation(BaseInvocation):
                 )
         else:
             image_out = self.expand_or_contract(image_out)
-        
+
 
         image_dto = context.services.images.create(
             image=image_out,

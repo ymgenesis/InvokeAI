@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 if not hasattr(Image, 'Resampling'):
     Image.Resampling = Image  # (Compatibilty for Pillow earlier than v9)
 
-from invokeai.app.models.image import ImageCategory, ResourceOrigin
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
     InputField,

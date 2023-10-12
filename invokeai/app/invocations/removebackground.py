@@ -1,11 +1,11 @@
-## Remove Background 1.0
+## Remove Background 2.5
 ## A node for InvokeAI, written by YMGenesis/Matthew Janik
 
 from typing import Literal
 
 from invokeai.app.invocations.baseinvocation import BaseInvocation, InputField, InvocationContext, invocation
 from invokeai.app.invocations.primitives import ImageField, ImageOutput
-from invokeai.app.models.image import ImageCategory, ResourceOrigin
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 
 rembg_models = Literal[
     "isnet-anime",

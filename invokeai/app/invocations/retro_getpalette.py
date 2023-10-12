@@ -5,10 +5,7 @@ from invokeai.app.invocations.primitives import (
     ImageField,
     ImageOutput
 )
-from invokeai.app.models.image import (
-    ImageCategory,
-    ResourceOrigin
-)
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 
 from invokeai.app.invocations.baseinvocation import(
     BaseInvocation,
@@ -77,9 +74,9 @@ def numberize_filename(path, name):
 @invocation_output("get_palette_output")
 class PaletteOutput(BaseInvocationOutput):
     """ Base class for Cell Fracture output """
-    
+
     image:      ImageField = InputField(default = None, description = "The palette output")
-    
+
     class Config:
         schema_extra = {"required": ["type", "palette"]}
 
@@ -89,15 +86,15 @@ class RetroGetPaletteInvocation(BaseInvocation):
 
     #   Inputs
     image:          ImageField  = InputField(description = "Input image to grab a palette from")
-    
+
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image_out = context.services.images.get_pil_image(self.image.image_name)
-        
+
         if image_out.mode != 'RGB':
             image_out = image_out.convert('RGB')
-        
+
         image_out = get_palette(image_out)
-        
+
         #   Do NOT convert palette image to RGB; it needs to be indexed color, not RGB, to be used as a palette
         dto = context.services.images.create(
             image = image_out,
@@ -112,7 +109,7 @@ class RetroGetPaletteInvocation(BaseInvocation):
         return PaletteOutput(
             image = ImageField(image_name = dto.image_name)
         )
-        
+
 @invocation("get_palette_adv", title = "Get Palette (Advanced)", tags = ["retro", "image", "pixel", "palette"], category = "image", version = "1.0.0")
 class RetroGetPaletteAdvInvocation(BaseInvocation):
     """ Get palette from an image, 256 colors max. Optionally export to a user-defined location. """
@@ -124,10 +121,10 @@ class RetroGetPaletteAdvInvocation(BaseInvocation):
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image_out = context.services.images.get_pil_image(self.image.image_name)
-        
+
         if image_out.mode != 'RGB':
             image_out = image_out.convert('RGB')
-        
+
         if self.export:
             path = self.path
             if path == "":

@@ -5,10 +5,7 @@ from invokeai.app.invocations.primitives import (
     ImageField,
     ImageOutput
 )
-from invokeai.app.models.image import (
-    ImageCategory,
-    ResourceOrigin
-)
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 
 from invokeai.app.invocations.baseinvocation import(
     BaseInvocation,
@@ -55,7 +52,7 @@ class RetroPalettizeInvocation(BaseInvocation):
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
-        
+
         palettize_image = image
         if palettize_image.mode != 'RGB':
             palettize_image = palettize_image.convert('RGB')

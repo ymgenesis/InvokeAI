@@ -10,9 +10,7 @@ from invokeai.app.invocations.primitives import (
     ImageOutput,
     ColorField
 )
-from invokeai.app.models.image import (
-    ImageCategory,
-    ResourceOrigin
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 )
 from invokeai.app.invocations.baseinvocation import (
     BaseInvocation,
@@ -38,7 +36,7 @@ class RetroScanlinesSimpleInvocation(BaseInvocation):
         image = context.services.images.get_pil_image(self.image.image_name).convert("RGBA")
         width, height = image.size
         line_color = (self.line_color.r, self.line_color.g, self.line_color.b, self.line_color.a)
-        
+
         scanlines_image = Image.new("RGBA", (width, height))
         draw = ImageDraw.Draw(scanlines_image)
 
@@ -58,7 +56,7 @@ class RetroScanlinesSimpleInvocation(BaseInvocation):
                 y += int(self.line_spacing + random.uniform(-self.space_jitter, self.space_jitter))  # Random spacing adjustment
                 if 0 <= y < height:  # Check if the line is within the image bounds
                     draw.rectangle([(0, y), (width, y + int(line_height))], fill = line_color)
-        
+
         scanlines_image = Image.alpha_composite(image, scanlines_image).convert("RGB")
 
         dto = context.services.images.create(

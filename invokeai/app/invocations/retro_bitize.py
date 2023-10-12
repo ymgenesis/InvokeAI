@@ -4,10 +4,7 @@ from invokeai.app.invocations.primitives import (
     ImageField,
     ImageOutput
 )
-from invokeai.app.models.image import (
-    ImageCategory,
-    ResourceOrigin
-)
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 from invokeai.app.invocations.baseinvocation import(
     BaseInvocation,
     InputField,
@@ -25,13 +22,13 @@ class RetroBitizeInvocation(BaseInvocation):
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
-        
+
         dither = Image.Dither.NONE
 
         image = image.convert("RGB") if image.mode != "RGB" else image
-        
+
         dither = Image.Dither.FLOYDSTEINBERG if self.dither else Image.Dither.NONE
-        
+
         image = image.convert("1", dither = dither).convert("RGB")
 
         dto = context.services.images.create(

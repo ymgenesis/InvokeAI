@@ -3,9 +3,7 @@ from PIL import Image
 from invokeai.app.invocations.primitives import (
     ImageField, ImageOutput
 )
-from invokeai.app.models.image import (
-    ImageCategory,
-    ResourceOrigin
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 )
 from invokeai.app.invocations.baseinvocation import(
     BaseInvocation,

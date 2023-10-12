@@ -8,9 +8,7 @@ from invokeai.app.invocations.primitives import (
     ImageField,
     ImageOutput
 )
-from invokeai.app.models.image import (
-    ImageCategory,
-    ResourceOrigin
+from invokeai.app.services.image_records.image_records_common import ImageCategory, ResourceOrigin
 )
 from invokeai.app.invocations.baseinvocation import(
     BaseInvocation,
@@ -42,48 +40,48 @@ class RetroHalftoneInvocation(BaseInvocation):
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
-        
+
         image = image.convert("RGB")
-        
+
         np_image = np.array(image)
-        
+
         np_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2BGR)
 
         gray = cv2.cvtColor(np_image, cv2.COLOR_BGR2GRAY)
-        
+
         jitter = self.jitter
         shape_size = self.size
         rotation = self.rotation
         rotation_threshold = self.rotation_threshold
-        
+
         halftone_overlay = np.zeros_like(gray)
 
         for i in range(0, gray.shape[0], shape_size):
           for j in range(0, gray.shape[1], shape_size):
-            
+
             # Adjust size randomly if jitter is enabled
             if jitter > 0:
               jitter_amount = random.randint(-jitter, jitter)
               shape_size_adjusted = max(shape_size + jitter_amount, 0)
             else:
               shape_size_adjusted = shape_size
-              
+
             # Skip iteration if shape size ended up 0
             if shape_size_adjusted == 0:
-              continue 
-            
+              continue
+
             x1 = i
             x2 = min(i + shape_size_adjusted, gray.shape[0])
             y1 = j
             y2 = min(j + shape_size_adjusted, gray.shape[1])
-            
+
             roi = gray[x1:x2, y1:y2]
             color = np.mean(roi)
 
             if self.shape == "Circle":
-              cv2.circle(halftone_overlay, (j+shape_size//2, i+shape_size//2),  
+              cv2.circle(halftone_overlay, (j+shape_size//2, i+shape_size//2),
                          shape_size_adjusted//2, color, -1)
-                         
+
             elif self.shape == "Square":
               if self.random_rotation:
                 angle = random.randint(-rotation_threshold, rotation_threshold)
@@ -92,7 +90,7 @@ class RetroHalftoneInvocation(BaseInvocation):
               else:
                 M = cv2.getRotationMatrix2D((j+shape_size/2, i+shape_size/2), rotation, 1)
                 cv2.fillPoly(halftone_overlay, cv2.transform(np.array([[[j,i], [j+shape_size_adjusted, i], [j+shape_size_adjusted, i+shape_size_adjusted], [j, i+shape_size_adjusted]]]), M), color)
-                
+
             elif self.shape == "Triangle":
               if self.random_rotation:
                 angle = random.randint(-rotation_threshold, rotation_threshold)
@@ -101,19 +99,19 @@ class RetroHalftoneInvocation(BaseInvocation):
               else:
                 M = cv2.getRotationMatrix2D((j+shape_size/2, i+shape_size/2), rotation, 1)
                 cv2.fillPoly(halftone_overlay, cv2.transform(np.array([[[j, i], [j+shape_size_adjusted, i], [j, i+shape_size_adjusted]]]), M), color)
-                
-        # Convert overlay to 3 channels         
+
+        # Convert overlay to 3 channels
         halftone_overlay = cv2.cvtColor(halftone_overlay, cv2.COLOR_GRAY2BGR)
 
         # Apply overlay on original image
         if self.overlay:
-          halftone = cv2.addWeighted(np_image, 0.5, halftone_overlay, 0.5, 0)   
+          halftone = cv2.addWeighted(np_image, 0.5, halftone_overlay, 0.5, 0)
         else:
           halftone = halftone_overlay
 
-        # Convert back to RGB for Pillow 
+        # Convert back to RGB for Pillow
         halftone = cv2.cvtColor(halftone, cv2.COLOR_BGR2RGB)
-        
+
         halftone_image = Image.fromarray(halftone)
 
         dto = context.services.images.create(
