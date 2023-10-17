@@ -29,7 +29,7 @@ class RemoveBackgroundInvocation(BaseInvocation):
     """Outputs an image with the background removed behind the subject using rembg."""
 
     image: ImageField = InputField(description="Image to remove background from")
-    model_name: rembg_models = InputField(default="u2net", description="Model to use to remove background")
+    model: rembg_models = InputField(default="u2net", description="Model to use to remove background")
 
     def invoke(self, context: InvocationContext) -> ImageOutput:
         image = context.services.images.get_pil_image(self.image.image_name)
@@ -37,7 +37,7 @@ class RemoveBackgroundInvocation(BaseInvocation):
         try:
             from rembg import new_session, remove
 
-            session = new_session(self.model_name)
+            session = new_session(self.model)
             image = remove(image, session=session)
         except ImportError:
             context.services.logger.warning(
